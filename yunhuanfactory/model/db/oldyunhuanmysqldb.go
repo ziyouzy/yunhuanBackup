@@ -1,4 +1,4 @@
-package model
+package db
 
 //model
 type OldYunHuanMySqlDB struct {
