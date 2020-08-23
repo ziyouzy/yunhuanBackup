@@ -63,6 +63,9 @@ func (this *serialProcess) readThread() {
     }()
 }
 
+// func (this *serialProcess)sendLine(arr []byte){
+//     fmt.Println(arr)
+// } 
 // 数据发送
 func (this *serialProcess) sendThread() {
     go func() {

@@ -44,7 +44,7 @@ func (this *serialProcessBase) read(len int, fullBuf *[]byte) error {
 }
 
 // 数据读取
-func (this *serialProcessBase) readLine(len int) {
+func (this *serialProcessBase) ReadLine(len int) {
     var buf []byte
     err := this.read(len, &buf)
     if err != nil {
@@ -53,7 +53,7 @@ func (this *serialProcessBase) readLine(len int) {
     fmt.Println(buf)
 }
 
-func (this *serialProcessBase) sendLine(arr []byte) {
+func (this *serialProcessBase) SendLine(arr []byte) {
     fmt.Printf("发送数据：%q\n", arr)
     _, err := this.serialClient.Write(arr)
     if err != nil {
