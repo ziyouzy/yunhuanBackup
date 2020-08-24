@@ -8,7 +8,7 @@ import(
 
 func main(){
 	/*初始化关系型数据库*/
-	mysql.Database("yunhuan_api:13131313@tcp(127.0.0.1:3306)/DB_yunhuan?charset=utf8")
+	mysql.Database("xxxx:1234@tcp(127.0.0.1:3306)/XX_xx?charset=utf8")
 	fmt.Println("nice")
 
 	/*
@@ -37,5 +37,8 @@ func main(){
 		第二步应该在model层实现，更确切的说，是model/entity包的每一个实体，都需要设计一个属于他自身的转换方法
 
 		短信模块日后再去讨论
+
+		对于service层是否应该设计在github库的问题，目前看来，获取dao.entity里各个实体的service是一定需要在github库内实现的
+		在这之前先检查下分层逻辑吧
 	*/
 }
