@@ -38,7 +38,9 @@ func main(){
 
 		短信模块日后再去讨论
 
-		对于service层是否应该设计在github库的问题，目前看来，获取dao.entity里各个实体的service是一定需要在github库内实现的
+		对于service层是否应该设计在github库的问题，目前看来，获取model.entity里各个实体的service是一定需要在github库内实现的
 		在这之前先检查下分层逻辑吧
+		
+		也不太对，这个可以放在属于entity的dao层实现
 	*/
 }
