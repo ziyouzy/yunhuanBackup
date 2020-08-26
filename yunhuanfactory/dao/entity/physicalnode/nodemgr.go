@@ -2,12 +2,12 @@ package entity
 
 func NewRAW(string mode, OldYunHuanMySqlDB oldyunhuanmysqldb) error err,i interface{}{
 	switch mode{
-	case "IO":
-		io := IO
-		if err =io.assembleFromOldYunHuanMySqlDB(oldyunhuanmysqldb);err =nil{
-			i =io
-		}
-		return
+	// case "IO":
+	// 	io := IO
+	// 	if err =io.assembleFromOldYunHuanMySqlDB(oldyunhuanmysqldb);err =nil{
+	// 		i =io
+	// 	}
+	// 	return
 	case "DO":
 		do := Do
 		if err =do.assembleFromOldYunHuanMySqlDB(oldyunhuanmysqldb);err =nil{
