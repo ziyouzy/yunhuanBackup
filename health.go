@@ -2,15 +2,71 @@ package main
 
 import(
 	"fmt"
-	"github.com/ziyouzy/mylib/db/mysql"
+	"os"
+
+	//"github.com/ziyouzy/mylib/db/mysql"
+	"github.com/joho/godotenv"
+
+	mysqldbreflectorlv1 "github.com/ziyouzy/mylib/yunhuanfactory/dbreflector/mysql/lv1/impl"
+	//dbreflectordao "github.com/ziyouzy/mylib/yunhuanfactory/dao/dbreflector/mysql" 
+	entitydao "github.com/ziyouzy/mylib/yunhuanfactory/dao/entity/physicalnode"
+
+	//evo "github.com/ziyouzy/mylib/yunhuanfactory/evolver/entity/physicalnode"
 )
 
 
 func main(){
 	/*初始化关系型数据库*/
-	mysql.Database("xxxx:1234@tcp(127.0.0.1:3306)/XX_xx?charset=utf8")
-	fmt.Println("nice")
+	godotenv.Load()//初始化全局变量工具
+	//mysql.Database(os.Getenv("MYSQLCONF"))
+	//fmt.Println(os.Getenv("MYSQLCONF"))
+	for i:=0;i<=6;i++{
 
+	// 	//testOld :=new(mysqldbreflectorlv1.OldNodeReflectorImpl)
+	// 	//testOld.InitForHealthTest()
+	// 	//fmt.Println(testOld)
+		
+	
+		//oldReflectorDao,err :=dbreflectordao.NewMysqlDBReflectorDao("lv1",mysql.DB)
+		//oldReflectorEntity :=oldReflectorDao.OldNodeEntityFromMySql("494f3031f10201")
+		oldReflectorEntity :=new(mysqldbreflectorlv1.OldNodeReflectorImpl)
+		switch (i){
+			case 0:
+				// oldReflectorEntity.InitForHealthTest()
+				// /*开门，关门，烟感，水浸这些属于di，属于f10201*/
+				// diEntityDao,err :=entitydao.NewPhysicalNodeEntityDao("DI","lv1",oldReflectorEntity)
+				// if err !=nil{
+				// 	fmt.Println("err:",err)
+				// }
+		
+				//diEntity :=diEntityDao.CreateNodeEntityFromOldNodeEntity()
+				//fmt.Println(diEntity)
+				//diEntity.Evolve()
+			case 1:
+				oldReflectorEntity.InitForHealthTest_494f3031f10101()
+			case 2:
+				oldReflectorEntity.InitForHealthTest_494f3031f10201()
+				/*开门，关门，烟感，水浸这些属于di，属于f10201*/
+				diEntityDao,err :=entitydao.NewPhysicalNodeEntityDao("DI","lv1",oldReflectorEntity)
+				if err !=nil{
+					fmt.Println("err:",err)
+				}
+		
+				diEntity :=diEntityDao.CreateNodeEntityFromOldNodeEntity()
+				fmt.Println(diEntity)
+				fmt.Println(os.Getenv("Di1"))
+				diEntity.Evolve()
+			case 3:
+				oldReflectorEntity.InitForHealthTest_494f3031110308_1()
+			case 4:
+				oldReflectorEntity.InitForHealthTest_494f3031110308_2()
+			case 5:
+				oldReflectorEntity.InitForHealthTest_494f3031110302()
+			case 6:
+				oldReflectorEntity.InitForHealthTest_494f3031110304()
+		}
+	}
+}
 	/*
 		到目前为止，已经可以获取旧io的数据库实体(model/db)了，这是通过dao层实现的
 		下一步是将该实体转化为model/entity实体，这需要依靠设计service层去实现
@@ -43,4 +99,3 @@ func main(){
 		
 		也不太对，这个可以放在属于entity的dao层实现
 	*/
-}

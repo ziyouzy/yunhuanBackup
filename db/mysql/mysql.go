@@ -13,7 +13,7 @@ func Database(connString string) {
 	db, err := gorm.Open("mysql", connString)
 	db.LogMode(true)
 	if err != nil {
-		fmt.Println("connect mysql error")
+		fmt.Println("connect mysql error:",err)
 	}
 	//设置连接池和空闲连接数/最大连接数/超时时间
 	db.DB().SetMaxIdleConns(20)
