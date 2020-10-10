@@ -3,7 +3,7 @@ package di
 import(
 	"strings"
 	"strconv"
-	//"fmt"
+	"fmt"
 	//"bytes"
 	//"encoding/binary"
 )
@@ -97,33 +97,37 @@ func (p *DI_YOUREN_USRIO808EWR_20200924)GetHandler() string{
 	return p.Handler
 }
 
+func (p *DI_YOUREN_USRIO808EWR_20200924)GetHandlerTagForConfNodeMap() string{
+	return fmt.Sprintf("%s-%s", p.Handler, p.Tag)
+}
+
 func (p *DI_YOUREN_USRIO808EWR_20200924)GetRaw() (string,string,string,string,string,string,string){
 	return p.NodeType, p.ProtocolType, p.Tag, p.InputTime, p.Value, p.Mark, p.Handler
 }
 
-func (p *DI_YOUREN_USRIO808EWR_20200924)SeleteOneValueByProtocol(protocolhandler string, protocoltag string, protocolnodename,string) string{
+func (p *DI_YOUREN_USRIO808EWR_20200924)SeleteOneValueByProtocol(protocolhandler string, protocoltag string, protocolnodename string) (string,string){
 	if strings.Compare(p.Handler,protocolhandler)!=0||strings.Compare(p.Tag, protocoltag)!=0{
-		return nil
+		return "",""
 	}
-
+	fmt.Println("p.Handler, p.Tag nice")
 	switch (protocolnodename){
-	case "DI8":
-		return p.DI8
-	case "DI7":
-		return p.DI7
-	case "DI6":
-		return p.DI6
-	case "DI5":
-		return p.DI5
-	case "DI4":
-		return p.DI4
-	case "DI3":
-		return p.DI3
-	case "DI2":
-		return p.DI2
-	case "DI1":
-		return p.DI1
+	case "di8":
+		return p.DI8,p.InputTime
+	case "di7":
+		return p.DI7,p.InputTime
+	case "di6":
+		return p.DI6,p.InputTime
+	case "di5":
+		return p.DI5,p.InputTime
+	case "di4":
+		return p.DI4,p.InputTime
+	case "di3":
+		return p.DI3,p.InputTime
+	case "di2":
+		return p.DI2,p.InputTime
+	case "di1":
+		return p.DI1,p.InputTime
 	default :
-		return nil
+		return "",""
 	}
 }

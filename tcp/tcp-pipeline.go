@@ -53,6 +53,7 @@ func (p *PipelineTcpSocketConn)GenerateRecvCh() chan([]byte){
 			}			
 			tempBuf :=buf[:readlen]//如494f3031f10201,crc校验时需要截取有效字段
 			//fmt.Println(fmt.Sprintf("Recvbytes from %v : %v",p.Conn.RemoteAddr(),tempBuf))
+			//fmt.Println("already recv:",tempBuf)
 			if len(tempBuf)<=4{
 				fmt.Println("接收到错误的字节数组：",tempBuf)
 			}else if !p.NeedCRC{
@@ -76,4 +77,5 @@ func (p *PipelineTcpSocketConn)GenerateRecvCh() chan([]byte){
 func (p *PipelineTcpSocketConn)SendBytes(b []byte) {
 	//fmt.Println(fmt.Sprintf("SendBytes to %v: %v",p.Conn.RemoteAddr(),b))
 	p.Conn.Write(b)
+	//fmt.Println("already send:",b)
 }

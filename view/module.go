@@ -1,17 +1,26 @@
 package view
 
+import(
+	"github.com/ziyouzy/mylib/conf"
+)
+
 type Module struct{
-	Name string
-	System string
-	Nodes [][]byte
+	ModuleName string
+	SystemName string
+	MatrixName string
+
+	ConfNodes []conf.ConfNode
 }
 
-func (p *Module)AppendNode(node []byte){
-	append(nodes,node)
+
+func (p *Module)AppendNode(node conf.ConfNode){
+	p.ConfNodes =append(p.ConfNodes,node)
+	p.MatrixName, p.SystemName, p.ModuleName =node.GetMatrixSystemAndModuleString()
 }
 
 func (p *Module)Reset(){
-	p.Name =nil
-	p.System =nil
-	p.Nodes =make([][]byte)
+	p.ModuleName =""
+	p.SystemName =""
+	p.MatrixName =""
+	p.ConfNodes =nil
 }

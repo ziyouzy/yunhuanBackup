@@ -1,51 +1,15 @@
 {
 "nodes":[
 {
-"494f30310301-tcpsocket-wd1":{
-"module":"环境监测",
-"system":"冷通道",
-"matrix":"矩阵1",
-"moduleid":1,
-
-"isonline":true,
-"isnormal":false,
-"name":"后门温度",
-"value":"N/A",
-
-"type":"INT",
-"isonsms":true,
-"max":30,
-"min":16,
-"sms":"[%T]异常"
-},
-
-"494f30310301-tcpsocket-sd2":{
-"module":"环境监测",
-"system":"冷通道",
-"matrix":"矩阵1",
-"moduleid":2,
-
-"isonline":true,
-"isnormal":false,
-"name":"后门湿度",
-"value":"N/A",
-
-"type":"FLOAT32",
-"isonsms":true,
-"max":30.2,
-"min":16.5,
-"sms":"[%T]异常"
-},
-
-"494f3031f210301-tcpsocket-do2":{
+"494f3031f10201-tcpsocket-do3-bool":{
 "module":"ups监测",
 "system":"智能机柜",
 "matrix":"矩阵1",
-"moduleid":1,
+"moduleid":3,
 
 "isonline":true,
 "isnormal":false,
-"name":"烟感",
+"name":"烟感3",
 "value":"N/A",
 
 "type":"BOOL",
@@ -54,103 +18,65 @@
 "value0":"正常",
 "value1":"异常",
 
-"sms":"[%T]异常"
+"sms":"烟感异常",
+"date":""
 },
 
-"494f3031f210301-tcpsocket-do3":{
-"module":"ups监测",
-"system":"智能机柜",
-"matrix":"矩阵1",
-"moduleid":2,
-
-"isonline":true,
-"isnormal":false,
-"name":"天窗状态",
-"value":"N/A",
-
-"type":"COMMON",
-"isonsms":true,
-"min1":-0.5,
-"max1":1,
-"judge1":true,
-"value1":"日常关闭",
-
-"min2":1.5,
-"max2":2.5,
-"judge2":true,
-"value2":"日常打开",
-
-"min3":3.5,
-"max3":7.5,
-"judge3":true,
-"value3":"燃点打开",
-
-"min4":3.5,
-"max4":7.5,
-"judge4":true,
-"value4":"燃点打开",
-
-"min5":3.5,
-"max5":7.5,
-"judge5":true,
-"value5":"燃点打开",
-
-"min6":3.5,
-"max6":7.5,
-"judge6":true,
-"value6":"燃点打开",
-
-"sms":"[%T]异常"
-},
-
-"494f3031f210301-tcpsocket-do4":{
-    "module":"ups监测",
-    "system":"智能机柜",
-    "matrix":"矩阵1",
-    "moduleid":3,
-
-    "isonline":true,
-    "isnormal":false,
-    "name":"烟感",
-    "value":"N/A",
+    "494f3031f10201-tcpsocket-do1-bool":{
+        "module":"ups监测",
+        "system":"智能机柜",
+        "matrix":"矩阵1",
+        "moduleid":1,
     
-    "type":"BOOL",
-    "isonsms":true,
-    "normal":0,
-    "value0":"正常",
-    "value1":"异常",
+        "isonline":true,
+        "isnormal":false,
+        "name":"烟感1",
+        "value":"N/A",
     
-    "sms":"[%T]异常"
-},
+        "type":"BOOL",
+        "isonsms":true,
+        "normal":0,
+        "value0":"正常",
+        "value1":"异常",
+    
+        "sms":"烟感异常",
+        "date":""
+        },
 
-"494f3031f210301-tcpsocket-do5":{
-    "module":"zndb监测",
-    "system":"冷通道1",
-    "matrix":"矩阵2",
-    "moduleid":1,
-
-    "isonline":true,
-    "isnormal":false,
-    "name":"烟感",
-    "value":"N/A",
-    
-    "type":"BOOL",
-    "isonsms":true,
-    "normal":0,
-    "Value0":"烟感正常",
-    "Value1":"烟感异常",
-    
-    "sms":"[%T]异常"
+        "494f3031f10201-tcpsocket-do2-bool":{
+        "module":"ups监测",
+        "system":"智能机柜",
+        "matrix":"矩阵1",
+        "moduleid":2,
+        
+        "isonline":true,
+        "isnormal":false,
+        "name":"烟感2",
+        "value":"N/A",
+        
+        "type":"BOOL",
+        "isonsms":true,
+        "normal":0,
+        "value0":"正常",
+        "value1":"异常",
+        
+        "sms":"烟感异常",
+        "date":""
+        }
     }
-}
 ],
 
-"alarm":[{"ticket":3600}],
-
-"sms":[{"ticket":3600},
-{"name":"赵先生","tel":"18611234567"},
-{"name":"赵先生","tel":"18611234567"},
-{"name":"赵先生","tel":"18611234567"},
-{"name":"赵先生","tel":"18611234567"}
-]}
+"alarm":[{"smssleepmin":1},
+                {"smsserialize":"sAT+SMSEND=86%s,%s您好,贵公司%s\n"},
+                {"smstel":
+                    {
+                        "赵先生":"18611234567",
+                        "qian先生":"18611234567",
+                        "sun先生":"18611234567",
+                        "li先生":"18611234567"
+                    }
+                },
+                {"mysqlsleepmin":1}
+            ]
+}
 

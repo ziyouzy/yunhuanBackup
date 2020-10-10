@@ -1,15 +1,16 @@
 package view
 
 type Matrix struct{
-	systems [][]byte
+	MatrixName string
+	Systems []System
 } 
 
-func (p *Matrix)AppendSystem(system []byte){
-	append(systems,system)
+func (p *Matrix)AppendSystem(system System){
+	p.Systems =append(p.Systems,system)
+	p.MatrixName =system.MatrixName
 }
 
 func (p *Matrix)Reset(){
-	p.Name =nil
-	p.System =nil
-	p.Nodes =make([][]byte)
+	p.MatrixName =""
+	p.Systems =nil
 }

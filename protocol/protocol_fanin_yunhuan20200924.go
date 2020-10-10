@@ -7,6 +7,7 @@ import(
 	"time"
 	//"fmt"
 
+
 	"github.com/ziyouzy/mylib/physicalnode"
 )
 
@@ -18,8 +19,10 @@ func ProtocolPreparePhysicalNode_YunHuan20200924(b []byte)physicalnode.PhysicalN
 
 	//ip,[]byte(presentTime),tag,tempBuf}
 	bufarr :=bytes.Fields(b)//按照空白分割
-	mark :=string(bufarr[0])//ip或者portname
-	presenttime :=string(bufarr[1])
+	//mark :=string(bufarr[0])//ip或者portname
+	//presenttime :=string(bufarr[1])
+	/*mark和presenttime字段会在把buf传入工厂函数后，函数内部会再次拆分并合成*/
+	
 	tag :=string(bufarr[2])
 	buf :=bufarr[3]
 	//开始实现协议
@@ -31,11 +34,9 @@ func ProtocolPreparePhysicalNode_YunHuan20200924(b []byte)physicalnode.PhysicalN
 			case buf[4]==0xf1:
 				switch {//s3
 				case buf[5]==0x01&&buf[6]==0x01:
-					//fmt.Println("f10101!")
-					return physicalnode.NewPhysicalNodeFromBytes(b, "YUNHUAN20200924","DO20200924")
+					return physicalnode.NewPhysicalNodeFromBytes(b, tag, "YUNHUAN20200924","DI20200924")
 				case buf[5]==0x02&&buf[6]==0x01:
-					//fmt.Println("f10201!")
-					return physicalnode.NewPhysicalNodeFromBytes(b, "YUNHUAN20200924","DI20200924")
+					return physicalnode.NewPhysicalNodeFromBytes(b, tag, "YUNHUAN20200924","DO20200924")
 				default:
 					return nil
 				}//s3
@@ -52,10 +53,10 @@ func ProtocolPreparePhysicalNode_YunHuan20200924(b []byte)physicalnode.PhysicalN
 			switch {//s1
 			case buf[1]==0x01&&buf[2]==0x01:
 				//fmt.Println("f10101!")
-				return physicalnode.NewPhysicalNodeFromBytes(b, "YUNHUAN20200924","DO20200924")
+				return physicalnode.NewPhysicalNodeFromBytes(b, tag, "YUNHUAN20200924","DO20200924")
 			case buf[1]==0x02&&buf[2]==0x01:
 				//fmt.Println("f10201!")
-				return physicalnode.NewPhysicalNodeFromBytes(b, "YUNHUAN20200924","DI20200924")
+				return physicalnode.NewPhysicalNodeFromBytes(b, tag, "YUNHUAN20200924","DI20200924")
 			default:
 				return nil
 			}//s1
@@ -77,7 +78,7 @@ func ProtocolPreparePhysicalNode_YunHuan20200924(b []byte)physicalnode.PhysicalN
 //获取发送数据管理器
 func ProtocolPrepareSendTicketMgr_YunHuan20200924() map[string]chan []byte{
 	chs :=make(map[string]chan []byte)
-	ticker := time.NewTicker(2 * time.Second)
+	ticker := time.NewTicker(time.Duration(500*6)*time.Millisecond)
  	modbus := [][]byte{
 		{0xf1,0x01,0x00,0x00,0x00,0x08,0x29,0x3c,},
 		{0xf1,0x02,0x00,0x20,0x00,0x08,0x6c,0xf6,},
@@ -128,30 +129,32 @@ func ProtocolPrepareSendTicketMgr_YunHuan20200924() map[string]chan []byte{
 
 //获取串口在线表
 func ProtocolPrepareSerialPorts_YunHuan20200924()([]string, []int, []int, []bool){
-	return {"tty1","tty2","tty3",}, {9600,9600,2400,}, {500,500,500,}, {true,true,true,}
+	return []string{"tty1","tty2","tty3",}, []int{9600,9600,2400,}, []int{500,500,500,}, []bool{true,true,true,}
 }
 
 func ProtocolPrepareSmsMgr_YunHuan20200924() []string{
-	return {"tty1",}
+	return []string{"tty1",}
 }
 
 func ProtocolPrepareDoorMgr_YunHuan20200924() map[string]map[string][][]byte{
-	maps :=make(map[string]map[string][]byte)	
+	maps :=make(map[string]map[string][][]byte)	
 
-	map1 :=make(map[string][]byte)	
-	map1["前门"]={{0xf1,0x02,0x04,0x04,0x01},{0xf1,0x02,0x04,0x04,0x02}}
-	map1["后门"]={{0xf1,0x02,0x04,0x03,0x01},{0xf1,0x02,0x04,0x04,0x02}}
+	map1 :=make(map[string][][]byte)	
+	map1["前门"]=[][]byte{[]byte{0xf1,0x02,0x04,0x04,0x01},[]byte{0xf1,0x02,0x04,0x04,0x02}}
+	map1["后门"]=[][]byte{[]byte{0xf1,0x02,0x04,0x03,0x01},[]byte{0xf1,0x02,0x04,0x04,0x02}}
 
-	map2 :=make(map[string][]byte)	
-	map2["前门1"]={0xf1,0x02,0x04,0x04},{0xf1,0x02,0x04,0x04,0x02}}
-	map2["后门1"]={0xf1,0x02,0x04,0x03},{0xf1,0x02,0x04,0x04,0x02}}
-	map2["前门2"]={0xf1,0x02,0x04,0x04},{0xf1,0x02,0x04,0x04,0x02}}
-	map2["后门2"]={0xf1,0x02,0x04,0x03},{0xf1,0x02,0x04,0x04,0x02}}
+	map2 :=make(map[string][][]byte)	
+	map2["前门1"]=[][]byte{[]byte{0xf1,0x02,0x04,0x04},[]byte{0xf1,0x02,0x04,0x04,0x02}}
+	map2["后门1"]=[][]byte{[]byte{0xf1,0x02,0x04,0x03},[]byte{0xf1,0x02,0x04,0x04,0x02}}
+	map2["前门2"]=[][]byte{[]byte{0xf1,0x02,0x04,0x04},[]byte{0xf1,0x02,0x04,0x04,0x02}}
+	map2["后门2"]=[][]byte{[]byte{0xf1,0x02,0x04,0x03},[]byte{0xf1,0x02,0x04,0x04,0x02}}
 
 	maps["192.168.10.254"]=map1
 	maps["192.168.10.253"]=map2
+
+	return maps
 }
 
-func ProtocolPrepareCameraMgr_YunHuan20200924(){
+// func ProtocolPrepareCameraMgr_YunHuan20200924(){
 
-}
+// }

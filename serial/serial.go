@@ -24,11 +24,12 @@
 //如杰明的项目，则是判断某个字符是否是“81”这个16进制数
 //这个都是需要基于读取每个字符从而实现业务判断的
 //目前的项目并不会涉及到，甚至连read（）都不会涉及，所以还是先放置在这吧
-package serialprocess
+package serial
 
 import (
 	"github.com/tarm/serial"
-	"errors"
+    "errors"
+    "fmt"
 )
 
 
@@ -70,7 +71,7 @@ func  NewSerialProcess(portName string, portBaud int,edition string) (SerialProc
 /*-------------------上面的暂且用不到，但是包名不变---------------------*/
 
 //管道可以在外部包或者主函数实例化
-type SerialByChan struct {
+type SerialChan struct {
     SP *serial.Port // 串口客户端
     SendCh       chan []byte  // 发送通道
     RecvCh       chan []byte  // 接收通道
@@ -83,7 +84,7 @@ type SerialByChan struct {
 //之后还会有判定某个字符涉及switch的read方法
 //或者说，基于某个字符具体是什么值，判定打包之后多长的字符数组长度的read方法
 //比如杰明的项目，如果读到了“81”，则需要打包之后64个字符并返回
-func (p *SerialByChan) read(len int, fullBuf *[]byte) error {
+func (p *SerialChan) read(len int, fullBuf *[]byte) error {
     if len <= 0 {
         return errors.New(fmt.Sprintf("当用SerialProcess独立调用read()方法时，len<=0,[len=%d]",len))
     }
@@ -105,7 +106,7 @@ func (p *SerialByChan) read(len int, fullBuf *[]byte) error {
 }
 
 // 数据读取
-func (p *SerialByChan) readThread() {
+func (p *SerialChan) readThread() {
     go func() {
         for {
             var buf []byte
@@ -121,7 +122,7 @@ func (p *SerialByChan) readThread() {
 // 数据发送
 //串口通信就是这样，发送的时候可以一句一句发送
 //但是接收的时候需要一个一个的接收并判断
-func (p *SerialByChan) sendThread() {
+func (p *SerialChan) sendThread() {
     go func() {
         for x := range p.SendCh {
             fmt.Printf("发送数据：%q\n", x)
@@ -143,13 +144,13 @@ func (p *SerialByChan) sendThread() {
 // }
 
 // 启动服务
-func (p *SerialByChan) Start() {
+func (p *SerialChan) Start() {
     go p.readThread()
     go p.sendThread()
 }
 
 // 只启动发送服务
-func (p *SerialByChan) StartSendThread() {
+func (p *SerialChan) StartSendThread() {
     go p.sendThread()
 }
 

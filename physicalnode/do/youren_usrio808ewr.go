@@ -4,7 +4,7 @@ import(
 	"strings"
 	"strconv"
 	//"bytes"
-	//"fmt"
+	"fmt"
 	//"encoding/binary"
 )
 
@@ -94,35 +94,38 @@ func (p *DO_YOUREN_USRIO808EWR_20200924)GetHandler() string{
 	return p.Handler
 }
 
-func (p *DO_YOUREN_USRIO808EWR_20200924)GetRaw() (string,string,string,string,string,string){
-	return p.NodeType, p.ProtocolType, p.Tag, p.InputTime, p.Value, p.Mark
+func (p *DO_YOUREN_USRIO808EWR_20200924)GetHandlerTagForConfNodeMap() string{
+	return fmt.Sprintf("%s-%s", p.Handler, p.Tag)
+}
+
+func (p *DO_YOUREN_USRIO808EWR_20200924)GetRaw() (string,string,string,string,string,string,string){
+	return p.NodeType, p.ProtocolType, p.Tag, p.InputTime, p.Value, p.Mark, p.Handler
 }
 
 
-func (p *DO_YOUREN_USRIO808EWR_20200924)SeleteOneValueByHandlerTagNodeName(handler string, tag string, nodename,string) string{
-	if strings.Compare(p.Handler,handler)!=0||strings.Compare(p.Tag, tag)!=0{
-		return nil
+func (p *DO_YOUREN_USRIO808EWR_20200924)SeleteOneValueByProtocol(protocolhandler string, protocoltag string, protocolnodename string) (string,string){
+	if strings.Compare(p.Handler,protocolhandler)!=0||strings.Compare(p.Tag, protocoltag)!=0{
+		return "",""
 	}
-
-	switch (nodename){
-	case "DO8":
-		return p.DO8
-	case "DO7":
-		return p.DO7
-	case "DO6":
-		return p.DO6
-	case "DO5":
-		return p.DO5
-	case "DO4":
-		return p.DO4
-	case "DO3":
-		return p.DO3
-	case "DO2":
-		return p.DO2
-	case "DO1":
-		return p.DO1
+	switch (protocolnodename){
+	case "do8":
+		return p.DO8,p.InputTime
+	case "do7":
+		return p.DO7,p.InputTime
+	case "do6":
+		return p.DO6,p.InputTime
+	case "do5":
+		return p.DO5,p.InputTime
+	case "do4":
+		return p.DO4,p.InputTime
+	case "do3":
+		return p.DO3,p.InputTime
+	case "do2":
+		return p.DO2,p.InputTime
+	case "do1":
+		return p.DO1,p.InputTime
 	default :
-		return nil
+		return "",""
 	}
 }
 

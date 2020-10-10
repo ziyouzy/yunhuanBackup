@@ -1,15 +1,20 @@
+package view
 
 type System struct{
-	Name string
-	Modules [][]byte
+	SystemName string
+	MatrixName string
+	
+	Modules []Module
 }
 
-func (p *System)AppendModule(module []byte){
-	append(p.Modules,module)
+func (p *System)AppendModule(module Module){
+	p.Modules =append(p.Modules,module)
+	p.SystemName =module.SystemName
+	p.MatrixName =module.MatrixName
 }
 
 func (p *System)Reset(){
-	p.Name =nil
-	p.System =nil
-	p.Nodes =make([][]byte)
+	p.SystemName =""
+	p.MatrixName =""
+	p.Modules =nil
 }
