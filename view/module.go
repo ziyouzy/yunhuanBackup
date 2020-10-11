@@ -10,12 +10,14 @@ type Module struct{
 	MatrixName string
 
 	ConfNodes []conf.ConfNode
+	NodesLen int
 }
 
 
 func (p *Module)AppendNode(node conf.ConfNode){
 	p.ConfNodes =append(p.ConfNodes,node)
 	p.MatrixName, p.SystemName, p.ModuleName =node.GetMatrixSystemAndModuleString()
+	p.NodesLen =p.NodesLen+1
 }
 
 func (p *Module)Reset(){
@@ -23,4 +25,5 @@ func (p *Module)Reset(){
 	p.SystemName =""
 	p.MatrixName =""
 	p.ConfNodes =nil
+	p.NodesLen =0
 }

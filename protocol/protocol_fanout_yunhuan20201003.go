@@ -1,9 +1,12 @@
+//注意！每一个客户需求彼此之间的数据不能共享
+//同时一个客户对应一个携程，对应一个携程函数
+//这里存在多个用户，其实只是为了测试
 package protocol
 
 import(
 	"github.com/ziyouzy/mylib/conf"
 	"github.com/ziyouzy/mylib/view"
-	"fmt"
+	//"fmt"
 
 	"encoding/json"
 	"time"
@@ -20,47 +23,34 @@ import(
 
 /*代表一位有module级别需求的客户*/
 var (
-	module1 =view.Module{
-		ModuleName: "环境监测",
-		SystemName:"冷通道",
-		MatrixName:"矩阵1",
-	}
-	module2 =view.Module{
-		ModuleName: "ups监测",
-		SystemName:"智能机柜",
-		MatrixName:"矩阵1",
-	}
-	module3 =view.Module{
-		ModuleName: "zndb监测",
-		SystemName: "冷通道1",
-		MatrixName: "矩阵2",
-	}
+	testyunhuan20201010_1_module1 =view.Module{}
+	testyunhuan20201010_1_module2 =view.Module{}
+	testyunhuan20201010_1_module3 =view.Module{}
 )
 
 /*代表一位有system级别需求的客户*/
 var (
-	system1 =view.System{
-		SystemName: "冷通道",
-		MatrixName:"矩阵1",
-	}
-	system2 =view.System{
-		SystemName: "智能机柜",
-		MatrixName:"矩阵1",
-	}
-	system3 =view.System{
-		SystemName: "冷通道1",
-		MatrixName: "矩阵2",
-	}
+	testyunhuan20201010_2_module1 =view.Module{}
+	testyunhuan20201010_2_module2 =view.Module{}
+	testyunhuan20201010_2_module3 =view.Module{}
+
+	testyunhuan20201010_2_system1 =view.System{}
+	testyunhuan20201010_2_system2 =view.System{}
+	testyunhuan20201010_2_system3 =view.System{}
 )
 
 /*代表一位有matrix级别需求的客户*/
 var (
-	matrix1 =view.Matrix{
-		MatrixName:"矩阵1",
-	}
-	matrix2 =view.Matrix{
-		MatrixName:"矩阵2",
-	}
+	testyunhuan20201010_3_module1 =view.Module{}
+	testyunhuan20201010_3_module2 =view.Module{}
+	testyunhuan20201010_3_module3 =view.Module{}
+
+	testyunhuan20201010_3_system1 =view.System{}
+	testyunhuan20201010_3_system2 =view.System{}
+	testyunhuan20201010_3_system3 =view.System{}
+
+	testyunhuan20201010_3_matrix1 =view.Matrix{}
+	testyunhuan20201010_3_matrix2 =view.Matrix{}
 )
 
 var (
@@ -80,7 +70,7 @@ func ProtocolViewNodesHandler_YunHuan20201004(confnodech chan conf.ConfNode)(cha
 	go func(){
 		for confnode := range confnodech{
 			if confalarm :=conf.NewConfAlram(confnode);confalarm !=nil{
-				if(smsticket ==confalarm.SMSSleepMin){
+				if(smsticket >=confalarm.SMSSleepMin){
 					go func(){
 						for _, sms := range confalarm.SMS{
 							alarmSMSCh<-[]byte(sms)
@@ -91,110 +81,21 @@ func ProtocolViewNodesHandler_YunHuan20201004(confnodech chan conf.ConfNode)(cha
 				}
 			}//循环内的sms服务结束	
 
-			// if(mysqlticket ==confalarm.mysqlticket){
-			// 	go func(){
-			// 			//mysql的管道里装的不是[]byte，而是可以映射到数据库的结构体
-			// 			time.Sleep(time.Duration(500)*time.Millisecond))			
-			// 	}()
-			// 	mysqlticket =0
-			// }	
-			//}
-
 			/*------*/
-			matrix, system, module := confnode.GetMatrixSystemAndModuleString()
-			//由内(module)而外(matrix)的装配
-			//会有重复
-			//第一次把某一个confnode塞入一个module，会立刻进行创建system并将该module，以及关于system的链式反应
-			//第二次虽然将新的confnode塞入了旧的module，但是塞入system时，会变得重复
-			//
+			_, _, module := confnode.GetMatrixSystemAndModuleString()
 			switch (module){
 			case "环境监测":
-				module1.AppendNode(confnode)
-				switch(system){
-				case "冷通道":
-					system1.AppendModule(module1)
-					switch(matrix){
-					case "矩阵1":
-						matrix1.AppendSystem(system1)
-					case "矩阵2":
-						matrix2.AppendSystem(system1)
-					}
-				case "智能机柜":
-					system2.AppendModule(module1)
-					switch(matrix){
-					case "矩阵1":
-						matrix1.AppendSystem(system2)
-					case "矩阵2":
-						matrix2.AppendSystem(system2)
-					}
-				case "冷通道1":
-					system3.AppendModule(module1)
-					switch(matrix){
-					case "矩阵1":
-						matrix1.AppendSystem(system3)
-					case "矩阵2":
-						matrix2.AppendSystem(system3)
-					}
-				}
-				
+				testyunhuan20201010_1_module1.AppendNode(confnode)
+				testyunhuan20201010_2_module1.AppendNode(confnode)
+				testyunhuan20201010_3_module1.AppendNode(confnode)
 			case "ups监测":
-				module2.AppendNode(confnode)
-				switch(system){
-				case "冷通道":
-					system1.AppendModule(module2)
-					switch(matrix){
-					case "矩阵1":
-						matrix1.AppendSystem(system1)
-					case "矩阵2":
-						matrix2.AppendSystem(system1)
-					}
-				case "智能机柜":
-					system2.AppendModule(module2)
-					switch(matrix){
-					case "矩阵1":
-						fmt.Println("!@!@!@!")
-						matrix1.AppendSystem(system2)
-					case "矩阵2":
-						matrix2.AppendSystem(system2)
-					}
-				case "冷通道1":
-					system3.AppendModule(module2)
-					switch(matrix){
-					case "矩阵1":
-						matrix1.AppendSystem(system3)
-					case "矩阵2":
-						matrix2.AppendSystem(system3)
-					}
-				}
-
+				testyunhuan20201010_1_module2.AppendNode(confnode)
+				testyunhuan20201010_2_module2.AppendNode(confnode)
+				testyunhuan20201010_3_module2.AppendNode(confnode)
 			case "zndb监测":
-				module3.AppendNode(confnode)
-				switch(system){
-				case "冷通道":
-					system1.AppendModule(module3)
-					switch(matrix){
-					case "矩阵1":
-						matrix1.AppendSystem(system1)
-					case "矩阵2":
-						matrix2.AppendSystem(system1)
-					}
-				case "智能机柜":
-					system2.AppendModule(module3)
-					switch(matrix){
-					case "矩阵1":
-						matrix1.AppendSystem(system2)
-					case "矩阵2":
-						matrix2.AppendSystem(system2)
-					}
-				case "冷通道1":
-					system3.AppendModule(module3)
-					switch(matrix){
-					case "矩阵1":
-						matrix1.AppendSystem(system3)
-					case "矩阵2":
-						matrix2.AppendSystem(system3)
-					}
-				}
+				testyunhuan20201010_1_module3.AppendNode(confnode)
+				testyunhuan20201010_2_module3.AppendNode(confnode)
+				testyunhuan20201010_3_module3.AppendNode(confnode)
 			}//循环内的view渲染结束
 		}//循环结束
 	}()//该线程函数结束
@@ -202,56 +103,112 @@ func ProtocolViewNodesHandler_YunHuan20201004(confnodech chan conf.ConfNode)(cha
 		//处理有module级别需求的客户：
 	go func (){
 		for{
-			data1, _ := json.Marshal(module1)
-			moduleViewCh<-data1
+			time.Sleep(time.Duration(3)*time.Millisecond)
+			if data, err := json.Marshal(testyunhuan20201010_1_module1);err == nil{
+				moduleViewCh<-data
+			}
 
-			data2, _ := json.Marshal(module2)
-			moduleViewCh<- data2
+			if data, err := json.Marshal(testyunhuan20201010_1_module2);err == nil{
+				moduleViewCh<- data
+			}
 
-			data3, _ := json.Marshal(module3)
-			moduleViewCh<- data3
+			if data, err := json.Marshal(testyunhuan20201010_1_module3);err == nil{
+				moduleViewCh<- data
+			}
 
-			module1.Reset()
-			module2.Reset()
-			module3.Reset()
-
-			time.Sleep(time.Duration(500*6)*time.Millisecond)
+			testyunhuan20201010_1_module1.Reset()
+			testyunhuan20201010_1_module2.Reset()
+			testyunhuan20201010_1_module3.Reset()
 		}
 	}()//循环外的module"阀门"
 
 	//处理有system级别需求的客户：
 	go func (){
 		for{
-			data1, _ := json.Marshal(system1)
-			systemViewCh<-data1
+			time.Sleep(time.Duration(3)*time.Millisecond)
+	
+			if (testyunhuan20201010_2_module1.SystemName == "智能机柜"){
+				testyunhuan20201010_2_system2.AppendModule(testyunhuan20201010_2_module1)		
+			}
 
-			data2, _ := json.Marshal(system2)
-			systemViewCh<- data2
+			if (testyunhuan20201010_2_module2.SystemName == "智能机柜"){
+				testyunhuan20201010_2_system2.AppendModule(testyunhuan20201010_2_module2)	
+			}
 
-			data3, _ := json.Marshal(system3)
-			systemViewCh<- data3
+			if (testyunhuan20201010_2_module3.SystemName == "智能机柜"){
+				testyunhuan20201010_2_system2.AppendModule(testyunhuan20201010_2_module3)	
+			}
 
-			system1.Reset()
-			system2.Reset()
-			system3.Reset()
-			
-			time.Sleep(time.Duration(500*6)*time.Millisecond)
+			if data, err := json.Marshal(testyunhuan20201010_2_system1);err ==nil{
+				systemViewCh<-data
+			}
+
+			if data, err := json.Marshal(testyunhuan20201010_2_system2);err ==nil{
+				systemViewCh<- data
+			}
+
+			if data, err := json.Marshal(testyunhuan20201010_2_system3);err ==nil{
+				systemViewCh<- data
+			}
+
+			testyunhuan20201010_2_module1.Reset()
+			testyunhuan20201010_2_module2.Reset()
+			testyunhuan20201010_2_module3.Reset()
+
+			testyunhuan20201010_2_system1.Reset()
+			testyunhuan20201010_2_system2.Reset()
+			testyunhuan20201010_2_system3.Reset()
 		}
 	}()//循环外的system"阀门"
 
 	//处理有matrix级别需求的客户：
 	go func (){
 		for{
-			data1, _ := json.Marshal(matrix1)
-			matrixViewCh<-data1
+			time.Sleep(time.Duration(3)*time.Millisecond)
+			if (testyunhuan20201010_3_module1.SystemName == "智能机柜"){
+				testyunhuan20201010_3_system2.AppendModule(testyunhuan20201010_3_module1)		
+			}
 
-			data2, _ := json.Marshal(matrix2)
-			matrixViewCh<- data2
+			if (testyunhuan20201010_3_module2.SystemName == "智能机柜"){
+				testyunhuan20201010_3_system2.AppendModule(testyunhuan20201010_3_module2)		
+			}
 
-			matrix1.Reset()
-			matrix2.Reset()
+			if (testyunhuan20201010_3_module3.SystemName == "智能机柜"){
+				testyunhuan20201010_3_system2.AppendModule(testyunhuan20201010_3_module3)		
+			}
+
+
+			if (testyunhuan20201010_3_system1.MatrixName == "矩阵1"){
+				testyunhuan20201010_3_matrix1.AppendSystem(testyunhuan20201010_3_system1)	
+			}
+
+			if (testyunhuan20201010_3_system2.MatrixName == "矩阵1"){
+				testyunhuan20201010_3_matrix1.AppendSystem(testyunhuan20201010_3_system2)	
+			}
+
+			if (testyunhuan20201010_3_system3.MatrixName == "矩阵1"){
+				testyunhuan20201010_3_matrix1.AppendSystem(testyunhuan20201010_3_system3)	
+			}
 			
-			time.Sleep(time.Duration(500*6)*time.Millisecond)
+
+			if data, err := json.Marshal(testyunhuan20201010_3_matrix1);err == nil{
+				matrixViewCh<-data
+			}
+
+			if data, err := json.Marshal(testyunhuan20201010_3_matrix2);err == nil{
+				matrixViewCh<- data
+			}
+
+			testyunhuan20201010_3_module1.Reset()
+			testyunhuan20201010_3_module2.Reset()
+			testyunhuan20201010_3_module3.Reset()
+
+			testyunhuan20201010_3_system1.Reset()
+			testyunhuan20201010_3_system2.Reset()
+			testyunhuan20201010_3_system3.Reset()
+
+			testyunhuan20201010_3_matrix1.Reset()
+			testyunhuan20201010_3_matrix2.Reset()
 		}
 	}()//循环外的matrix"阀门"
 

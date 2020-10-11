@@ -41,11 +41,11 @@ func main(){
 for{
 	select {
 	case temp :=<-moduleViewCh:
-		fmt.Println("moduleView:",string(temp),"\n\n\n")
+		fmt.Println("moduleView:",string(temp),"\n")
 	case temp :=<-systemViewCh:
-		fmt.Println("systemView:",string(temp),"\n\n\n")
+		fmt.Println("systemView:",string(temp),"\n")
 	case temp :=<-matrixViewCh:
-		fmt.Println("matrixView:",string(temp),"\n\n\n")
+		fmt.Println("matrixView:",string(temp),"\n")
 	case temp :=<-smsCh:
 		fmt.Println("sms:",string(temp))
 	}

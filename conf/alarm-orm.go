@@ -9,6 +9,13 @@ import(
 	"fmt"
 )
 
+type confAlarm struct{
+	SMS []string
+	SMSSleepMin int
+
+	MySQLMsg string
+	MySQLSleepMin int
+}
 
 func NewConfAlram(cn ConfNode) *confAlarm{
 	var confalarm =confAlarm{}
@@ -48,13 +55,6 @@ func NewConfAlram(cn ConfNode) *confAlarm{
 	}
 }
 
-type confAlarm struct{
-	SMS []string
-	SMSSleepMin int
-
-	MySQLMsg string
-	MySQLSleepMin int
-}
 
 // func (p *confAlarm)UpdateAlarm(s string){
 // 	for k, v := range p.sms{
