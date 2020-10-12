@@ -42,6 +42,7 @@ for{
 	select {
 	case temp :=<-moduleViewCh:
 		fmt.Println("moduleView:",string(temp),"\n")
+		//tcphandler.ConnMap[os.Getenv("tcpui")].SendBytes(temp)
 	case temp :=<-systemViewCh:
 		fmt.Println("systemView:",string(temp),"\n")
 	case temp :=<-matrixViewCh:

@@ -1,6 +1,7 @@
 //注意！每一个客户需求彼此之间的数据不能共享
 //同时一个客户对应一个携程，对应一个携程函数
 //这里存在多个用户，其实只是为了测试
+//这里是数据共享的设计方式，所以最终需要枷锁
 package protocol
 
 import(
@@ -9,6 +10,7 @@ import(
 	//"fmt"
 
 	"encoding/json"
+	"sync"
 	"time"
 )
 
@@ -23,6 +25,7 @@ import(
 
 /*代表一位有module级别需求的客户*/
 var (
+	lock_1 *sync.Mutex
 	testyunhuan20201010_1_module1 =view.Module{}
 	testyunhuan20201010_1_module2 =view.Module{}
 	testyunhuan20201010_1_module3 =view.Module{}
@@ -30,6 +33,7 @@ var (
 
 /*代表一位有system级别需求的客户*/
 var (
+	lock_2 *sync.Mutex
 	testyunhuan20201010_2_module1 =view.Module{}
 	testyunhuan20201010_2_module2 =view.Module{}
 	testyunhuan20201010_2_module3 =view.Module{}
@@ -41,6 +45,7 @@ var (
 
 /*代表一位有matrix级别需求的客户*/
 var (
+	lock_3 *sync.Mutex
 	testyunhuan20201010_3_module1 =view.Module{}
 	testyunhuan20201010_3_module2 =view.Module{}
 	testyunhuan20201010_3_module3 =view.Module{}
@@ -66,44 +71,113 @@ func ProtocolViewNodesHandler_YunHuan20201004(confnodech chan conf.ConfNode)(cha
 
 	alarmSMSCh := make(chan []byte)
 
+	lock_1 = new(sync.Mutex)
+	lock_2 = new(sync.Mutex)
+	lock_3 = new(sync.Mutex)
+
 	//这个循环alarmsms和alarmdb也会包括在内
 	go func(){
 		for confnode := range confnodech{
-			if confalarm :=conf.NewConfAlram(confnode);confalarm !=nil{
-				if(smsticket >=confalarm.SMSSleepMin){
-					go func(){
-						for _, sms := range confalarm.SMS{
-							alarmSMSCh<-[]byte(sms)
-							time.Sleep(time.Duration(500)*time.Millisecond)			
-						}
-					}()
-					smsticket =0
-				}
-			}//循环内的sms服务结束	
+			// if confalarm :=conf.NewConfAlram(confnode);confalarm !=nil{
+			// 	if(smsticket >=confalarm.SMSSleepMin){
+			// 		go func(){
+			// 			for _, sms := range confalarm.SMS{
+			// 				alarmSMSCh<-[]byte(sms)
+			// 				time.Sleep(time.Duration(500)*time.Millisecond)			
+			// 			}
+			// 		}()
+			// 		smsticket =0
+			// 	}
+			// }//循环内的sms服务结束	
 
 			/*------*/
 			_, _, module := confnode.GetMatrixSystemAndModuleString()
 			switch (module){
 			case "环境监测":
-				testyunhuan20201010_1_module1.AppendNode(confnode)
-				testyunhuan20201010_2_module1.AppendNode(confnode)
-				testyunhuan20201010_3_module1.AppendNode(confnode)
+				go func(){
+					lock_1.Lock()
+					if testyunhuan20201010_1_module1.NodesLen <3{
+						testyunhuan20201010_1_module1.AppendNode(confnode)
+					}
+					lock_1.Unlock()
+				}()
+
+				go func(){
+					lock_2.Lock()
+					if testyunhuan20201010_2_module1.NodesLen <3{
+						testyunhuan20201010_2_module1.AppendNode(confnode)
+					}
+					lock_2.Unlock()
+				}()
+
+				go func(){
+					lock_3.Lock()
+					if testyunhuan20201010_3_module1.NodesLen <3{
+						testyunhuan20201010_3_module1.AppendNode(confnode)
+					}
+					lock_3.Unlock()
+				}()
+				
 			case "ups监测":
-				testyunhuan20201010_1_module2.AppendNode(confnode)
-				testyunhuan20201010_2_module2.AppendNode(confnode)
-				testyunhuan20201010_3_module2.AppendNode(confnode)
+				go func(){
+					lock_1.Lock()
+					if testyunhuan20201010_1_module2.NodesLen <3{
+						testyunhuan20201010_1_module2.AppendNode(confnode)
+					}
+					lock_1.Unlock()
+				}()
+			
+				go func(){
+					lock_2.Lock()
+					if testyunhuan20201010_2_module2.NodesLen <3{
+						testyunhuan20201010_2_module2.AppendNode(confnode)
+					}
+					lock_2.Unlock()
+				}()
+				
+				go func(){
+					lock_3.Lock()
+					if testyunhuan20201010_3_module2.NodesLen <3{
+						testyunhuan20201010_3_module2.AppendNode(confnode)
+					}
+					lock_3.Unlock()
+				}()
+				
 			case "zndb监测":
-				testyunhuan20201010_1_module3.AppendNode(confnode)
-				testyunhuan20201010_2_module3.AppendNode(confnode)
-				testyunhuan20201010_3_module3.AppendNode(confnode)
+				go func(){
+					lock_1.Lock()
+					if testyunhuan20201010_1_module3.NodesLen <3{
+						testyunhuan20201010_1_module3.AppendNode(confnode)
+					}
+					lock_1.Unlock()
+				}()
+				
+				go func(){
+					lock_2.Lock()
+					if testyunhuan20201010_2_module3.NodesLen <3{
+						testyunhuan20201010_2_module3.AppendNode(confnode)
+					}
+					lock_2.Unlock()
+				}()
+				
+				go func(){
+					lock_3.Lock()
+					if testyunhuan20201010_3_module3.NodesLen <3{
+						testyunhuan20201010_3_module3.AppendNode(confnode)
+					}
+					lock_3.Unlock()
+				}()
 			}//循环内的view渲染结束
 		}//循环结束
 	}()//该线程函数结束
 
 		//处理有module级别需求的客户：
 	go func (){
-		for{
-			time.Sleep(time.Duration(3)*time.Millisecond)
+		
+		for {
+			time.Sleep(time.Duration(1)*time.Millisecond)
+
+			lock_1.Lock()
 			if data, err := json.Marshal(testyunhuan20201010_1_module1);err == nil{
 				moduleViewCh<-data
 			}
@@ -115,20 +189,24 @@ func ProtocolViewNodesHandler_YunHuan20201004(confnodech chan conf.ConfNode)(cha
 			if data, err := json.Marshal(testyunhuan20201010_1_module3);err == nil{
 				moduleViewCh<- data
 			}
-
+			
 			testyunhuan20201010_1_module1.Reset()
 			testyunhuan20201010_1_module2.Reset()
 			testyunhuan20201010_1_module3.Reset()
+			lock_1.Unlock()
+
 		}
+
 	}()//循环外的module"阀门"
 
 	//处理有system级别需求的客户：
 	go func (){
 		for{
-			time.Sleep(time.Duration(3)*time.Millisecond)
+			time.Sleep(time.Duration(1)*time.Millisecond)
 	
+			lock_2.Lock()
 			if (testyunhuan20201010_2_module1.SystemName == "智能机柜"){
-				testyunhuan20201010_2_system2.AppendModule(testyunhuan20201010_2_module1)		
+				testyunhuan20201010_2_system2.AppendModule(testyunhuan20201010_2_module1)	
 			}
 
 			if (testyunhuan20201010_2_module2.SystemName == "智能机柜"){
@@ -158,23 +236,26 @@ func ProtocolViewNodesHandler_YunHuan20201004(confnodech chan conf.ConfNode)(cha
 			testyunhuan20201010_2_system1.Reset()
 			testyunhuan20201010_2_system2.Reset()
 			testyunhuan20201010_2_system3.Reset()
+			lock_2.Unlock()
 		}
 	}()//循环外的system"阀门"
 
 	//处理有matrix级别需求的客户：
 	go func (){
 		for{
-			time.Sleep(time.Duration(3)*time.Millisecond)
+			time.Sleep(time.Duration(1)*time.Millisecond)
+
+			lock_3.Lock()
 			if (testyunhuan20201010_3_module1.SystemName == "智能机柜"){
 				testyunhuan20201010_3_system2.AppendModule(testyunhuan20201010_3_module1)		
 			}
 
 			if (testyunhuan20201010_3_module2.SystemName == "智能机柜"){
-				testyunhuan20201010_3_system2.AppendModule(testyunhuan20201010_3_module2)		
+				testyunhuan20201010_3_system2.AppendModule(testyunhuan20201010_3_module2)	
 			}
 
 			if (testyunhuan20201010_3_module3.SystemName == "智能机柜"){
-				testyunhuan20201010_3_system2.AppendModule(testyunhuan20201010_3_module3)		
+				testyunhuan20201010_3_system2.AppendModule(testyunhuan20201010_3_module3)	
 			}
 
 
@@ -209,6 +290,7 @@ func ProtocolViewNodesHandler_YunHuan20201004(confnodech chan conf.ConfNode)(cha
 
 			testyunhuan20201010_3_matrix1.Reset()
 			testyunhuan20201010_3_matrix2.Reset()
+			lock_3.Unlock()
 		}
 	}()//循环外的matrix"阀门"
 
