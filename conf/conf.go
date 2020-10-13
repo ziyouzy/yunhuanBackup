@@ -76,27 +76,29 @@ func watching() {
 		fmt.Println("Config file changed:", e.Name)
 		err := viper.ReadInConfig() // 搜索路径，并读取配置数据
 		if err == nil {
-			ConfAllNodes :=viper.Get("Nodes")
-			if value1, ok1 :=ConfAllNodes.([]interface{});ok1{
-				if confNodeMap,ok2 :=value1[0].(map[string]interface{});ok2{
-					fmt.Println("reset ConfNodeMap success:",confNodeMap)
-				}else{
-					fmt.Println("Fatal reset ConfNodeMap file!")
-				}
-			}else{
-				fmt.Println("Fatal reset ConfNodeMap file!")
-			}
+			confNodeMap =updatemap("nodes")	
+			confAlarmMap =updatemap("alarm")
+			//ConfAllNodes :=viper.Get("Nodes")
+			// if value1, ok1 :=ConfAllNodes.([]interface{});ok1{
+			// 	if confNodeMap,ok2 :=value1[0].(map[string]interface{});ok2{
+			// 		fmt.Println("reset ConfNodeMap success:",confNodeMap)
+			// 	}else{
+			// 		fmt.Println("Fatal reset ConfNodeMap file!")
+			// 	}
+			// }else{
+			// 	fmt.Println("Fatal reset ConfNodeMap file!")
+			// }
 
-			ConfAllSMS :=viper.Get("sms")
-			if value1, ok1 :=ConfAllSMS.([]interface{});ok1{
-				if confSMSMap,ok2 :=value1[0].(map[string]interface{});ok2{
-					fmt.Println("reset ConfSMSMap success:",confSMSMap)
-				}else{
-					fmt.Println("Fatal reset ConfSMSMap file!")
-				}
-			}else{
-				fmt.Println("Fatal reset ConfSMSMap file!")
-			}
+			//ConfAllSMS :=viper.Get("sms")
+			// if value1, ok1 :=ConfAllSMS.([]interface{});ok1{
+			// 	if confSMSMap,ok2 :=value1[0].(map[string]interface{});ok2{
+			// 		fmt.Println("reset ConfSMSMap success:",confSMSMap)
+			// 	}else{
+			// 		fmt.Println("Fatal reset ConfSMSMap file!")
+			// 	}
+			// }else{
+			// 	fmt.Println("Fatal reset ConfSMSMap file!")
+			// }
 		}else{
 			fmt.Println("Fatal reset config file!")
 			return

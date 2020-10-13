@@ -11,11 +11,11 @@ import(
 func main(){
 	conf.InitConfMap()
 	tcphandler :=pipelineTcpHandler{}
-	// serialhandler := pipelineSerialHandler{ProtocolPortsName:[]string{"serial1","serial2","serial3"},
+	//serialhandler := pipelineSerialHandler{ProtocolPortsName:[]string{"serial1","serial2","serial3"},
 	// 	ProtocolPortsBaud:[]int{9600,9600,9600},ProtocolPortsReadTimeout:[]int{5,5,5},ProtocolPortsNeedCRC:[]bool{true,true,true},}
 //--
 	tcpCh :=tcphandler.ListenAndGenerateRecvCh()
-	//serialCh :=serialhandler.ListenAndGenerateRecvCh()
+//	serialCh :=serialhandler.ListenAndGenerateRecvCh()
 //--
 	//sendmap目前会返回两个字段，一个是tcp的管道，一个是udp的管道
 	sendmap := protocol.ProtocolPrepareSendTicketMgr_YunHuan20200924() 
