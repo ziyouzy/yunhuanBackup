@@ -1,6 +1,6 @@
 {
-"nodes":[
-{
+"nodes":{
+
 "494f3031f10201-tcpsocket-do3-bool":{
 "module":"ups监测",
 "system":"智能机柜",
@@ -11,6 +11,7 @@
 "isnormal":false,
 "name":"烟感3",
 "value":"N/A",
+"unit":null,
 
 "type":"BOOL",
 "isonsms":true,
@@ -32,6 +33,7 @@
         "isnormal":false,
         "name":"烟感1",
         "value":"N/A",
+        "unit":null,
     
         "type":"BOOL",
         "isonsms":true,
@@ -53,30 +55,30 @@
         "isnormal":false,
         "name":"烟感2",
         "value":"N/A",
+        "unit":null,
         
         "type":"BOOL",
         "isonsms":true,
-        "normal":0,
+        "normal":1,
         "value0":"正常",
         "value1":"异常",
         
         "sms":"烟感异常",
         "date":""
         }
-    }
-],
+},
 
-"alarm":[{"smssleepmin":1},
-                {"smsserialize":"sAT+SMSEND=86%s,%s您好,贵公司%s\n"},
-                {"smstel":
-                    {
-                        "赵先生":"18611234567",
-                        "qian先生":"18611234567",
-                        "sun先生":"18611234567",
-                        "li先生":"18611234567"
-                    }
-                },
-                {"mysqlsleepmin":1}
-            ]
+"alarm":{
+    "smssleepmin":1,
+    "smsserialize":"sAT+SMSEND=86%s,%s您好,贵公司的%s\n",
+    "smstel":
+        {
+            "赵先生":"18611234567",
+            "qian先生":"186221234567",
+            "sun先生":"1863331234567",
+            "li先生":"18644441234567"
+        },
+
+    "mysqlsleepmin":1
 }
-
+}

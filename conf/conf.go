@@ -10,7 +10,7 @@ import(
 	"github.com/ziyouzy/mylib/physicalnode"
 	"github.com/mitchellh/mapstructure"
 
-
+	//"os"
 )
 
 var (
@@ -28,28 +28,8 @@ func InitConfMap(){
 	if err == nil {
 		confNodeMap =updatemap("nodes")	
 		confAlarmMap =updatemap("alarm")
-		// ConfAllNodes :=viper.Get("nodes")
-		// if value1, ok1 :=ConfAllNodes.([]interface{});ok1{
-		// 	if confNodeMap,ok2 :=value1[0].(map[string]interface{});ok2{
-		// 		fmt.Println("init confNodeMap success:",confNodeMap)
-		// 	}else{
-		// 		panic(fmt.Errorf("Fatal init ConfNodeMap! \n"))
-		// 	}
-		// }else{
-		// 	panic(fmt.Errorf("Fatal init ConfNodeMap! \n"))
-		// }
-
-		// ConfAllAlarm :=viper.Get("alarm")
-		// if value1, ok1 :=ConfAllAlarm.([]interface{});ok1{
-		// 	if confAlarmMap,ok2 :=value1[0].(map[string]interface{});ok2{
-		// 		fmt.Println("init ConfAlarmMap success:",confAlarmMap)
-		// 	}else{
-		// 		panic(fmt.Errorf("Fatal init ConfAlarmMap! \n"))
-		// 	}
-		// }else{
-		// 	panic(fmt.Errorf("Fatal init ConfAlarmMap! \n"))
-		// }
-
+		fmt.Println("confAlarmMap in init:",confAlarmMap )
+		fmt.Println("confNodeMap in init:", confNodeMap )
 		go watching()
 	}else{//if err == nil
 		panic(fmt.Errorf("Fatal init config file! \n"))
@@ -58,13 +38,9 @@ func InitConfMap(){
 
 func updatemap(typeString string) map[string]interface{}{
 	ConfAllNodes :=viper.Get(typeString)
-	if value1, ok1 :=ConfAllNodes.([]interface{});ok1{
-		if m,ok2 :=value1[0].(map[string]interface{});ok2{
-			fmt.Println("update ConfMap success")
-			return m
-		}else{
-			panic(fmt.Errorf("Fatal init ConfMap! \n"))
-		}
+	if value, ok :=ConfAllNodes.(map[string]interface{});ok{
+		fmt.Println(typeString,": update ConfMap success")
+		return value
 	}else{
 		panic(fmt.Errorf("Fatal init ConfMap! \n"))
 	}
@@ -78,27 +54,6 @@ func watching() {
 		if err == nil {
 			confNodeMap =updatemap("nodes")	
 			confAlarmMap =updatemap("alarm")
-			//ConfAllNodes :=viper.Get("Nodes")
-			// if value1, ok1 :=ConfAllNodes.([]interface{});ok1{
-			// 	if confNodeMap,ok2 :=value1[0].(map[string]interface{});ok2{
-			// 		fmt.Println("reset ConfNodeMap success:",confNodeMap)
-			// 	}else{
-			// 		fmt.Println("Fatal reset ConfNodeMap file!")
-			// 	}
-			// }else{
-			// 	fmt.Println("Fatal reset ConfNodeMap file!")
-			// }
-
-			//ConfAllSMS :=viper.Get("sms")
-			// if value1, ok1 :=ConfAllSMS.([]interface{});ok1{
-			// 	if confSMSMap,ok2 :=value1[0].(map[string]interface{});ok2{
-			// 		fmt.Println("reset ConfSMSMap success:",confSMSMap)
-			// 	}else{
-			// 		fmt.Println("Fatal reset ConfSMSMap file!")
-			// 	}
-			// }else{
-			// 	fmt.Println("Fatal reset ConfSMSMap file!")
-			// }
 		}else{
 			fmt.Println("Fatal reset config file!")
 			return
@@ -116,6 +71,7 @@ type ConfNode interface{
 	GetJson()[]byte
 	GetMatrixSystemModuleAndCountJSON(string, string)(string, string, string, []byte)
 	JudgeAlarm()string
+	PrepareMYSQLAlarm()(string,string,string,string)
 }
 
 //这个函数目前似乎只能生成一个confNode

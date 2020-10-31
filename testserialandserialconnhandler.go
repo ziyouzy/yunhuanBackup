@@ -1,15 +1,18 @@
 package main
 
 import(
-	"fmt"
+	//"fmt"
 	//"encoding/json"
 
+	"github.com/ziyouzy/mylib/model"
 	"github.com/ziyouzy/mylib/protocol"
 	"github.com/ziyouzy/mylib/conf"
 )
 
 func main(){
+	model.ConnectMySQL("yunhuan_api:13131313@tcp(127.0.0.1:3306)/yh?charset=utf8")
 	conf.InitConfMap()
+
 	tcphandler :=pipelineTcpHandler{}
 	//serialhandler := pipelineSerialHandler{ProtocolPortsName:[]string{"serial1","serial2","serial3"},
 	// 	ProtocolPortsBaud:[]int{9600,9600,9600},ProtocolPortsReadTimeout:[]int{5,5,5},ProtocolPortsNeedCRC:[]bool{true,true,true},}
@@ -36,19 +39,26 @@ func main(){
 //--
 	rawCh :=MergeConCS(tcpCh/*,serialCh*/)
 	confNodeCh :=Convert(rawCh)
-	moduleViewCh, systemViewCh, matrixViewCh, smsCh := Separate(confNodeCh)
+	moduleViewCh, systemViewCh, matrixViewCh, smsCh, alarmmysqlentityCH := Separate(confNodeCh)
 //--	
 for{
 	select {
-	case temp :=<-moduleViewCh:
-		fmt.Println("moduleView:",string(temp),"\n")
+	case /*temp :=*/<-moduleViewCh:
+	//	fmt.Println("moduleViewCh")
+	//	fmt.Println("moduleView:",string(temp),"\n")
 		//tcphandler.ConnMap[os.Getenv("tcpui")].SendBytes(temp)
-	case temp :=<-systemViewCh:
-		fmt.Println("systemView:",string(temp),"\n")
-	case temp :=<-matrixViewCh:
-		fmt.Println("matrixView:",string(temp),"\n")
-	case temp :=<-smsCh:
-		fmt.Println("sms:",string(temp))
+	case /*temp :=*/<-systemViewCh:
+	//	fmt.Println("systemViewCh")
+	//	fmt.Println("systemView:",string(temp),"\n")
+	case /*temp :=*/<-matrixViewCh:
+	//	fmt.Println("matrixViewCh")
+	//	fmt.Println("matrixView:",string(temp),"\n")
+	case/* temp :=*/<-smsCh:
+	//	fmt.Println("sms:",string(temp))
+	case temp :=<-alarmmysqlentityCH:
+		model.DB.Create(&temp)
+		//data, _ := json.Marshal(temp)
+		//fmt.Println(string(data))
 	}
 }
 	
@@ -104,7 +114,7 @@ func Convert(ch chan []byte) chan conf.ConfNode{
 	return confnodech
 }
 
-func Separate(confnodech chan conf.ConfNode)(chan []byte, chan []byte, chan []byte, chan []byte){
-	moduleViewCh, systemViewCh, matrixViewCh, smsCh :=protocol.ProtocolViewNodesHandler_YunHuan20201004(confnodech)
-	return moduleViewCh, systemViewCh, matrixViewCh, smsCh
+func Separate(confnodech chan conf.ConfNode)(chan []byte, chan []byte, chan []byte, chan []byte,  chan *model.AlarmEntity){
+	moduleViewCh, systemViewCh, matrixViewCh, smsCh, AlarmMySQLEntityCh :=protocol.ProtocolViewNodesHandler_YunHuan20201004(confnodech)
+	return moduleViewCh, systemViewCh, matrixViewCh, smsCh, AlarmMySQLEntityCh
 }

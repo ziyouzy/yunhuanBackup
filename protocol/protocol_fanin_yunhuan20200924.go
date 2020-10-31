@@ -78,7 +78,7 @@ func ProtocolPreparePhysicalNode_YunHuan20200924(b []byte)physicalnode.PhysicalN
 //获取发送数据管理器
 func ProtocolPrepareSendTicketMgr_YunHuan20200924() map[string]chan []byte{
 	chs :=make(map[string]chan []byte)
-	ticker := time.NewTicker(time.Duration(1)*time.Millisecond)
+	ticker := time.NewTicker(time.Duration(1900)*time.Millisecond)
  	modbus := [][]byte{
 		{0xf1,0x01,0x00,0x00,0x00,0x08,0x29,0x3c,},
 		{0xf1,0x02,0x00,0x20,0x00,0x08,0x6c,0xf6,},

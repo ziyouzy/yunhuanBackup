@@ -7,40 +7,49 @@ package conf
 
 import(
 	"fmt"
+	//"strings"
+	//"reflect"
 )
 
 type confAlarm struct{
 	SMS []string
-	SMSSleepMin int
+	SMSSleepMin float64
 
-	MySQLMsg string
-	MySQLSleepMin int
+	MySQLNameString string
+	MySQLValueString string
+	MySQLUnitString string
+	MySQLContentString string
+	MySQLSleepMin float64
 }
 
 func NewConfAlram(cn ConfNode) *confAlarm{
 	var confalarm =confAlarm{}
 	alarmString := cn.JudgeAlarm()
 	if (alarmString !=""){
-		if ticket1, ok1 :=confAlarmMap["smssleepmin"].(int);ok1{
-			if ticket2, ok2 :=confAlarmMap["mysqlsleepmin"].(int);ok2{
+		if ticket1, ok1 :=confAlarmMap["smssleepmin"].(float64);ok1{
+			if ticket2, ok2 :=confAlarmMap["mysqlsleepmin"].(float64);ok2{
 				confalarm.SMSSleepMin = ticket1 
 				confalarm.MySQLSleepMin= ticket2
 			}else{
+				fmt.Println("ok2:",ok2)
 				//记录日志：关于mysqlsleepmin的json配置文件似乎些错了
 			}
 		}else{
 			//记录日志：关于smssleepmin的json配置文件似乎些错了
+			fmt.Println("ok1:",ok1)
 		}
 
 		smsserialize, ok :=confAlarmMap["smsserialize"].(string)
 		if !ok{
 			//记录日志：关于smsserialize的json配置文件似乎些错了
+			fmt.Println("ok3:",ok)
 		}
 			
 		msgs :=confAlarmMap["smstel"]
-		smsmsgsmap, ok :=msgs.(map[string]string)
+		smsmsgsmap, ok :=msgs.(map[string]interface{})
 		if !ok{
 				//记录日志：关于smstel的json配置文件似乎些错了
+				fmt.Println("ok4:",ok)
 		}else{
 			for k, v := range smsmsgsmap{
 				/*sAT+SMSEND=86%s,%s您好,贵公司%s\n*/
@@ -48,7 +57,14 @@ func NewConfAlram(cn ConfNode) *confAlarm{
 			}
 		}
 
-		//confSMS.mysqlmsg =	
+		// confalarm.MySQLNameString =strings.Split(alarmString,"异常")[0]
+		// confalarm.MySQLValueString = cn.Value
+		// confalarm.MySQLUnitString =cn.Unit
+		// confalarm.MySQLContentString =	alarmString
+
+		// confalarm.MySQLContentString =	alarmString
+		confalarm.MySQLNameString, confalarm.MySQLValueString, confalarm.MySQLUnitString, confalarm.MySQLContentString =cn.PrepareMYSQLAlarm()
+		
 		return &confalarm
 	}else{
 		return nil

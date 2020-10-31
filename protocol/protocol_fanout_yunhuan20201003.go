@@ -7,8 +7,9 @@ package protocol
 import(
 	"github.com/ziyouzy/mylib/conf"
 	"github.com/ziyouzy/mylib/view"
-	//"fmt"
+	"github.com/ziyouzy/mylib/model"
 
+	//"fmt"
 	"encoding/json"
 	"sync"
 	"time"
@@ -59,17 +60,29 @@ var (
 )
 
 var (
-	smsticket =0
-	mysqlticket =0
+	smsticket float64
+	smsticketlimit float64
+
+	mysqlticket float64
+	mysqlticketlimit float64
 )
 
 //拿到主函数去使用,入参是个实体，返回的是个管道
-func ProtocolViewNodesHandler_YunHuan20201004(confnodech chan conf.ConfNode)(chan []byte, chan []byte, chan []byte, chan []byte){
+func ProtocolViewNodesHandler_YunHuan20201004(confnodech chan conf.ConfNode)(chan []byte, chan []byte, chan []byte, chan []byte, chan *model.AlarmEntity){
 	moduleViewCh := make(chan []byte)
 	systemViewCh := make(chan []byte)
 	matrixViewCh := make(chan []byte)
 
 	alarmSMSCh := make(chan []byte)
+	alarmEntityCh := make(chan *model.AlarmEntity)
+
+	smsticketlimit =3600*24
+	smsticket =3600*24
+
+	mysqlticketlimit =3600*24
+	mysqlticket =3600*24
+
+	mysqlticketlimit =3600*24
 
 	lock_1 = new(sync.Mutex)
 	lock_2 = new(sync.Mutex)
@@ -78,17 +91,35 @@ func ProtocolViewNodesHandler_YunHuan20201004(confnodech chan conf.ConfNode)(cha
 	//这个循环alarmsms和alarmdb也会包括在内
 	go func(){
 		for confnode := range confnodech{
-			// if confalarm :=conf.NewConfAlram(confnode);confalarm !=nil{
-			// 	if(smsticket >=confalarm.SMSSleepMin){
-			// 		go func(){
-			// 			for _, sms := range confalarm.SMS{
-			// 				alarmSMSCh<-[]byte(sms)
-			// 				time.Sleep(time.Duration(500)*time.Millisecond)			
-			// 			}
-			// 		}()
-			// 		smsticket =0
-			// 	}
-			// }//循环内的sms服务结束	
+			if confalarm :=conf.NewConfAlram(confnode);confalarm !=nil{
+				smsticketlimit =confalarm.SMSSleepMin*60
+				mysqlticketlimit =confalarm.MySQLSleepMin*60
+
+				if(smsticket >=smsticketlimit){
+					go func(){
+						for _, sms := range confalarm.SMS{
+							alarmSMSCh<-[]byte(sms)
+							time.Sleep(time.Duration(500)*time.Millisecond)			
+						}
+					}()
+					smsticket =0
+				}
+
+				
+				if(mysqlticket >=mysqlticketlimit){
+					go func(){
+						//装配一个alarmentity并放入管道
+						ae := 	model.AlarmEntity{
+							Name : confalarm.MySQLNameString,
+							Value : confalarm.MySQLValueString,
+							Unit : confalarm.MySQLUnitString,
+							Content : confalarm.MySQLContentString,
+						}
+						alarmEntityCh<-&ae
+					}()
+					mysqlticket =0
+				}
+			}
 
 			/*------*/
 			_, _, module := confnode.GetMatrixSystemAndModuleString()
@@ -175,7 +206,7 @@ func ProtocolViewNodesHandler_YunHuan20201004(confnodech chan conf.ConfNode)(cha
 	go func (){
 		
 		for {
-			time.Sleep(time.Duration(1)*time.Millisecond)
+			time.Sleep(time.Duration(2000)*time.Millisecond)
 
 			lock_1.Lock()
 			if data, err := json.Marshal(testyunhuan20201010_1_module1);err == nil{
@@ -202,7 +233,7 @@ func ProtocolViewNodesHandler_YunHuan20201004(confnodech chan conf.ConfNode)(cha
 	//处理有system级别需求的客户：
 	go func (){
 		for{
-			time.Sleep(time.Duration(1)*time.Millisecond)
+			time.Sleep(time.Duration(2000)*time.Millisecond)
 	
 			lock_2.Lock()
 			if (testyunhuan20201010_2_module1.SystemName == "智能机柜"){
@@ -243,7 +274,7 @@ func ProtocolViewNodesHandler_YunHuan20201004(confnodech chan conf.ConfNode)(cha
 	//处理有matrix级别需求的客户：
 	go func (){
 		for{
-			time.Sleep(time.Duration(1)*time.Millisecond)
+			time.Sleep(time.Duration(2000)*time.Millisecond)
 
 			lock_3.Lock()
 			if (testyunhuan20201010_3_module1.SystemName == "智能机柜"){
@@ -297,17 +328,22 @@ func ProtocolViewNodesHandler_YunHuan20201004(confnodech chan conf.ConfNode)(cha
 	//实时更新sms的ticket，以分钟为单位
 	go func (){
 		for{
-			smsticket =smsticket+1
+			if smsticket<=smsticketlimit{
+				smsticket =smsticket+1
+			}
 			time.Sleep(time.Second)
 		}
 	}()//循环外的sms发送控制
 
-		//实时更新db的ticket，以分钟为单位
-		// go func (){
-		// 	for{
-		// 		mysqlticket =mysqlticket+1
-		// 		time.Sleep(time.Second)
-		// 	}
-		// }
-	return moduleViewCh, systemViewCh, matrixViewCh, alarmSMSCh
+	//实时更新db的ticket，以分钟为单位
+	go func (){
+		for{
+			if mysqlticket<=mysqlticketlimit{
+				mysqlticket =mysqlticket+1
+			}
+			time.Sleep(time.Second)
+		}
+	}()
+
+	return moduleViewCh, systemViewCh, matrixViewCh, alarmSMSCh, alarmEntityCh
 }

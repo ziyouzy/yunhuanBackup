@@ -39,7 +39,8 @@ type BoolenConfNode struct{
 	IsOnline bool 
 	IsNormal bool 
 	Name string 
-	Value string 
+	Value string
+	Unit string 
 
 	Type string `json:"-"`
 	IsOnSMS bool `json:"-"`
@@ -60,6 +61,7 @@ type IntConfNode struct{
 	IsNormal bool
 	Name string
 	Value string
+	Unit string
 
 	Type string `json:"-"`
 	IsOnSMS bool `json:"-"`
@@ -80,6 +82,7 @@ type FloatConfNode struct{
 	IsNormal bool
 	Name string
 	Value string
+	Unit string
 
 	Type string `json:"-"`
 	IsOnSMS bool `json:"-"`
@@ -99,6 +102,7 @@ type CommonConfNode struct{
 	IsNormal bool
 	Name string
 	Value string
+	Unit string
 
 	Type string `json:"-"`
 	IsOnSMS bool `json:"-"`
@@ -373,7 +377,7 @@ func (p *CommonConfNode)GetMatrixSystemModuleAndCountJSON(floatstring string, ti
 
 func (p *BoolenConfNode)JudgeAlarm()string{
 	if !p.IsNormal&&p.IsOnSMS{
-		return fmt.Sprintf("%s-%s-%s:%s[发生异常时间为%s]", p.Matrix, p.System, p.Module, p.SMS, p.Date)
+		return fmt.Sprintf("%s->%s->%s:%s[发生异常时间为%s]", p.Matrix, p.System, p.Module, p.SMS, p.Date)
 	}else{
 		return ""
 	}
@@ -381,7 +385,7 @@ func (p *BoolenConfNode)JudgeAlarm()string{
 
 func (p *IntConfNode)JudgeAlarm()string{
 	if !p.IsNormal&&p.IsOnSMS{
-		return fmt.Sprintf("%s-%s-%s:%s[发生异常时间为%s]", p.Matrix, p.System, p.Module, p.SMS, p.Date)
+		return fmt.Sprintf("%s->%s->%s:%s[发生异常时间为%s]", p.Matrix, p.System, p.Module, p.SMS, p.Date)
 	}else{
 		return ""
 	}
@@ -389,7 +393,7 @@ func (p *IntConfNode)JudgeAlarm()string{
 
 func (p *FloatConfNode)JudgeAlarm()string{
 	if !p.IsNormal&&p.IsOnSMS{
-		return fmt.Sprintf("%s-%s-%s:%s[发生异常时间为%s]", p.Matrix, p.System, p.Module, p.SMS, p.Date)
+		return fmt.Sprintf("%s->%s->%s:%s[发生异常时间为%s]", p.Matrix, p.System, p.Module, p.SMS, p.Date)
 	}else{
 		return ""
 	}
@@ -397,10 +401,26 @@ func (p *FloatConfNode)JudgeAlarm()string{
 
 func (p *CommonConfNode)JudgeAlarm()string{
 	if !p.IsNormal&&p.IsOnSMS{
-		return fmt.Sprintf("%s-%s-%s:%s[发生异常时间为%s]", p.Matrix, p.System, p.Module, p.SMS, p.Date)
+		return fmt.Sprintf("%s->%s->%s:%s[发生异常时间为%s]", p.Matrix, p.System, p.Module, p.SMS, p.Date)
 	}else{
 		return ""
 	}
+}
+
+func (p *BoolenConfNode)PrepareMYSQLAlarm()(string,string,string,string){
+	return fmt.Sprintf("%s->%s->%s", p.Matrix, p.System, p.Module), p.Value, p.Unit, fmt.Sprintf("%s->%s->%s:%s[发生异常时间为%s]", p.Matrix, p.System, p.Module, p.SMS, p.Date)
+}
+
+func (p *IntConfNode)PrepareMYSQLAlarm()(string,string,string,string){
+	return fmt.Sprintf("%s->%s->%s", p.Matrix, p.System, p.Module), p.Value, p.Unit, fmt.Sprintf("%s->%s->%s:%s[发生异常时间为%s]", p.Matrix, p.System, p.Module, p.SMS, p.Date)
+}
+
+func (p *FloatConfNode)PrepareMYSQLAlarm()(string,string,string,string){
+	return fmt.Sprintf("%s->%s->%s", p.Matrix, p.System, p.Module), p.Value, p.Unit, fmt.Sprintf("%s->%s->%s:%s[发生异常时间为%s]", p.Matrix, p.System, p.Module, p.SMS, p.Date)
+}
+
+func (p *CommonConfNode)PrepareMYSQLAlarm()(string,string,string,string){
+	return fmt.Sprintf("%s->%s->%s", p.Matrix, p.System, p.Module), p.Value, p.Unit, fmt.Sprintf("%s->%s->%s:%s[发生异常时间为%s]", p.Matrix, p.System, p.Module, p.SMS, p.Date)
 }
 
 
