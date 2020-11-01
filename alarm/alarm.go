@@ -3,7 +3,9 @@
 //一个传感器一次的报警会对应一个confSMS的实体
 //或者说一个physicalnode的任何一个被观测的节点如果异常都会对应一个confsms实体
 //或者说每个confnode的异常都会对应一个confsms实体
-package conf
+
+//20201031有待完善该包的归属问题
+package alarm
 
 import(
 	"fmt"
@@ -11,7 +13,7 @@ import(
 	//"reflect"
 )
 
-type confAlarm struct{
+type Alarm struct{
 	SMS []string
 	SMSSleepMin float64
 
@@ -22,7 +24,7 @@ type confAlarm struct{
 	MySQLSleepMin float64
 }
 
-func NewConfAlram(cn ConfNode) *confAlarm{
+func NewAlram(cn ConfNode) *confAlarm{
 	var confalarm =confAlarm{}
 	alarmString := cn.JudgeAlarm()
 	if (alarmString !=""){
@@ -57,12 +59,6 @@ func NewConfAlram(cn ConfNode) *confAlarm{
 			}
 		}
 
-		// confalarm.MySQLNameString =strings.Split(alarmString,"异常")[0]
-		// confalarm.MySQLValueString = cn.Value
-		// confalarm.MySQLUnitString =cn.Unit
-		// confalarm.MySQLContentString =	alarmString
-
-		// confalarm.MySQLContentString =	alarmString
 		confalarm.MySQLNameString, confalarm.MySQLValueString, confalarm.MySQLUnitString, confalarm.MySQLContentString =cn.PrepareMYSQLAlarm()
 		
 		return &confalarm
@@ -71,17 +67,3 @@ func NewConfAlram(cn ConfNode) *confAlarm{
 	}
 }
 
-
-// func (p *confAlarm)UpdateAlarm(s string){
-// 	for k, v := range p.sms{
-// 		sms[k] =fmt.Sprintf("%s%s",v , s)
-// 	}
-// }
-
-// func (p *confAlarm)AllSMS() [][]byte{
-// 	smsbytes := [][]byte
-// 	for v :=sms{
-// 		append(smsbytes,[]byte(v))
-// 	}
-// 	return smsbytes 
-// }

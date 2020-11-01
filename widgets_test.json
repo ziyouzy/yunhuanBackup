@@ -1,0 +1,567 @@
+{
+    "test_mainwidget":{
+        "name":"测试智能机柜",
+        "id":1,
+
+        "modules":[
+            {
+                "id":1,
+                "name": "智能电表",
+                "parent_mainwidgetid":1,
+                "isnormal":false,
+                "ico":"./xxx/xxx"
+            },
+
+            {
+                "id":2,
+                "name":"ups监测",
+                "parent_mainwidgetid":1,
+                "isnormal":false,
+                "ico":"./xxx/xxx"
+            }
+        ],
+
+        "doors":{
+            "494f3031f10201-tcpsocket-di1":
+                {
+                    "name":"测试设备前门",
+                    "id":1,
+                    "parent_mainwidgetid":1
+                },
+    
+            "494f3031f10201-tcpsocket-di2":
+                {
+                    "name":"测试设备后门",
+                    "id":2,
+                    "parent_mainwidgetid":1
+                }
+        },
+
+        "nodes":{
+            "494f3031f10201-tcpsocket-do3-bool":{
+                "parent_moduleid":1,
+                "id":3,
+
+                "isonline":true,
+                "isnormal":false,
+                "name":"烟感3",
+                "value":"N/A",
+                "unit":null,
+
+                "type":"BOOL",
+                "isonsms":true,
+                "normal":0,
+                "value0":"正常",
+                "value1":"异常",
+
+                "sms":"烟感异常",
+                "date":""
+            },
+
+            "494f3031f10201-tcpsocket-do1-bool":{
+                "parent_moduleid":2,
+                "id":1,
+    
+                "isonline":true,
+                "isnormal":false,
+                "name":"烟感1",
+                "value":"N/A",
+                "unit":null,
+    
+                "type":"BOOL",
+                "isonsms":true,
+                "normal":0,
+                "value0":"正常",
+                "value1":"异常",
+    
+                "sms":"烟感异常",
+                "date":""
+            },
+
+            "494f3031f10201-tcpsocket-do2-bool":{
+                "paren_tmoduleid":2,
+                "id":2,
+        
+                "isonline":true,
+                "isnormal":false,
+                "name":"烟感2",
+                "value":"N/A",
+                "unit":null,
+        
+                "type":"BOOL",
+                "isonsms":true,
+                "normal":1,
+                "value0":"正常",
+                "value1":"异常",
+        
+                "sms":"烟感异常",
+                "date":""
+            }
+        },
+
+        "alarm":{
+            "smssleepmin":1,
+            "smsserialize":"sAT+SMSEND=86%s,%s您好,贵公司的%s\n",
+            "smstel":{
+                "赵先生":"18611234567",
+                "qian先生":"186221234567",
+                "sun先生":"1863331234567",
+                "li先生":"18644441234567"
+            },
+
+            "mysqlsleepmin":1
+        }
+    },
+
+    "ltd_mainwidget1":{
+        "name":"北侧冷通道",
+        "id":2,
+        "len":5,
+
+        "modules":[
+            {
+                "id":8,
+                "name": "温湿度",
+                "parent_mainwidgetid":3,
+                "len":2,
+                "isnormal":false,
+                "ico":"./xxx/xxx"
+            },
+
+            {
+                "id":9,
+                "name":"烟感",
+                "parent_mainwidgetid":3,
+                "len":2,
+                "isnormal":false,
+                "ico":"./xxx/xxx"
+            },
+
+            {
+                "id":10,
+                "name":"水浸",
+                "parent_mainwidgetid":3,
+                "len":2,
+                "isnormal":false,
+                "ico":"./xxx/xxx"
+            },
+
+            {
+                "id":11,
+                "name":"天窗",
+                "parent_mainwidgetid":3,
+                "len":2,
+                "isnormal":false,
+                "ico":"./xxx/xxx"
+            },
+
+            {
+                "id":12,
+                "name":"安全系统",
+                "parent_mainwidgetid":3,
+                "len":2,
+                "isnormal":false,
+                "ico":"./xxx/xxx"
+            }
+        ],
+
+        "doors":{
+            "len":2,
+            "494f3031f10201-tcpsocket-di1":
+                {
+                    "name":"一号冷通道前门",
+                    "id":3,
+                    "parent_mainwidgetid":2
+                },
+    
+            "494f3031f10201-tcpsocket-di2":
+                {
+                    "name":"一号冷通道后门",
+                    "id":4,
+                    "parent_mainwidgetid":2
+                }
+        },
+
+        "nodes":{
+            "494f3031f10201-tcpsocket-do1-bool":{
+                "parent_moduleid":4,
+                "id":1,
+
+                "isonline":true,
+                "isnormal":false,
+                "name":"前门烟感",
+                "value":"N/A",
+                "unit":null,
+
+                "type":"BOOL",
+                "isonsms":true,
+                "normal":0,
+                "value0":"正常",
+                "value1":"异常",
+
+                "sms":"一号冷通道前门烟感异常",
+                "date":""
+            },
+
+            "494f3031f10201-tcpsocket-do2-bool":{
+                "parent_moduleid":4,
+                "id":2,
+    
+                "isonline":true,
+                "isnormal":false,
+                "name":"后门烟感",
+                "value":"N/A",
+                "unit":null,
+    
+                "type":"BOOL",
+                "isonsms":true,
+                "normal":0,
+                "value0":"正常",
+                "value1":"异常",
+    
+                "sms":"一号冷通道后门烟感异常",
+                "date":""
+            },
+
+            "494f3031f10201-tcpsocket-do3-bool":{
+                "parent_moduleid":5,
+                "id":3,
+        
+                "isonline":true,
+                "isnormal":false,
+                "name":"前门水浸",
+                "value":"N/A",
+                "unit":null,
+        
+                "type":"BOOL",
+                "isonsms":true,
+                "normal":1,
+                "value0":"正常",
+                "value1":"异常",
+        
+                "sms":"一号冷通道前门水浸异常",
+                "date":""
+            },
+
+            "494f3031f10201-tcpsocket-do4-bool":{
+                "parent_moduleid":5,
+                "id":4,
+    
+                "isonline":true,
+                "isnormal":false,
+                "name":"后门水浸",
+                "value":"N/A",
+                "unit":null,
+    
+                "type":"BOOL",
+                "isonsms":true,
+                "normal":1,
+                "value0":"正常",
+                "value1":"异常",
+    
+                "sms":"一号冷通道后门水浸异常",
+                "date":""
+            },
+
+            "494f3031f10201-tcpsocket-do5-bool":{
+                "parent_moduleid":6,
+                "id":5,
+        
+                "isonline":true,
+                "isnormal":false,
+                "name":"前侧天窗",
+                "value":"N/A",
+                "unit":null,
+        
+                "type":"BOOL",
+                "isonsms":true,
+                "normal":1,
+                "value0":"正常",
+                "value1":"异常",
+        
+                "sms":"一号冷通道前侧天窗异常",
+                "date":""
+            },
+
+            "494f3031f10201-tcpsocket-do6-bool":{
+                "parent_moduleid":6,
+                "id":6,
+    
+                "isonline":true,
+                "isnormal":false,
+                "name":"后侧天窗",
+                "value":"N/A",
+                "unit":null,
+    
+                "type":"BOOL",
+                "isonsms":true,
+                "normal":1,
+                "value0":"正常",
+                "value1":"异常",
+    
+                "sms":"一号冷通道后侧天窗异常",
+                "date":""
+            }
+        },
+
+        "alarm":{
+            "smssleepmin":1,
+            "smsserialize":"sAT+SMSEND=86%s,%s您好,贵公司的%s\n",
+            "smstel":{
+                "赵先生":"18611234567",
+                "qian先生":"186221234567",
+                "sun先生":"1863331234567",
+                "li先生":"18644441234567"
+            },
+
+            "mysqlsleepmin":1
+        }
+    },
+
+    "ltd_mainwidget2":{
+        "name":"南侧冷通道",
+        "id":3,
+        "len":5,
+
+        "modules":[
+            {
+                "id":3,
+                "name": "温湿度",
+                "parent_mainwidgetid":3,
+                "len":2,
+                "isnormal":false,
+                "ico":"./xxx/xxx"
+            },
+
+            {
+                "id":4,
+                "name":"烟感",
+                "parent_mainwidgetid":3,
+                "len":2,
+                "isnormal":false,
+                "ico":"./xxx/xxx"
+            },
+
+            {
+                "id":5,
+                "name":"水浸",
+                "parent_mainwidgetid":3,
+                "len":2,
+                "isnormal":false,
+                "ico":"./xxx/xxx"
+            },
+
+            {
+                "id":6,
+                "name":"天窗",
+                "parent_mainwidgetid":3,
+                "len":2,
+                "isnormal":false,
+                "ico":"./xxx/xxx"
+            },
+
+            {
+                "id":7,
+                "name":"安全系统",
+                "parent_mainwidgetid":3,
+                "len":2,
+                "isnormal":false,
+                "ico":"./xxx/xxx"
+            }
+        ],
+
+        "doors":{
+            "len":2,
+            "494f3031f10201-tcpsocket-di1":
+                {
+                    "name":"二号冷通道前门",
+                    "id":5,
+                    "parent_mainwidgetid":3
+                },
+    
+            "494f3031f10201-tcpsocket-di2":
+                {
+                    "name":"二号冷通道后门",
+                    "id":6,
+                    "parent_mainwidgetid":3
+                }
+        },
+
+        "nodes":{
+            "494f3031f10201-tcpsocket-do1-bool":{
+                "parent_moduleid":4,
+                "id":1,
+
+                "isonline":true,
+                "isnormal":false,
+                "name":"前门烟感",
+                "value":"N/A",
+                "unit":null,
+
+                "type":"BOOL",
+                "isonsms":true,
+                "normal":0,
+                "value0":"正常",
+                "value1":"异常",
+
+                "sms":"二号冷通道前门烟感异常",
+                "date":""
+            },
+
+            "494f3031f10201-tcpsocket-do2-bool":{
+                "parent_moduleid":4,
+                "id":2,
+    
+                "isonline":true,
+                "isnormal":false,
+                "name":"后门烟感",
+                "value":"N/A",
+                "unit":null,
+    
+                "type":"BOOL",
+                "isonsms":true,
+                "normal":0,
+                "value0":"正常",
+                "value1":"异常",
+    
+                "sms":"二号冷通道后门烟感异常",
+                "date":""
+            },
+
+            "494f3031f10201-tcpsocket-do3-bool":{
+                "parent_moduleid":5,
+                "id":3,
+        
+                "isonline":true,
+                "isnormal":false,
+                "name":"前门水浸",
+                "value":"N/A",
+                "unit":null,
+        
+                "type":"BOOL",
+                "isonsms":true,
+                "normal":1,
+                "value0":"正常",
+                "value1":"异常",
+        
+                "sms":"二号冷通道前门水浸异常",
+                "date":""
+            },
+
+            "494f3031f10201-tcpsocket-do4-bool":{
+                "parent_moduleid":5,
+                "id":4,
+    
+                "isonline":true,
+                "isnormal":false,
+                "name":"后门水浸",
+                "value":"N/A",
+                "unit":null,
+    
+                "type":"BOOL",
+                "isonsms":true,
+                "normal":1,
+                "value0":"正常",
+                "value1":"异常",
+    
+                "sms":"二号冷通道后门水侵异常",
+                "date":""
+            },
+
+            "494f3031f10201-tcpsocket-do5-bool":{
+                "parent_moduleid":6,
+                "id":5,
+        
+                "isonline":true,
+                "isnormal":false,
+                "name":"前侧天窗",
+                "value":"N/A",
+                "unit":null,
+        
+                "type":"BOOL",
+                "isonsms":true,
+                "normal":1,
+                "value0":"正常",
+                "value1":"异常",
+        
+                "sms":"二号冷通道前侧天窗异常",
+                "date":""
+            },
+
+            "494f3031f10201-tcpsocket-do6-bool":{
+                "parent_moduleid":6,
+                "id":6,
+    
+                "isonline":true,
+                "isnormal":false,
+                "name":"后侧天窗",
+                "value":"N/A",
+                "unit":null,
+    
+                "type":"BOOL",
+                "isonsms":true,
+                "normal":1,
+                "value0":"正常",
+                "value1":"异常",
+    
+                "sms":"二号冷通道后侧天窗异常",
+                "date":""
+            },
+
+            "494f3031f10201-tcpsocket-do7-bool":{
+                "parent_moduleid":7,
+                "id":7,
+        
+                "isonline":true,
+                "isnormal":false,
+                "name":"前门状态",
+                "value":"N/A",
+                "unit":null,
+        
+                "type":"BOOL",
+                "isonsms":true,
+                "normal":1,
+                "value0":"正常",
+                "value1":"异常",
+        
+                "sms":"二号冷通道前门异常",
+                "date":""
+            },
+
+            "494f3031f10201-tcpsocket-do8-bool":{
+                "parent_moduleid":7,
+                "id":8,
+    
+                "isonline":true,
+                "isnormal":false,
+                "name":"后门状态",
+                "value":"N/A",
+                "unit":null,
+    
+                "type":"BOOL",
+                "isonsms":true,
+                "normal":1,
+                "value0":"正常",
+                "value1":"异常",
+    
+                "sms":"二号冷通道后门异常",
+                "date":""
+            }
+        },
+
+        "alarm":{
+            "smssleepmin":1,
+            "smsserialize":"sAT+SMSEND=86%s,%s您好,贵公司的%s\n",
+            "smstel":{
+                "赵先生":"18611234567",
+                "qian先生":"186221234567",
+                "sun先生":"1863331234567",
+                "li先生":"18644441234567"
+            },
+
+            "mysqlsleepmin":1
+        }
+    }
+}
+
+

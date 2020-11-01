@@ -1,36 +1,7 @@
-package conf
-
-import(
-	"encoding/json"
-	"strings"
-	"strconv"
-	"fmt"
-	
-	//"github.com/ziyouzy/mylib/physicalnode"
-)
+package do
 
 
-// type BoolenConfNode struct{
-// 	Module string `json:"module"`
-// 	System string `json:"system"`
-// 	Matrix string `json:"matrix"`
-// 	ModuleId int `json:"moduleid"`
-
-// 	IsOnline bool `json:"isonline"`
-// 	IsNormal bool `json:"isnormal"`
-// 	Name string `json:"name"`
-// 	Value string `json:"value"`
-
-// 	Type string `json:"-"`
-// 	IsOnSMS bool `json:"-"`
-// 	Normal int `json:"-"`
-// 	Value0 string  `json:"-"`
-// 	Value1 string  `json:"-"`
-
-// 	SMS string  `json:"-"`
-// 	Date string 
-// }
-type BoolenConfNode struct{
+type BoolenNodeDo struct{
 	Module string 
 	System string 
 	Matrix string 
@@ -52,7 +23,7 @@ type BoolenConfNode struct{
 	Date string 
 }
 
-type IntConfNode struct{
+type IntNodeDo struct{
 	Matrix string
 	System string
 	Module string
@@ -73,7 +44,7 @@ type IntConfNode struct{
 }
 
 
-type FloatConfNode struct{
+type FloatNodeDo struct{
 	Matrix string
 	System string
 	Module string
@@ -93,7 +64,7 @@ type FloatConfNode struct{
 	Date string
 }
 
-type CommonConfNode struct{
+type CommonNodeDo struct{
 	Matrix string
 	System string
 	Module string
@@ -422,19 +393,3 @@ func (p *FloatConfNode)PrepareMYSQLAlarm()(string,string,string,string){
 func (p *CommonConfNode)PrepareMYSQLAlarm()(string,string,string,string){
 	return fmt.Sprintf("%s->%s->%s", p.Matrix, p.System, p.Module), p.Value, p.Unit, fmt.Sprintf("%s->%s->%s:%s[发生异常时间为%s]", p.Matrix, p.System, p.Module, p.SMS, p.Date)
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

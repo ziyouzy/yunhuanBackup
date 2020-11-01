@@ -13,31 +13,39 @@ import(
 	//"os"
 )
 
-var (
-	confNodeMap map[string]interface{}
-	confAlarmMap map[string]interface{}
+//使用type只是用来为其设计update方法
+//无论是NodeDoVO还是AlarmVO都是一个不能直接使用的原型
+//之后的使用方式是使用类似依赖注入的方式作为上层结构体对象的“引擎”
+//这里也是体现了分层的设计思路，借鉴与最初tcp/ip协议的设计思路
+//也就是如果不分层而把所有功能都“压”在一起，设计起来就太复杂了
+type ConfValueObjectMap map[string]interface{}
+
+var(
+	NodeDoVO ConfValueObjectMap
+	AlarmVO ConfValueObjectMap
 )
 
 func InitConfMap(){
-	confNodeMap =make(map[string]interface{})
 	viper.SetConfigName("riverconf") //  设置配置文件名 (不带后缀)
 	//viper.AddConfigPath("/workspace/appName/") 
 	viper.AddConfigPath(".")               // 比如添加当前目
 	viper.SetConfigType("json")
 	err := viper.ReadInConfig() // 搜索路径，并读取配置数据
+
 	if err == nil {
-		confNodeMap =updatemap("nodes")	
-		confAlarmMap =updatemap("alarm")
-		fmt.Println("confAlarmMap in init:",confAlarmMap )
-		fmt.Println("confNodeMap in init:", confNodeMap )
+		NodeDoVO.update("nodes")
+		fmt.Println("NodeDoVO in init:",NodeDoVO)
+
+		AlarmVO.update("alarm")
+		fmt.Println("AlarmVO in init:", AlarmVO)
 		go watching()
-	}else{//if err == nil
+	}else{
 		panic(fmt.Errorf("Fatal init config file! \n"))
-	}//if err == nil end
+	}
 }
 
-func updatemap(typeString string) map[string]interface{}{
-	ConfAllNodes :=viper.Get(typeString)
+func (p *ConfValueObjectMap)update(typeString string){
+	m :=viper.Get(typeString)
 	if value, ok :=ConfAllNodes.(map[string]interface{});ok{
 		fmt.Println(typeString,": update ConfMap success")
 		return value
@@ -52,85 +60,13 @@ func watching() {
 		fmt.Println("Config file changed:", e.Name)
 		err := viper.ReadInConfig() // 搜索路径，并读取配置数据
 		if err == nil {
-			confNodeMap =updatemap("nodes")	
-			confAlarmMap =updatemap("alarm")
+			NodeDoVO.update("nodes")	
+			AlarmVO.update("alarm")
 		}else{
 			fmt.Println("Fatal reset config file!")
 			return
 		}
 	})
 }
-
-//----
-
-
-
-type ConfNode interface{
-	CountPhysicalNode(string, string)
-	GetMatrixSystemAndModuleString()(string, string, string)
-	GetJson()[]byte
-	GetMatrixSystemModuleAndCountJSON(string, string)(string, string, string, []byte)
-	JudgeAlarm()string
-	PrepareMYSQLAlarm()(string,string,string,string)
-}
-
-//这个函数目前似乎只能生成一个confNode
-//首先，confNodeMap的作用确实是基于他和for循环生成多个ConfNode
-//但是当生成了一个只后就立刻返回了，于是map后面的内容都会被遗弃
-func NewConfNodeArr(p physicalnode.PhysicalNode) []ConfNode {
-	//fmt.Println("confNodeMap in, NewConfNode:",confNodeMap)
-	//这里缺少一次判定，也就是某个物理节点是否被在conf中被提到了，没有的话，没必要耗费内存去做下面这些事
-	phandlertag :=p.GetHandlerTagForConfNodeMap()
-	var confnodearr []ConfNode
-	for k,v := range confNodeMap{
-		o :=k
-		//fmt.Println(o)
-		if !strings. Contains(o,phandlertag){
-			//fmt.Println(o)
-			continue
-		}else{
-			//fmt.Println(o)
-			tempValue :=v
-			tempstr	:= strings.Split(o,"-")
-			handler :=tempstr[0]
-			tag :=tempstr[1]
-			nodename :=tempstr[2]
-			valuetype :=tempstr[3]
-			switch valuetype{
-			case "bool":
-				var confnode BoolenConfNode
-				mapstructure.Decode(tempValue, &confnode)
-				/*SeleteOneValueByProtocol会返回两个string，一个是值，一个是时间*/
-				pvalue,ptime := p.SeleteOneValueByProtocol(handler, tag, nodename)
-				confnode.CountPhysicalNode(pvalue,ptime)
-				confnodearr =append(confnodearr, &confnode)
-			case "int":
-				var confnode IntConfNode
-				mapstructure.Decode(tempValue, &confnode)
-				pvalue,ptime := p.SeleteOneValueByProtocol(handler, tag, nodename)
-				confnode.CountPhysicalNode(pvalue,ptime)
-				confnodearr =append(confnodearr, &confnode)
-			case "float":
-				var confnode FloatConfNode
-				mapstructure.Decode(tempValue, &confnode)
-				pvalue,ptime := p.SeleteOneValueByProtocol(handler, tag, nodename)
-				confnode.CountPhysicalNode(pvalue,ptime)
-				confnodearr =append(confnodearr, &confnode)
-			case "common", "string":
-				var confnode CommonConfNode 
-				mapstructure.Decode(tempValue, &confnode)
-				pvalue,ptime := p.SeleteOneValueByProtocol(handler, tag, nodename)
-				confnode.CountPhysicalNode(pvalue,ptime)
-				confnodearr =append(confnodearr, &confnode)
-			default:
-				
-			}
-		}
-	}
-	//此处应该录入log，range  confNodeMap失败了
-	return confnodearr
-}
-
-//---
 
 
