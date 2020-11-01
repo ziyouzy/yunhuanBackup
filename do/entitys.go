@@ -2,13 +2,12 @@ package do
 
 
 type BoolenNodeDo struct{
-	Module string 
-	System string 
-	Matrix string 
-	ModuleId int 
+	Id int
+	ParentModuleId int 
 
 	IsOnline bool 
 	IsNormal bool 
+	IsTimeOut bool
 	Name string 
 	Value string
 	Unit string 
@@ -24,12 +23,12 @@ type BoolenNodeDo struct{
 }
 
 type IntNodeDo struct{
-	Matrix string
-	System string
-	Module string
-	ModuleId int
+	Id int
+	ParentModuleId int
+
 	IsOnline bool
 	IsNormal bool
+	IsTimeOut bool
 	Name string
 	Value string
 	Unit string
@@ -45,12 +44,12 @@ type IntNodeDo struct{
 
 
 type FloatNodeDo struct{
-	Matrix string
-	System string
-	Module string
-	ModuleId int
+	Id int
+	ParentModuleId int
+
 	IsOnline bool
 	IsNormal bool
+	IsTimeOut bool
 	Name string
 	Value string
 	Unit string
@@ -65,12 +64,12 @@ type FloatNodeDo struct{
 }
 
 type CommonNodeDo struct{
-	Matrix string
-	System string
-	Module string
-	ModuleId int
+	Id int
+	ParentModuleId int
+
 	IsOnline bool
 	IsNormal bool
+	IsTimeOut bool
 	Name string
 	Value string
 	Unit string
@@ -112,7 +111,7 @@ type CommonNodeDo struct{
 	Date string 
 }
 
-func (p *BoolenConfNode)CountPhysicalNode(intstring string,time string){
+func (p *BoolenNodeDo)CountPhysicalNode(intstring string,time string){
 	
 	if !p.IsOnline{
 		p.IsNormal =true
@@ -138,7 +137,7 @@ func (p *BoolenConfNode)CountPhysicalNode(intstring string,time string){
 	}
 }
 
-func (p *IntConfNode)CountPhysicalNode(intstring string, time string){
+func (p *IntNodeDo)CountPhysicalNode(intstring string, time string){
 	if !p.IsOnline{
 		p.IsNormal =true
 		p.Value = "**"
@@ -162,7 +161,7 @@ func (p *IntConfNode)CountPhysicalNode(intstring string, time string){
 
 }
 
-func (p *FloatConfNode)CountPhysicalNode(floatstring string, time string){
+func (p *FloatNodeDo)CountPhysicalNode(floatstring string, time string){
 	if !p.IsOnline{
 		p.IsNormal =true
 		p.Date =time
@@ -185,7 +184,7 @@ func (p *FloatConfNode)CountPhysicalNode(floatstring string, time string){
 	return
 }
 
-func (p *CommonConfNode)CountPhysicalNode(floatstring string, time string){
+func (p *CommonNodeDo)CountPhysicalNode(floatstring string, time string){
 	if !p.IsOnline{
 		p.IsNormal =true
 		p.Value = "**"
@@ -268,47 +267,47 @@ func (p *CommonConfNode)CountPhysicalNode(floatstring string, time string){
 	return
 }
 
-func (p *BoolenConfNode )GetMatrixSystemAndModuleString()(matrix string, system string,module string){
+func (p *BoolenNodeDo)GetMatrixSystemAndModuleString()(matrix string, system string,module string){
 	return p.Matrix, p.System, p.Module
 }
 
-func (p *IntConfNode )GetMatrixSystemAndModuleString()(matrix string, system string,module string){
+func (p *IntNodeDo)GetMatrixSystemAndModuleString()(matrix string, system string,module string){
 	return p.Matrix, p.System, p.Module
 }
 
-func (p *FloatConfNode)GetMatrixSystemAndModuleString()(matrix string, system string,module string){
+func (p *FloatNodeDo)GetMatrixSystemAndModuleString()(matrix string, system string,module string){
 	return p.Matrix, p.System, p.Module
 }
 
-func (p *CommonConfNode)GetMatrixSystemAndModuleString()(matrix string, system string,module string){
+func (p *CommonNodeDo)GetMatrixSystemAndModuleString()(matrix string, system string,module string){
 	return p.Matrix, p.System, p.Module
 }
 
 
 
-func (p *BoolenConfNode )GetJson()[]byte{
+func (p *BoolenNodeDo)GetJson()[]byte{
 	//如果错误，则自动返回空值
 	data, _ := json.Marshal(p)
 	return data
 }
 
-func (p *IntConfNode)GetJson()[]byte{
+func (p *IntNodeDo)GetJson()[]byte{
 	data, _ := json.Marshal(p)
 	return data
 }
 
-func (p *FloatConfNode)GetJson()[]byte{
+func (p *FloatNodeDo)GetJson()[]byte{
 	data, _ := json.Marshal(p)
 	return data
 }
 
-func (p *CommonConfNode)GetJson()[]byte{
+func (p *CommonNodeDo)GetJson()[]byte{
 	data, _ := json.Marshal(p)
 	return data
 }
 
 
-func (p *BoolenConfNode)GetMatrixSystemModuleAndCountJSON(intstring string, time string)(matrix string, system string, module string, json []byte){
+func (p *BoolenNodeDo)GetMatrixSystemModuleAndCountJSON(intstring string, time string)(matrix string, system string, module string, json []byte){
 	if intstring !=""{
 		p.CountPhysicalNode(intstring, time)
 	}
@@ -317,7 +316,7 @@ func (p *BoolenConfNode)GetMatrixSystemModuleAndCountJSON(intstring string, time
 	return
 }
 
-func (p *IntConfNode)GetMatrixSystemModuleAndCountJSON(intstring string, time string)(matrix string, system string, module string, json []byte){
+func (p *IntNodeDo)GetMatrixSystemModuleAndCountJSON(intstring string, time string)(matrix string, system string, module string, json []byte){
 	if intstring !=""{
 		p.CountPhysicalNode(intstring, time)
 	}
@@ -326,7 +325,7 @@ func (p *IntConfNode)GetMatrixSystemModuleAndCountJSON(intstring string, time st
 	return
 }
 
-func (p *FloatConfNode)GetMatrixSystemModuleAndCountJSON(floatstring string, time string)(matrix string, system string, module string, json []byte){
+func (p *FloatNodeDo)GetMatrixSystemModuleAndCountJSON(floatstring string, time string)(matrix string, system string, module string, json []byte){
 	if floatstring !=""{
 		p.CountPhysicalNode(floatstring, time)
 	}
@@ -336,7 +335,7 @@ func (p *FloatConfNode)GetMatrixSystemModuleAndCountJSON(floatstring string, tim
 	return
 }
 
-func (p *CommonConfNode)GetMatrixSystemModuleAndCountJSON(floatstring string, time string)(matrix string, system string, module string, json []byte){
+func (p *CommonNodeDo)GetMatrixSystemModuleAndCountJSON(floatstring string, time string)(matrix string, system string, module string, json []byte){
 	if floatstring !=""{
 		p.CountPhysicalNode(floatstring, time)
 	}
@@ -346,7 +345,7 @@ func (p *CommonConfNode)GetMatrixSystemModuleAndCountJSON(floatstring string, ti
 	return
 }
 
-func (p *BoolenConfNode)JudgeAlarm()string{
+func (p *BoolenNodeDo)JudgeAlarm()string{
 	if !p.IsNormal&&p.IsOnSMS{
 		return fmt.Sprintf("%s->%s->%s:%s[发生异常时间为%s]", p.Matrix, p.System, p.Module, p.SMS, p.Date)
 	}else{
@@ -354,7 +353,7 @@ func (p *BoolenConfNode)JudgeAlarm()string{
 	}
 }
 
-func (p *IntConfNode)JudgeAlarm()string{
+func (p *IntNodeDo)JudgeAlarm()string{
 	if !p.IsNormal&&p.IsOnSMS{
 		return fmt.Sprintf("%s->%s->%s:%s[发生异常时间为%s]", p.Matrix, p.System, p.Module, p.SMS, p.Date)
 	}else{
@@ -362,7 +361,7 @@ func (p *IntConfNode)JudgeAlarm()string{
 	}
 }
 
-func (p *FloatConfNode)JudgeAlarm()string{
+func (p *FloatNodeDo)JudgeAlarm()string{
 	if !p.IsNormal&&p.IsOnSMS{
 		return fmt.Sprintf("%s->%s->%s:%s[发生异常时间为%s]", p.Matrix, p.System, p.Module, p.SMS, p.Date)
 	}else{
@@ -370,7 +369,7 @@ func (p *FloatConfNode)JudgeAlarm()string{
 	}
 }
 
-func (p *CommonConfNode)JudgeAlarm()string{
+func (p *CommonNodeDo)JudgeAlarm()string{
 	if !p.IsNormal&&p.IsOnSMS{
 		return fmt.Sprintf("%s->%s->%s:%s[发生异常时间为%s]", p.Matrix, p.System, p.Module, p.SMS, p.Date)
 	}else{
@@ -378,18 +377,18 @@ func (p *CommonConfNode)JudgeAlarm()string{
 	}
 }
 
-func (p *BoolenConfNode)PrepareMYSQLAlarm()(string,string,string,string){
+func (p *BoolenNodeDo)PrepareMYSQLAlarm()(string,string,string,string){
 	return fmt.Sprintf("%s->%s->%s", p.Matrix, p.System, p.Module), p.Value, p.Unit, fmt.Sprintf("%s->%s->%s:%s[发生异常时间为%s]", p.Matrix, p.System, p.Module, p.SMS, p.Date)
 }
 
-func (p *IntConfNode)PrepareMYSQLAlarm()(string,string,string,string){
+func (p *IntNodeDo)PrepareMYSQLAlarm()(string,string,string,string){
 	return fmt.Sprintf("%s->%s->%s", p.Matrix, p.System, p.Module), p.Value, p.Unit, fmt.Sprintf("%s->%s->%s:%s[发生异常时间为%s]", p.Matrix, p.System, p.Module, p.SMS, p.Date)
 }
 
-func (p *FloatConfNode)PrepareMYSQLAlarm()(string,string,string,string){
+func (p *FloatNodeDo)PrepareMYSQLAlarm()(string,string,string,string){
 	return fmt.Sprintf("%s->%s->%s", p.Matrix, p.System, p.Module), p.Value, p.Unit, fmt.Sprintf("%s->%s->%s:%s[发生异常时间为%s]", p.Matrix, p.System, p.Module, p.SMS, p.Date)
 }
 
-func (p *CommonConfNode)PrepareMYSQLAlarm()(string,string,string,string){
+func (p *CommonNodeDo)PrepareMYSQLAlarm()(string,string,string,string){
 	return fmt.Sprintf("%s->%s->%s", p.Matrix, p.System, p.Module), p.Value, p.Unit, fmt.Sprintf("%s->%s->%s:%s[发生异常时间为%s]", p.Matrix, p.System, p.Module, p.SMS, p.Date)
 }

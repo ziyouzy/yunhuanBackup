@@ -14,44 +14,6 @@ import(
 	//"github.com/ziyouzy/mylib/physicalnode"
 )
 
-type NodeDoCacheObject struct{
-	NodeDoMap map[string]*NodeDo
-	FlushTicket time.Ticket
-	lock *sync.Mutex
-}
-
-func (p *NodeDoCacheObject)Load(step int,m map[string]*NodeDo){
-	p.NodeDoMap =m
-	p.FlushTicket =(step)
-}
-
-//NodeDoMap.Key 举例: "494f3031f10201-tcpsocket-do3-bool"
-//GetHandlerTagForConfNodeMap()返回值举例："494f3031f10201-tcpsocket"
-func (p *NodeDoCacheObject)UpdateNodeDoMap(pn physicalnode.PhysicalNode){
-	pnhandlerandtag :=pn.GetHandlerTagForConfNodeMap()
-	p.lock.Lock()
-	for k,v :=range NodeDoMap{
-		if !strings. Contains(k,pnhandlerandtag){
-			continue
-		}
-
-		tempstr	:= strings.Split(k,"-")
-		handler :=tempstr[0]
-		tag :=tempstr[1]
-		nodename :=tempstr[2]
-
-		pvalue,ptime := pn.SeleteOneValueByProtocol(handler, tag, nodename)
-
-		
-		v.CountPhysicalNode(pvalue,ptime)
-	}
-	p.lock.UnLock()
-}
-
-//结合定时器生成可供tcpsocket直接发送的字节管道
-func (p *NodeDoCacheObject)CreateBytesCh()chan []byte{
-
-}
 
 
 type NodeDo interface{
@@ -93,56 +55,56 @@ func NewNodeDoValueObjectMap(base conf.ConfValueObjectMap)m map[string]*NodeDo{
 //这个函数目前似乎只能生成一个confNode
 //首先，confNodeMap的作用确实是基于他和for循环生成多个ConfNode
 //但是当生成了一个只后就立刻返回了，于是map后面的内容都会被遗弃
-func NewNodeDoArr(p physicalnode.PhysicalNode) []NodeDo {
-	//fmt.Println("confNodeMap in, NewConfNode:",confNodeMap)
-	//这里缺少一次判定，也就是某个物理节点是否被在conf中被提到了，没有的话，没必要耗费内存去做下面这些事
-	phandlertag :=p.GetHandlerTagForConfNodeMap()
-	var confnodearr []ConfNode
-	for k,v := range confNodeMap{
-		o :=k
-		//fmt.Println(o)
-		if !strings. Contains(o,phandlertag){
-			//fmt.Println(o)
-			continue
-		}else{
-			//fmt.Println(o)
-			tempValue :=v
-			tempstr	:= strings.Split(o,"-")
-			handler :=tempstr[0]
-			tag :=tempstr[1]
-			nodename :=tempstr[2]
-			valuetype :=tempstr[3]
-			switch valuetype{
-			case "bool":
-				var confnode BoolenConfNode
-				mapstructure.Decode(tempValue, &confnode)
-				/*SeleteOneValueByProtocol会返回两个string，一个是值，一个是时间*/
-				pvalue,ptime := p.SeleteOneValueByProtocol(handler, tag, nodename)
-				confnode.CountPhysicalNode(pvalue,ptime)
-				confnodearr =append(confnodearr, &confnode)
-			case "int":
-				var confnode IntConfNode
-				mapstructure.Decode(tempValue, &confnode)
-				pvalue,ptime := p.SeleteOneValueByProtocol(handler, tag, nodename)
-				confnode.CountPhysicalNode(pvalue,ptime)
-				confnodearr =append(confnodearr, &confnode)
-			case "float":
-				var confnode FloatConfNode
-				mapstructure.Decode(tempValue, &confnode)
-				pvalue,ptime := p.SeleteOneValueByProtocol(handler, tag, nodename)
-				confnode.CountPhysicalNode(pvalue,ptime)
-				confnodearr =append(confnodearr, &confnode)
-			case "common", "string":
-				var confnode CommonConfNode 
-				mapstructure.Decode(tempValue, &confnode)
-				pvalue,ptime := p.SeleteOneValueByProtocol(handler, tag, nodename)
-				confnode.CountPhysicalNode(pvalue,ptime)
-				confnodearr =append(confnodearr, &confnode)
-			default:
+// func NewNodeDoArr(p physicalnode.PhysicalNode) []NodeDo {
+// 	//fmt.Println("confNodeMap in, NewConfNode:",confNodeMap)
+// 	//这里缺少一次判定，也就是某个物理节点是否被在conf中被提到了，没有的话，没必要耗费内存去做下面这些事
+// 	phandlertag :=p.GetHandlerTagForConfNodeMap()
+// 	var confnodearr []ConfNode
+// 	for k,v := range confNodeMap{
+// 		o :=k
+// 		//fmt.Println(o)
+// 		if !strings. Contains(o,phandlertag){
+// 			//fmt.Println(o)
+// 			continue
+// 		}else{
+// 			//fmt.Println(o)
+// 			tempValue :=v
+// 			tempstr	:= strings.Split(o,"-")
+// 			handler :=tempstr[0]
+// 			tag :=tempstr[1]
+// 			nodename :=tempstr[2]
+// 			valuetype :=tempstr[3]
+// 			switch valuetype{
+// 			case "bool":
+// 				var confnode BoolenConfNode
+// 				mapstructure.Decode(tempValue, &confnode)
+// 				/*SeleteOneValueByProtocol会返回两个string，一个是值，一个是时间*/
+// 				pvalue,ptime := p.SeleteOneValueByProtocol(handler, tag, nodename)
+// 				confnode.CountPhysicalNode(pvalue,ptime)
+// 				confnodearr =append(confnodearr, &confnode)
+// 			case "int":
+// 				var confnode IntConfNode
+// 				mapstructure.Decode(tempValue, &confnode)
+// 				pvalue,ptime := p.SeleteOneValueByProtocol(handler, tag, nodename)
+// 				confnode.CountPhysicalNode(pvalue,ptime)
+// 				confnodearr =append(confnodearr, &confnode)
+// 			case "float":
+// 				var confnode FloatConfNode
+// 				mapstructure.Decode(tempValue, &confnode)
+// 				pvalue,ptime := p.SeleteOneValueByProtocol(handler, tag, nodename)
+// 				confnode.CountPhysicalNode(pvalue,ptime)
+// 				confnodearr =append(confnodearr, &confnode)
+// 			case "common", "string":
+// 				var confnode CommonConfNode 
+// 				mapstructure.Decode(tempValue, &confnode)
+// 				pvalue,ptime := p.SeleteOneValueByProtocol(handler, tag, nodename)
+// 				confnode.CountPhysicalNode(pvalue,ptime)
+// 				confnodearr =append(confnodearr, &confnode)
+// 			default:
 				
-			}
-		}
-	}
-	//此处应该录入log，range  confNodeMap失败了
-	return confnodearr
-}
+// 			}
+// 		}
+// 	}
+// 	//此处应该录入log，range  confNodeMap失败了
+// 	return confnodearr
+// }
