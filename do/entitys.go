@@ -112,7 +112,8 @@ type CommonNodeDo struct{
 }
 
 func (p *BoolenNodeDo)CountPhysicalNode(intstring string,time string){
-	
+	p.IsTimeOut =false
+
 	if !p.IsOnline{
 		p.IsNormal =true
 		p.Value = "**"
@@ -138,6 +139,8 @@ func (p *BoolenNodeDo)CountPhysicalNode(intstring string,time string){
 }
 
 func (p *IntNodeDo)CountPhysicalNode(intstring string, time string){
+	p.IsTimeOut =false
+
 	if !p.IsOnline{
 		p.IsNormal =true
 		p.Value = "**"
@@ -162,6 +165,8 @@ func (p *IntNodeDo)CountPhysicalNode(intstring string, time string){
 }
 
 func (p *FloatNodeDo)CountPhysicalNode(floatstring string, time string){
+	p.IsTimeOut =false
+
 	if !p.IsOnline{
 		p.IsNormal =true
 		p.Date =time
@@ -185,6 +190,8 @@ func (p *FloatNodeDo)CountPhysicalNode(floatstring string, time string){
 }
 
 func (p *CommonNodeDo)CountPhysicalNode(floatstring string, time string){
+	p.IsTimeOut =false
+	
 	if !p.IsOnline{
 		p.IsNormal =true
 		p.Value = "**"
