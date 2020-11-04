@@ -4,7 +4,7 @@ import(
 	"strings"
 	"strconv"
 	//"bytes"
-	"fmt"
+	//"fmt"
 	//"encoding/binary"
 )
 
@@ -86,28 +86,28 @@ func (p *DO_YOUREN_USRIO808EWR_20200924)FullOf(){
 	return
 }
 
-func (p *DO_YOUREN_USRIO808EWR_20200924)GetNodeType() string{
-	return p.NodeType
+// func (p *DO_YOUREN_USRIO808EWR_20200924)GetNodeType() string{
+// 	return p.NodeType
+// }
+
+// func (p *DO_YOUREN_USRIO808EWR_20200924)GetHandler() string{
+// 	return p.Handler
+// }
+
+func (p *DO_YOUREN_USRIO808EWR_20200924)SeleteHandlerAndTag() (string, string){
+	return p.Handler, p.Tag
 }
 
-func (p *DO_YOUREN_USRIO808EWR_20200924)GetHandler() string{
-	return p.Handler
-}
-
-func (p *DO_YOUREN_USRIO808EWR_20200924)GetHandlerTagForConfNodeMap() string{
-	return fmt.Sprintf("%s-%s", p.Handler, p.Tag)
-}
-
-func (p *DO_YOUREN_USRIO808EWR_20200924)GetRaw() (string,string,string,string,string,string,string){
-	return p.NodeType, p.ProtocolType, p.Tag, p.InputTime, p.Value, p.Mark, p.Handler
-}
+// func (p *DO_YOUREN_USRIO808EWR_20200924)GetRaw() (string,string,string,string,string,string,string){
+// 	return p.NodeType, p.ProtocolType, p.Tag, p.InputTime, p.Value, p.Mark, p.Handler
+// }
 
 
-func (p *DO_YOUREN_USRIO808EWR_20200924)SeleteOneValueByProtocol(protocolhandler string, protocoltag string, protocolnodename string) (string,string){
-	if strings.Compare(p.Handler,protocolhandler)!=0||strings.Compare(p.Tag, protocoltag)!=0{
+func (p *DO_YOUREN_USRIO808EWR_20200924)SeleteOneValueAndTime(nodedohandler string, nodedotag string, nodedoname string) (string,string){
+	if strings.Compare(p.Handler,nodedohandler)!=0||strings.Compare(p.Tag, nodedotag)!=0{
 		return "",""
 	}
-	switch (protocolnodename){
+	switch (nodedoname){
 	case "do8":
 		return p.DO8,p.InputTime
 	case "do7":

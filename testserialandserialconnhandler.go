@@ -15,12 +15,11 @@ func main(){
 
 	tcphandler :=pipelineTcpHandler{}
 	//serialhandler := pipelineSerialHandler{ProtocolPortsName:[]string{"serial1","serial2","serial3"},
-	// 	ProtocolPortsBaud:[]int{9600,9600,9600},ProtocolPortsReadTimeout:[]int{5,5,5},ProtocolPortsNeedCRC:[]bool{true,true,true},}
-//--
+	//ProtocolPortsBaud:[]int{9600,9600,9600},ProtocolPortsReadTimeout:[]int{5,5,5},ProtocolPortsNeedCRC:[]bool{true,true,true},}
+
 	tcpCh :=tcphandler.ListenAndGenerateRecvCh()
-//	serialCh :=serialhandler.ListenAndGenerateRecvCh()
-//--
-	//sendmap目前会返回两个字段，一个是tcp的管道，一个是udp的管道
+	//serialCh :=serialhandler.ListenAndGenerateRecvCh()
+
 	sendmap := protocol.ProtocolPrepareSendTicketMgr_YunHuan20200924() 
 	for k,msgch :=range sendmap{
 		o :=k//完美的解决了问题，其实就是之前经常在百度上看到的关于那个range的坑的各类文章，区别在于，不只是v存在这个问题，k也同样如此
@@ -35,32 +34,35 @@ func main(){
 			}
 		}()
 	}
-//--
-//--
+
+	//其实tcpch已经可以直接作为rawCh来使用了，只不过值后可以用MergeConCS()进行扩展
 	rawCh :=MergeConCS(tcpCh/*,serialCh*/)
-	confNodeCh :=Convert(rawCh)
-	moduleViewCh, systemViewCh, matrixViewCh, smsCh, alarmmysqlentityCH := Separate(confNodeCh)
-//--	
-for{
-	select {
-	case /*temp :=*/<-moduleViewCh:
-	//	fmt.Println("moduleViewCh")
-	//	fmt.Println("moduleView:",string(temp),"\n")
-		//tcphandler.ConnMap[os.Getenv("tcpui")].SendBytes(temp)
-	case /*temp :=*/<-systemViewCh:
-	//	fmt.Println("systemViewCh")
-	//	fmt.Println("systemView:",string(temp),"\n")
-	case /*temp :=*/<-matrixViewCh:
-	//	fmt.Println("matrixViewCh")
-	//	fmt.Println("matrixView:",string(temp),"\n")
-	case/* temp :=*/<-smsCh:
-	//	fmt.Println("sms:",string(temp))
-	case temp :=<-alarmmysqlentityCH:
-		model.DB.Create(&temp)
-		//data, _ := json.Marshal(temp)
-		//fmt.Println(string(data))
+	physicalNodeCh :=PhysicalConvert(rawCh)
+	for p :=range physicalNodeCh{
+		fmt.Println(p)
 	}
-}
+//	moduleViewCh, systemViewCh, matrixViewCh, smsCh, alarmmysqlentityCH := Separate(confNodeCh)
+//--	
+// for{
+// 	select {
+// 	case /*temp :=*/<-moduleViewCh:
+// 	//	fmt.Println("moduleViewCh")
+// 	//	fmt.Println("moduleView:",string(temp),"\n")
+// 		//tcphandler.ConnMap[os.Getenv("tcpui")].SendBytes(temp)
+// 	case /*temp :=*/<-systemViewCh:
+// 	//	fmt.Println("systemViewCh")
+// 	//	fmt.Println("systemView:",string(temp),"\n")
+// 	case /*temp :=*/<-matrixViewCh:
+// 	//	fmt.Println("matrixViewCh")
+// 	//	fmt.Println("matrixView:",string(temp),"\n")
+// 	case/* temp :=*/<-smsCh:
+// 	//	fmt.Println("sms:",string(temp))
+// 	case temp :=<-alarmmysqlentityCH:
+// 		model.DB.Create(&temp)
+// 		//data, _ := json.Marshal(temp)
+// 		//fmt.Println(string(data))
+// 	}
+// }
 	
 
 	//separate&merge：分离&融合
@@ -99,22 +101,23 @@ func MergeConCS(cs ...chan []byte)chan []byte{
 	return out
 }
 
-func Convert(ch chan []byte) chan conf.ConfNode{
-	confnodech := make(chan conf.ConfNode)
+func PhysicalConvert(ch chan []byte) chan physicalnode.PhysicalNode{
+	//confnodech := make(chan conf.ConfNode)
+	physiacalnodech :=make(chan physicalnode.PhysicalNode)
 	go func(){
 		for b := range ch{
-			PhysicalNode :=protocol.ProtocolPreparePhysicalNode_YunHuan20200924(b)
+			physicalNode :=protocol.ProtocolPreparePhysicalNode_YunHuan20200924(b)
 			//fmt.Println("PhysicalNode:",PhysicalNode)
-			ConfNodeArr :=conf.NewConfNodeArr(PhysicalNode)
-			for _, confnode := range ConfNodeArr{
-				confnodech<-confnode
-			}
+			//ConfNodeArr :=conf.NewConfNodeArr(PhysicalNode)
+			//for _, confnode := range ConfNodeArr{
+			//	confnodech<-confnode
+			physiacalnodech<-physicalnode
 		}
 	}()
-	return confnodech
+	return physicalnodech
 }
 
-func Separate(confnodech chan conf.ConfNode)(chan []byte, chan []byte, chan []byte, chan []byte,  chan *model.AlarmEntity){
-	moduleViewCh, systemViewCh, matrixViewCh, smsCh, AlarmMySQLEntityCh :=protocol.ProtocolViewNodesHandler_YunHuan20201004(confnodech)
-	return moduleViewCh, systemViewCh, matrixViewCh, smsCh, AlarmMySQLEntityCh
-}
+// func Separate(confnodech chan conf.ConfNode)(chan []byte, chan []byte, chan []byte, chan []byte,  chan *model.AlarmEntity){
+// 	moduleViewCh, systemViewCh, matrixViewCh, smsCh, AlarmMySQLEntityCh :=protocol.ProtocolViewNodesHandler_YunHuan20201004(confnodech)
+// 	return moduleViewCh, systemViewCh, matrixViewCh, smsCh, AlarmMySQLEntityCh
+// }

@@ -26,6 +26,7 @@ type pipelineTcpHandler struct{
 }
 
 
+//负责最外层的listen以及将客户端放入map
 func (p *pipelineTcpHandler)ListenAndGenerateRecvCh()chan([]byte){	
 	p.ConnMap =make(map[string]*tcp.PipelineTcpSocketConn)
 
@@ -34,8 +35,8 @@ func (p *pipelineTcpHandler)ListenAndGenerateRecvCh()chan([]byte){
 		fmt.Println(err.Error())
 	}
 
+	
 	ch := make(chan []byte)//属于主函数的管道，不需要额外设计close事件，而是与程序自身一起开启与关闭
-
 	collectOneClientMsg := func(ip string,oneClientCh chan []byte) {
 		//某一个客户连接的销毁，该事件最终会让这个函数销毁，但不会影响更上层了
 		defer delete(p.ConnMap,ip)
@@ -45,6 +46,7 @@ func (p *pipelineTcpHandler)ListenAndGenerateRecvCh()chan([]byte){
 			//fmt.Println("设备在线：",p.ConnMap[strings.Split(ip,":")[0]])
 		}
 	}
+
 
 	go func(){
 		listener, err := net.ListenTCP("tcp", tcpAddr)
@@ -61,6 +63,7 @@ func (p *pipelineTcpHandler)ListenAndGenerateRecvCh()chan([]byte){
 				fmt.Println(err.Error())
 			}
 		
+			//从这里开始调用tcp包的方法继续对conn的加工于
 			ip,tcpconn :=tcp.NewPipelineTcpSocketConn(conn,true)
 			p.ConnMap[strings.Split(ip,":")[0]] =tcpconn
 			fmt.Println("p.ConnMap:",p.ConnMap)

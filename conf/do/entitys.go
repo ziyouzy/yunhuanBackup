@@ -274,22 +274,6 @@ func (p *CommonNodeDo)CountPhysicalNode(floatstring string, time string){
 	return
 }
 
-func (p *BoolenNodeDo)GetMatrixSystemAndModuleString()(matrix string, system string,module string){
-	return p.Matrix, p.System, p.Module
-}
-
-func (p *IntNodeDo)GetMatrixSystemAndModuleString()(matrix string, system string,module string){
-	return p.Matrix, p.System, p.Module
-}
-
-func (p *FloatNodeDo)GetMatrixSystemAndModuleString()(matrix string, system string,module string){
-	return p.Matrix, p.System, p.Module
-}
-
-func (p *CommonNodeDo)GetMatrixSystemAndModuleString()(matrix string, system string,module string){
-	return p.Matrix, p.System, p.Module
-}
-
 
 
 func (p *BoolenNodeDo)GetJson()[]byte{
@@ -314,43 +298,7 @@ func (p *CommonNodeDo)GetJson()[]byte{
 }
 
 
-func (p *BoolenNodeDo)GetMatrixSystemModuleAndCountJSON(intstring string, time string)(matrix string, system string, module string, json []byte){
-	if intstring !=""{
-		p.CountPhysicalNode(intstring, time)
-	}
-	matrix, system, module =p.GetMatrixSystemAndModuleString()
-	json =p.GetJson()
-	return
-}
 
-func (p *IntNodeDo)GetMatrixSystemModuleAndCountJSON(intstring string, time string)(matrix string, system string, module string, json []byte){
-	if intstring !=""{
-		p.CountPhysicalNode(intstring, time)
-	}
-	matrix, system, module =p.GetMatrixSystemAndModuleString()
-	json =p.GetJson()
-	return
-}
-
-func (p *FloatNodeDo)GetMatrixSystemModuleAndCountJSON(floatstring string, time string)(matrix string, system string, module string, json []byte){
-	if floatstring !=""{
-		p.CountPhysicalNode(floatstring, time)
-	}
-
-	matrix, system, module =p.GetMatrixSystemAndModuleString()
-	json =p.GetJson()
-	return
-}
-
-func (p *CommonNodeDo)GetMatrixSystemModuleAndCountJSON(floatstring string, time string)(matrix string, system string, module string, json []byte){
-	if floatstring !=""{
-		p.CountPhysicalNode(floatstring, time)
-	}
-
-	matrix, system, module =p.GetMatrixSystemAndModuleString()
-	json =p.GetJson()
-	return
-}
 
 func (p *BoolenNodeDo)JudgeAlarm()string{
 	if !p.IsNormal&&p.IsOnSMS{

@@ -6,7 +6,7 @@ package protocol
 
 import(
 	"github.com/ziyouzy/mylib/conf"
-	"github.com/ziyouzy/mylib/view"
+	//"github.com/ziyouzy/mylib/view" 取代他的是do包
 	"github.com/ziyouzy/mylib/model"
 
 	//"fmt"
@@ -68,6 +68,7 @@ var (
 )
 
 //拿到主函数去使用,入参是个实体，返回的是个管道
+//我要重写新的协议了20201004将被抛弃
 func ProtocolViewNodesHandler_YunHuan20201004(confnodech chan conf.ConfNode)(chan []byte, chan []byte, chan []byte, chan []byte, chan *model.AlarmEntity){
 	moduleViewCh := make(chan []byte)
 	systemViewCh := make(chan []byte)

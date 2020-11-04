@@ -1,4 +1,4 @@
-package conf
+package viperlistener
 
 import(
 	"github.com/spf13/viper"
@@ -55,7 +55,7 @@ func InitConfMap(){
 	}
 }
 
-func CreateConfValueObjectMapByType(typeString string)map[string]interface{}{
+func NewConfValueObjectMapByType(typeString string)map[string]interface{}{
 	m :=viper.Get(typeString)
 	if value, ok :=m.(map[string]interface{});ok{
 		return m

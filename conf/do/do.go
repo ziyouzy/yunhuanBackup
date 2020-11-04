@@ -4,12 +4,13 @@
 package do
 
 import(
-	"encoding/json"
+	//"encoding/json"
 	"strings"
-	"strconv"
+	//"strconv"
 	"fmt"
-	"time"
-	"sync"
+	//"time"
+	//"sync"
+	"github.com/ziyouzy/mylib/conf"
 	
 	//"github.com/ziyouzy/mylib/physicalnode"
 )
@@ -18,15 +19,16 @@ import(
 
 type NodeDo interface{
 	CountPhysicalNode(string, string)
-	GetMatrixSystemAndModuleString()(string, string, string)
 	GetJson()[]byte
-	GetMatrixSystemModuleAndCountJSON(string, string)(string, string, string, []byte)
 	JudgeAlarm()string
 	PrepareMYSQLAlarm()(string,string,string,string)
 }
 
-//会结合conf中的NodeDoVO生成当前配置文件所描述的所有物理节点VO的缓存map
-func NewNodeDoValueObjectMap(base conf.ConfValueObjectMap)m map[string]*NodeDo{
+//会从conf包已经做好json文档映射关系的对象中拿数据，生成当前配置文件所描述的所有物理节点VO的缓存map
+//当监测到json文件发生变动时需要再次执行
+//会填入conf.NodeDoVO实体对象
+func NewNodeDoValueObjectMap(base map[string]interface{})map[string]*NodeDo{
+	m := make(map[string]*NodeDo)
 	for k,v := range base{
 		switch strings.Split(k,"-")[3]{
 		case "bool":

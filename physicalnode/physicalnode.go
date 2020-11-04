@@ -17,12 +17,12 @@ import (
 )
 
 type  PhysicalNode interface{
-	GetNodeType() string
-	GetHandler() string
-	GetHandlerTagForConfNodeMap() string
-	GetRaw() (string,string,string,string,string,string,string)
+	//GetNodeType() string
+	//GetHandler() string
+	//GetRaw() (string,string,string,string,string,string,string)
 	FullOf()
-	SeleteOneValueByProtocol(string, string, string) (string,string)
+	SeleteHandlerAndTag() (string,string)
+	SeleteOneValueAndTime(string, string, string) (string,string)
 }
 
 func NewPhysicalNodeFromBytes(b []byte,tag string,protocoltype string,nodetype string) PhysicalNode{
