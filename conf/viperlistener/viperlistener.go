@@ -31,7 +31,7 @@ var(
 	ConfigIsChange chan bool
 )
 
-func InitConfMap(){
+func LoadViper(){
 	viper.SetConfigName("riverconf") //  设置配置文件名 (不带后缀)
 	//viper.AddConfigPath("/workspace/appName/") 
 	viper.AddConfigPath(".")               // 比如添加当前目
@@ -39,16 +39,6 @@ func InitConfMap(){
 	err := viper.ReadInConfig() // 搜索路径，并读取配置数据
 
 	if err == nil {
-		// NodeDoVO :=ConfValueObjectMap
-		// NodeDoVO.update("nodes")
-		// fmt.Println("NodeDoVO in init:",NodeDoVO)
-		// NodeDoCache =do.NewNodeDoValueObj(3,NodeDoVO)
-
-		// AlarmVO :=ConfValueObjectMap
-		// AlarmVO.update("alarm")
-		// fmt.Println("AlarmVO in init:", AlarmVO)
-		// AlarmFilterCache =alarm.NewAlarmFilterObject(AlarmVO)
-
 		go watching()
 	}else{
 		panic(fmt.Errorf("Fatal init config file! \n"))
@@ -58,7 +48,7 @@ func InitConfMap(){
 func NewConfValueObjectMapByType(typeString string)map[string]interface{}{
 	m :=viper.Get(typeString)
 	if value, ok :=m.(map[string]interface{});ok{
-		return m
+		return value
 	}else{
 		fmt.Println("CreateConfValueObjectMap fail, type is",typeString)
 		return nil
@@ -71,23 +61,12 @@ func watching() {
 		fmt.Println("Config file changed:", e.Name)
 		err := viper.ReadInConfig() // 搜索路径，并读取配置数据
 		if err == nil {
-		// 	NodeDoVO :=ConfValueObjectMap
-		// 	AlarmVO :=ConfValueObjectMap
-			
-		// 	NodeDoVO.update("nodes")	
-		// 	AlarmVO.update("alarm")
-
-		// 	NodeDoCache.Quit()
-		// 	NodeDoCache=NewNodeDoValueObj(3,NodeDoVO)
-
-		// 	AlarmFilterCache.Quit()
-		// 	AlarmFilterCache =NewAlarmFilterObject(AlarmVO)
 			ConfigIsChange <-true
 			return
 		}else{
 			fmt.Println("Fatal reset config file!")
 			return
-	}
+		}
 	})
 }
 

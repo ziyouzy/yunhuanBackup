@@ -10,6 +10,10 @@ package do
 import(
 	"time"
 	"sync"
+	"strings"
+	"fmt"
+
+	"github.com/ziyouzy/mylib/physicalnode"
 )
 
 type NodeDoValueObject struct{
@@ -23,8 +27,8 @@ type NodeDoValueObject struct{
 func NewNodeDoValueObj(step int,m map[string]NodeDo) *NodeDoValueObject{
 	nd :=NodeDoValueObject{}
 	nd.NodeDoMap =m
-	nd.FlushTicket =time.NewTicker(step * time.Second)
-	return nd
+	nd.FlushTicket =time.NewTicker(time.Duration(step) * time.Second)
+	return &nd
 }
 
 //结合定时器生成NodeDo管道，里面的每个NodeDo都是最终的结果
@@ -36,14 +40,14 @@ func (p *NodeDoValueObject)CreateNodeDoCh()chan NodeDo{
 		defer close(nodeDoCh)
 		for {
 			select {
-			case <-done:
+			case <-p.done:
 				break
 			case <-p.FlushTicket.C:
 				p.lock.Lock()
-				for k,v := range p.NodeDoMap{
+				for _,v := range p.NodeDoMap{
 					nodeDoCh <-v
 				}
-				p.lock.UnLock()
+				p.lock.Unlock()
 			}
 		}    
 	}()
@@ -53,28 +57,18 @@ func (p *NodeDoValueObject)CreateNodeDoCh()chan NodeDo{
 //NodeDoMap.Key 举例: "494f3031f10201-tcpsocket-do3-bool"
 //GetHandlerTagForConfNodeMap()返回值举例："494f3031f10201-tcpsocket"
 func (p *NodeDoValueObject)UpdateNodeDoMap(pn physicalnode.PhysicalNode){
-	pnhandlerandtag :=pn.GetHandlerTagForConfNodeMap()
+	handler, tag :=pn.SelectHandlerAndTag()
 	p.lock.Lock()
-	for k,v :=range NodeDoMap{
-		if !strings. Contains(k,pnhandlerandtag){
+	for k,_ :=range p.NodeDoMap{
+		if !strings. Contains(k,fmt.Sprintf("%s-%s",handler,tag)){
 			continue
 		}
+		nodename :=strings.Split(k,"-")[2]
 
-		//原生工具只能实现一一分配，否则你需要自己封装一下相关功能
-		tempstr	:= strings.Split(k,"-")
-		handler :=tempstr[0]
-		tag :=tempstr[1]
-		nodename :=tempstr[2]
-
-		//NodeDo所对应的json字符串的字段名称已包含了对应物理节点的完整信息
-		//这里的实质是json配置文档的核心字段（上面的“handler”、“tag”、“nodename”）
-		//与现有的physicalnode层实现对接，提取对应的节点数据。并不存在与自定义协议层(package protocol)的任何联系
-		//最终会用所获得的节点数据实现NodeDo层
-		pvalue,ptime := pn.SeleteOneValueAndTime(handler, tag, nodename)
-		//使用从物理节点获取的信息渲染对应的NodeDo缓存，实现NodeDo层
-		v.CountPhysicalNode(pvalue,ptime)
+		pvalue,ptime := pn.SelectOneValueAndTime(handler, tag, nodename)
+		p.NodeDoMap[k].UpdateOneNodeDo(pvalue,ptime)
 	}
-	p.lock.UnLock()
+	p.lock.Unlock()
 }
 
 func (p *NodeDoValueObject)Quit(){

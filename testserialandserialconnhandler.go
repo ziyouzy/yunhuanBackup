@@ -10,8 +10,9 @@ import(
 )
 
 func main(){
+	//数据库也可以在conf.Load()里实例化，不过选在这里只是为了看着清晰一点
 	model.ConnectMySQL("yunhuan_api:13131313@tcp(127.0.0.1:3306)/yh?charset=utf8")
-	conf.InitConfMap()
+	conf.Load()
 
 	tcphandler :=pipelineTcpHandler{}
 	//serialhandler := pipelineSerialHandler{ProtocolPortsName:[]string{"serial1","serial2","serial3"},

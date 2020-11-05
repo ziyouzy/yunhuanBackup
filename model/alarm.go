@@ -8,6 +8,10 @@ import (
 /*名称；数值；正常值；单位；告警内容；时间*/
 type AlarmEntity struct {
 	gorm.Model
+
+	NodeID int `gorm:"comment:'从json配置中所读取的设备ID'"`
+	ModuleParentID int `gorm:"comment:'从json配置中所读取的设备父节点ID'"`
+
 	Name string 	`gorm:"comment:'异常节点的名称'"`
 	Value string 	`gorm:"comment:'超限当时的数值'"`
 	Unit string 	`gorm:"comment:'单位'"`

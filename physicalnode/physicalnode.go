@@ -21,8 +21,8 @@ type  PhysicalNode interface{
 	//GetHandler() string
 	//GetRaw() (string,string,string,string,string,string,string)
 	FullOf()
-	SeleteHandlerAndTag() (string,string)
-	SeleteOneValueAndTime(string, string, string) (string,string)
+	SelectHandlerAndTag() (string,string)
+	SelectOneValueAndTime(string, string, string) (string,string)
 }
 
 func NewPhysicalNodeFromBytes(b []byte,tag string,protocoltype string,nodetype string) PhysicalNode{

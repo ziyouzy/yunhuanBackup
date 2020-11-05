@@ -1,7 +1,0 @@
-evolver的功能已经通过conf<->viper<->json的方式将其功能重构并再次实现了，是用更适合的方式再次实现了
-conf包的ConfNode.CountPhysicalNode()方法起到了判定正常与异常的作用，也就是evolver包的math子包的作用
-
-或者说，把之前physicalnode包柴成了两个包，一个是无对错状态的physicalnode，另一个是有对错状态的confnode
-并且confnode也是组成view的最小节点，有承上启下的作用
-一个confnode自身就可以序列化后直接发送，并被前端ui识别
-但是一般都会先经过view包转化为流水线模式的管道

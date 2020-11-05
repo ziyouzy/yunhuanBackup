@@ -1,18 +1,17 @@
 package conf
 
 import(
-	"github.com/spf13/viper"
-	"github.com/fsnotify/fsnotify"
+	//"github.com/spf13/viper"
+	//"github.com/fsnotify/fsnotify"
 
 	"fmt"
 	//"strings"
 	//"encoding/json"
-	//"github.com/ziyouzy/mylib/physicalnode"
-	//"github.com/mitchellh/mapstructure"
+	"github.com/ziyouzy/mylib/conf/viperlistener"
 
 	//"os"
-	//"github.com/ziyouzy/mylib/do"
-	//"github.com/ziyouzy/mylib/alarm"
+	"github.com/ziyouzy/mylib/do"
+	"github.com/ziyouzy/mylib/alarm"
 )
 
 //使用type只是用来为其设计update方法
@@ -23,72 +22,39 @@ import(
 //type ConfValueObjectMap map[string]interface{}
 
 var(
-	//NodeDoVO ConfValueObjectMap
-	//AlarmVO ConfValueObjectMap
-
-	//NodeDoCache do.NodeDoValueObject
-	//AlarmFilterCache alarm.AlarmFilterObject
-	ConfigIsChange chan bool
+	NodeDoCache do.NodeDoValueObject
+	AlarmFilterCache alarm.AlarmFilterObject
 )
 
-func InitConfMap(){
-	viper.SetConfigName("riverconf") //  设置配置文件名 (不带后缀)
-	//viper.AddConfigPath("/workspace/appName/") 
-	viper.AddConfigPath(".")               // 比如添加当前目
-	viper.SetConfigType("json")
-	err := viper.ReadInConfig() // 搜索路径，并读取配置数据
+//拿到可以全局使用的viper变量
+func Load(){
+	viperlistener.LoadViper()
 
-	if err == nil {
-		// NodeDoVO :=ConfValueObjectMap
-		// NodeDoVO.update("nodes")
-		// fmt.Println("NodeDoVO in init:",NodeDoVO)
-		// NodeDoCache =do.NewNodeDoValueObj(3,NodeDoVO)
+	nodeDoConf :=viperlistener.NewConfValueObjectMapByType("nodedo")
+	alarmFilterConf :=viperlistener.NewConfValueObjectMapByType("alarm")
 
-		// AlarmVO :=ConfValueObjectMap
-		// AlarmVO.update("alarm")
-		// fmt.Println("AlarmVO in init:", AlarmVO)
-		// AlarmFilterCache =alarm.NewAlarmFilterObject(AlarmVO)
+	NodeDoCache :=do.NewNodeDoValueObj(3, do.NewNodeDoValueObjectMap(nodeDoConf))
+	AlarmFilterCache :=alarm.NewAlarmFilterObject(alarmFilterConf)
 
-		go watching()
-	}else{
-		panic(fmt.Errorf("Fatal init config file! \n"))
-	}
-}
+	fmt.Println("初始化NodeDoCache成功,alarmFilterConf:",NodeDoCache)
+	fmt.Println("初始化AlarmFilterCache成功,alarmFilterConf:",AlarmFilterCache)
 
-func CreateConfValueObjectMapByType(typeString string)map[string]interface{}{
-	m :=viper.Get(typeString)
-	if value, ok :=m.(map[string]interface{});ok{
-		return m
-	}else{
-		fmt.Println("CreateConfValueObjectMap fail, type is",typeString)
-		return nil
-	}
-}
+	//通过viper监听配置文件是否被改动:
+	go func(){
+		for{
+			select {
+			case <-viperlistener.ConfigIsChange:
+				nodeDoConf :=viperlistener.NewConfValueObjectMapByType("nodedo")
+				alarmFilterConf :=viperlistener.NewConfValueObjectMapByType("alarm")
 
-func watching() {
-	viper.WatchConfig()
-	viper.OnConfigChange(func(e fsnotify.Event) {
-		fmt.Println("Config file changed:", e.Name)
-		err := viper.ReadInConfig() // 搜索路径，并读取配置数据
-		if err == nil {
-		// 	NodeDoVO :=ConfValueObjectMap
-		// 	AlarmVO :=ConfValueObjectMap
-			
-		// 	NodeDoVO.update("nodes")	
-		// 	AlarmVO.update("alarm")
+				NodeDoCache :=do.NewNodeDoValueObj(3, do.NewNodeDoValueObjectMap(nodeDoConf))
+				AlarmFilterCache :=alarm.NewAlarmFilterObject(alarmFilterConf)
 
-		// 	NodeDoCache.Quit()
-		// 	NodeDoCache=NewNodeDoValueObj(3,NodeDoVO)
-
-		// 	AlarmFilterCache.Quit()
-		// 	AlarmFilterCache =NewAlarmFilterObject(AlarmVO)
-			ConfigIsChange <-true
-			return
-		}else{
-			fmt.Println("Fatal reset config file!")
-			return
-	}
-	})
+				fmt.Println("更新NodeDoCache成功,alarmFilterConf:",NodeDoCache)
+				fmt.Println("更新AlarmFilterCache成功,alarmFilterConf:",AlarmFilterCache)
+			}
+		}
+	}()
 }
 
 

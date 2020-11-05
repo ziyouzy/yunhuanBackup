@@ -8,50 +8,58 @@ import(
 	"strings"
 	//"strconv"
 	"fmt"
+
+	"github.com/mitchellh/mapstructure"
 	//"time"
 	//"sync"
-	"github.com/ziyouzy/mylib/conf"
+	//"github.com/ziyouzy/mylib/conf"
 	
 	//"github.com/ziyouzy/mylib/physicalnode"
+	"github.com/ziyouzy/mylib/model"
 )
 
 
 
 type NodeDo interface{
-	CountPhysicalNode(string, string)
+	UpdateOneNodeDo(string, string)
 	GetJson()[]byte
-	JudgeAlarm()string
-	PrepareMYSQLAlarm()(string,string,string,string)
+	PrepareSMSAlarm()string
+	PrepareMYSQLAlarm(*model.AlarmEntity)
 }
 
 //会从conf包已经做好json文档映射关系的对象中拿数据，生成当前配置文件所描述的所有物理节点VO的缓存map
 //当监测到json文件发生变动时需要再次执行
 //会填入conf.NodeDoVO实体对象
-func NewNodeDoValueObjectMap(base map[string]interface{})map[string]*NodeDo{
-	m := make(map[string]*NodeDo)
+func NewNodeDoValueObjectMap(base map[string]interface{})map[string]NodeDo{
+	m := make(map[string]NodeDo)
 	for k,v := range base{
 		switch strings.Split(k,"-")[3]{
 		case "bool":
 			var do BoolenNodeDo
 			mapstructure.Decode(v, &do)
-			m =append(m, &do)
+			//m =append(m, &do)
+			m[k] =&do
 		case "int":
 			var do IntNodeDo
 			mapstructure.Decode(v, &do)
-			m =append(m, &do)
+			//m =append(m, &do)
+			m[k] =&do
 		case "float":
 			var do FloatNodeDo
 			mapstructure.Decode(v, &do)
-			m =append(m, &do)
+			//m =append(m, &do)
+			m[k] =&do
 		case "common", "string":
 			var do CommonNodeDo 
 			mapstructure.Decode(v, &do)
-			m =append(m, &do)
+			//m =append(m, &do)
+			m[k] =&do
 		default:
-			fmt.Println("在创建NodeVo各个缓存时，json字符串中，名为：",k,"中的",strings.Split(k,"-")[3],"类型无法被解析")
+			fmt.Println("在创建NodeDo各个缓存时，json字符串中，名为：",k,"中的",strings.Split(k,"-")[3],"类型无法被解析")
+			return nil
 		}
 	}
-	return
+	return m
 }
 
 //这个函数目前似乎只能生成一个confNode

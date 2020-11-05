@@ -97,7 +97,7 @@ func (p *DI_YOUREN_USRIO808EWR_20200924)FullOf(){
 // 	return p.Handler
 // }
 
-func (p *DI_YOUREN_USRIO808EWR_20200924)SeleteHandlerAndTag() (string,string){
+func (p *DI_YOUREN_USRIO808EWR_20200924)SelectHandlerAndTag() (string,string){
 	return p.Handler, p.Tag
 }
 
@@ -105,7 +105,7 @@ func (p *DI_YOUREN_USRIO808EWR_20200924)SeleteHandlerAndTag() (string,string){
 // 	return p.NodeType, p.ProtocolType, p.Tag, p.InputTime, p.Value, p.Mark, p.Handler
 // }
 
-func (p *DI_YOUREN_USRIO808EWR_20200924)SeleteOneValueAndTime(nodedohandler string, nodedotag string, nodedoname string) (string,string){
+func (p *DI_YOUREN_USRIO808EWR_20200924)SelectOneValueAndTime(nodedohandler string, nodedotag string, nodedoname string) (string,string){
 	if strings.Compare(p.Handler,nodedohandler)!=0||strings.Compare(p.Tag, nodedotag)!=0{
 		return "",""
 	}

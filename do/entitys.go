@@ -1,5 +1,13 @@
 package do
 
+import(
+	"strconv"
+	"strings"
+	"fmt"
+	"encoding/json"
+
+	"github.com/ziyouzy/mylib/model"
+)
 
 type BoolenNodeDo struct{
 	Id int
@@ -111,7 +119,7 @@ type CommonNodeDo struct{
 	Date string 
 }
 
-func (p *BoolenNodeDo)CountPhysicalNode(intstring string,time string){
+func (p *BoolenNodeDo)UpdateOneNodeDo(intstring string,time string){
 	p.IsTimeOut =false
 
 	if !p.IsOnline{
@@ -138,7 +146,7 @@ func (p *BoolenNodeDo)CountPhysicalNode(intstring string,time string){
 	}
 }
 
-func (p *IntNodeDo)CountPhysicalNode(intstring string, time string){
+func (p *IntNodeDo)UpdateOneNodeDo(intstring string, time string){
 	p.IsTimeOut =false
 
 	if !p.IsOnline{
@@ -164,7 +172,7 @@ func (p *IntNodeDo)CountPhysicalNode(intstring string, time string){
 
 }
 
-func (p *FloatNodeDo)CountPhysicalNode(floatstring string, time string){
+func (p *FloatNodeDo)UpdateOneNodeDo(floatstring string, time string){
 	p.IsTimeOut =false
 
 	if !p.IsOnline{
@@ -189,7 +197,7 @@ func (p *FloatNodeDo)CountPhysicalNode(floatstring string, time string){
 	return
 }
 
-func (p *CommonNodeDo)CountPhysicalNode(floatstring string, time string){
+func (p *CommonNodeDo)UpdateOneNodeDo(floatstring string, time string){
 	p.IsTimeOut =false
 	
 	if !p.IsOnline{
@@ -300,50 +308,74 @@ func (p *CommonNodeDo)GetJson()[]byte{
 
 
 
-func (p *BoolenNodeDo)JudgeAlarm()string{
+func (p *BoolenNodeDo)PrepareSMSAlarm()string{
 	if !p.IsNormal&&p.IsOnSMS{
-		return fmt.Sprintf("%s->%s->%s:%s[发生异常时间为%s]", p.Matrix, p.System, p.Module, p.SMS, p.Date)
+		return fmt.Sprintf("%s[发生异常时间为%s]", p.SMS, p.Date)
 	}else{
 		return ""
 	}
 }
 
-func (p *IntNodeDo)JudgeAlarm()string{
+func (p *IntNodeDo)PrepareSMSAlarm()string{
 	if !p.IsNormal&&p.IsOnSMS{
-		return fmt.Sprintf("%s->%s->%s:%s[发生异常时间为%s]", p.Matrix, p.System, p.Module, p.SMS, p.Date)
+		return fmt.Sprintf("%s[发生异常时间为%s]", p.SMS, p.Date)
 	}else{
 		return ""
 	}
 }
 
-func (p *FloatNodeDo)JudgeAlarm()string{
+func (p *FloatNodeDo)PrepareSMSAlarm()string{
 	if !p.IsNormal&&p.IsOnSMS{
-		return fmt.Sprintf("%s->%s->%s:%s[发生异常时间为%s]", p.Matrix, p.System, p.Module, p.SMS, p.Date)
+		return fmt.Sprintf("%s[发生异常时间为%s]", p.SMS, p.Date)
 	}else{
 		return ""
 	}
 }
 
-func (p *CommonNodeDo)JudgeAlarm()string{
+func (p *CommonNodeDo)PrepareSMSAlarm()string{
 	if !p.IsNormal&&p.IsOnSMS{
-		return fmt.Sprintf("%s->%s->%s:%s[发生异常时间为%s]", p.Matrix, p.System, p.Module, p.SMS, p.Date)
+		return fmt.Sprintf("%s[发生异常时间为%s]", p.SMS, p.Date)
 	}else{
 		return ""
 	}
 }
 
-func (p *BoolenNodeDo)PrepareMYSQLAlarm()(string,string,string,string){
-	return fmt.Sprintf("%s->%s->%s", p.Matrix, p.System, p.Module), p.Value, p.Unit, fmt.Sprintf("%s->%s->%s:%s[发生异常时间为%s]", p.Matrix, p.System, p.Module, p.SMS, p.Date)
+func (p *BoolenNodeDo)PrepareMYSQLAlarm(ae *model.AlarmEntity){
+	ae.NodeID =p.Id
+	ae.ModuleParentID =p.ParentModuleId
+
+	ae.Name =p.Name
+	ae.Value =p.Value
+	ae.Unit =p.Unit
+	ae.Content =fmt.Sprintf("%s[发生异常时间为%s]", p.SMS, p.Date)
 }
 
-func (p *IntNodeDo)PrepareMYSQLAlarm()(string,string,string,string){
-	return fmt.Sprintf("%s->%s->%s", p.Matrix, p.System, p.Module), p.Value, p.Unit, fmt.Sprintf("%s->%s->%s:%s[发生异常时间为%s]", p.Matrix, p.System, p.Module, p.SMS, p.Date)
+func (p *IntNodeDo)PrepareMYSQLAlarm(ae *model.AlarmEntity){
+	ae.NodeID =p.Id
+	ae.ModuleParentID =p.ParentModuleId
+
+	ae.Name =p.Name
+	ae.Value =p.Value
+	ae.Unit =p.Unit
+	ae.Content =fmt.Sprintf("%s[发生异常时间为%s]", p.SMS, p.Date)
 }
 
-func (p *FloatNodeDo)PrepareMYSQLAlarm()(string,string,string,string){
-	return fmt.Sprintf("%s->%s->%s", p.Matrix, p.System, p.Module), p.Value, p.Unit, fmt.Sprintf("%s->%s->%s:%s[发生异常时间为%s]", p.Matrix, p.System, p.Module, p.SMS, p.Date)
+func (p *FloatNodeDo)PrepareMYSQLAlarm(ae *model.AlarmEntity){
+	ae.NodeID =p.Id
+	ae.ModuleParentID =p.ParentModuleId
+
+	ae.Name =p.Name
+	ae.Value =p.Value
+	ae.Unit =p.Unit
+	ae.Content =fmt.Sprintf("%s[发生异常时间为%s]", p.SMS, p.Date)
 }
 
-func (p *CommonNodeDo)PrepareMYSQLAlarm()(string,string,string,string){
-	return fmt.Sprintf("%s->%s->%s", p.Matrix, p.System, p.Module), p.Value, p.Unit, fmt.Sprintf("%s->%s->%s:%s[发生异常时间为%s]", p.Matrix, p.System, p.Module, p.SMS, p.Date)
+func (p *CommonNodeDo)PrepareMYSQLAlarm(ae *model.AlarmEntity){
+	ae.NodeID =p.Id
+	ae.ModuleParentID =p.ParentModuleId
+
+	ae.Name =p.Name
+	ae.Value =p.Value
+	ae.Unit =p.Unit
+	ae.Content =fmt.Sprintf("%s[发生异常时间为%s]", p.SMS, p.Date)
 }
