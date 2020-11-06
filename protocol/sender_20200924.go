@@ -3,12 +3,12 @@
 package protocol
 
 import(
-	"bytes"
+	//"bytes"
 	"time"
 	//"fmt"
 
 
-	"github.com/ziyouzy/mylib/physicalnode"
+	//"github.com/ziyouzy/mylib/physicalnode"
 )
 
 //获取发送数据管理器
@@ -22,7 +22,7 @@ func ProtocolPrepareSendTicketMgr_YunHuan20200924() map[string]chan []byte{
 	}
 
 	//20200924号协议是三者相同的
-	type udpmodbus tcpmodbus
+	udpmodbus :=tcpmodbus
 	//type serialmodbus tcpmodbus
 
 	tcpch :=make(chan []byte)

@@ -1,5 +1,9 @@
 package protocol
 
+import(
+	"bytes"
+	"github.com/ziyouzy/mylib/physicalnode"
+)
 //由字符串"反序列化"成physicalnode基础实体
 //生成核心物理节点,或者说初始化一个核心物理节点
 //之后还需要再经过physicalnode自身的fullof方法完成渲染，才能供下一层使用
@@ -29,26 +33,26 @@ func ProtocolPreparePhysicalNode_YunHuan20200924(b []byte)physicalnode.PhysicalN
 			return nil		
 		}//s1
 
-	case "serial":
-		switch{
-		case buf[0]==0xf1:
-			switch {//s1
-			case buf[1]==0x01&&buf[2]==0x01:
-				//fmt.Println("f10101!")
-				return physicalnode.NewPhysicalNodeFromBytes(b, tag, "YUNHUAN20200924","DO20200924")
-			case buf[1]==0x02&&buf[2]==0x01:
-				//fmt.Println("f10201!")
-				return physicalnode.NewPhysicalNodeFromBytes(b, tag, "YUNHUAN20200924","DI20200924")
-			default:
-				return nil
-			}//s1
-		default:
-			return nil
-		}//s2
-	//case "localqt":
-		//反序列化buf为某种功能结构体(如physicalnode.NewDoorMgr)
-		//return 这个结构体
-	default:
-		return nil	
+	// case "serial":
+	// 	switch{
+	// 	case buf[0]==0xf1:
+	// 		switch {//s1
+	// 		case buf[1]==0x01&&buf[2]==0x01:
+	// 			//fmt.Println("f10101!")
+	// 			return physicalnode.NewPhysicalNodeFromBytes(b, tag, "YUNHUAN20200924","DO20200924")
+	// 		case buf[1]==0x02&&buf[2]==0x01:
+	// 			//fmt.Println("f10201!")
+	// 			return physicalnode.NewPhysicalNodeFromBytes(b, tag, "YUNHUAN20200924","DI20200924")
+	// 		default:
+	// 			return nil
+	// 		}//s1
+	// 	default:
+	// 		return nil
+	// 	}//s2
+	// //case "localqt":
+	// 	//反序列化buf为某种功能结构体(如physicalnode.NewDoorMgr)
+	// 	//return 这个结构体
+	 default:
+	 	return nil	
 	}//tag
 }

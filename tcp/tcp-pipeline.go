@@ -34,12 +34,12 @@ func NewPipelineTcpSocketConn(c net.Conn, needcrc bool)(string, *PipelineTcpSock
 //引入这个包后，每当有新client连接就要执行这个方法、以及上面的NewPipelineTcpSocketConn
 func (p *PipelineTcpSocketConn)GenerateRecvCh() chan([]byte){
 	ch := make(chan []byte)
+	ip :=p.Conn.RemoteAddr().String()
+	tag :="tcpsocket"
+
 	go func (){
 		defer p.Conn.Close()
 		defer close(ch)
-
-		ip :=[]byte(p.Conn.RemoteAddr().String())
-		tag :=[]byte("tcpsocket")
 
 		buf := make([]byte, 4096)
 		for {
@@ -58,13 +58,26 @@ func (p *PipelineTcpSocketConn)GenerateRecvCh() chan([]byte){
 				fmt.Println("接收到错误的字节数组：",tempBuf)
 			}else if !p.NeedCRC{
 				presentTime :=time.Now().Format(TIMEFORMAT)
-				ch <-bytes.Join([][]byte{ip,[]byte(presentTime),tag,tempBuf},[]byte(" "))
+
+
+
+				//核心，为原始字节数组依次添加了ip,时间,tag
+				ch <-bytes.Join([][]byte{[]byte(ip),[]byte(presentTime),[]byte(tag),tempBuf},[]byte(" "))
+
+
+
 			}else{
 				//var presentTime []byte
 				//crc校验
 				if ok := utils.CRCCheck(tempBuf[4:],utils.ISLITTLEENDDIAN);ok{
 					presentTime :=time.Now().Format(TIMEFORMAT)
-					ch <-bytes.Join([][]byte{ip,[]byte(presentTime),tag,tempBuf},[]byte(" "))
+
+
+					//核心，为原始字节数组依次添加了ip,时间,tag
+					ch <-bytes.Join([][]byte{[]byte(ip),[]byte(presentTime),[]byte(tag),tempBuf},[]byte(" "))
+
+
+
 				}else{
 					fmt.Println("tcp北向通信时crc校验失败:",tempBuf[4:])
 				}
@@ -75,7 +88,5 @@ func (p *PipelineTcpSocketConn)GenerateRecvCh() chan([]byte){
 }
 
 func (p *PipelineTcpSocketConn)SendBytes(b []byte) {
-	//fmt.Println(fmt.Sprintf("SendBytes to %v: %v",p.Conn.RemoteAddr(),b))
 	p.Conn.Write(b)
-	//fmt.Println("already send:",b)
 }

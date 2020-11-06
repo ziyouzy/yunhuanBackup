@@ -29,8 +29,8 @@ func NewAlarmFilterObject(base map[string]interface{}) *AlarmFilterObject{
 
 	af.done =make(chan bool)
 	
-	af.InitSMSTimer()
-	af.InitMYSQLTimer()
+	af.initSMSTimer()
+	af.initMYSQLTimer()
 	return &af
 }
 
@@ -55,7 +55,7 @@ type AlarmFilterObject struct{
 	done chan bool
 }
 
-func (p *AlarmFilterObject)InitSMSTimer(){
+func (p *AlarmFilterObject)initSMSTimer(){
 	p.SMStimer =time.NewTimer(time.Duration(p.SMStimerLimitSec) * time.Second)
 	go func(){
 		for {
@@ -69,7 +69,7 @@ func (p *AlarmFilterObject)InitSMSTimer(){
 	}()
 }
 
-func (p *AlarmFilterObject)InitMYSQLTimer(){
+func (p *AlarmFilterObject)initMYSQLTimer(){
 	p.MYSQLtimer =time.NewTimer(time.Duration(p.MYSQLtimerLimitSec) * time.Second)
 	go func(){
 		for {

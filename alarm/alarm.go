@@ -9,6 +9,7 @@ import(
 )
  
 func NewAlramTemplate(base map[string]interface{})(at *AlarmTemplate, smstimerlimitmin float64, mysqltimerlimitmin float64){
+	at =new(AlarmTemplate)
 	if smstimerlimitmin,ok :=base["smssleepmin"].(float64);!ok{
 		fmt.Println("从json初始化smssleepmin进行断言时失败，因此将会把smssleepmin的值设置为4*60")
 		smstimerlimitmin =240
@@ -32,8 +33,11 @@ func NewAlramTemplate(base map[string]interface{})(at *AlarmTemplate, smstimerli
 			fmt.Println("从json初始化smstel进行断言时失败")
 		}else{
 			for k, v := range smsmsgsmap{
-				/*sAT+SMSEND=86%s,%s您好,贵公司%s\n*/
-				at.SMSTemplate =append(at.SMSTemplate,fmt.Sprintf(smsserialize,v, k,"%s"))
+				if name,ok :=v.(string);ok{
+					/*sAT+SMSEND=86%s,%s您好,贵公司%s\n*/
+					fmt.Println(fmt.Sprintf(smsserialize,name, k,"%s"))
+					at.SMSTemplate =append(at.SMSTemplate,fmt.Sprintf(smsserialize,name, k,"%s"))
+				}
 			}
 		}
 	}

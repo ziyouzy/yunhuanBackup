@@ -30,8 +30,8 @@ var(
 func Load(){
 	viperlistener.LoadViper()
 
-	nodeDoConf :=viperlistener.NewConfValueObjectMapByType("nodedo")
-	alarmFilterConf :=viperlistener.NewConfValueObjectMapByType("alarm")
+	nodeDoConf :=viperlistener.NewConfValueObjectMapByType("test_mainwidget.nodes")
+	alarmFilterConf :=viperlistener.NewConfValueObjectMapByType("test_mainwidget.alarm")
 
 	NodeDoCache :=do.NewNodeDoValueObj(3, do.NewNodeDoValueObjectMap(nodeDoConf))
 	AlarmFilterCache :=alarm.NewAlarmFilterObject(alarmFilterConf)

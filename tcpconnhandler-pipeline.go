@@ -10,15 +10,15 @@ package main
 import (
 	"fmt"
 	"net"
-	"sync"
+	//"sync"
 	"strings"
 	
 	"github.com/ziyouzy/mylib/tcp"
 )
 
-var (
-	once sync.Once
-)
+// var (
+// 	once sync.Once
+// )
 
 
 type pipelineTcpHandler struct{
