@@ -1,7 +1,7 @@
 package myvipers
 
 
-func NewSingleViper(namewithpathandsuffix string)*SingleViper{
+func BuildSingleViper(namewithpathandsuffix string)*SingleViper{
 	strs :=strings.Split(namewithpathandsuffix, "/")
 	namewithsuffix :=strs[len(strs)-1]
 	path :=strings.Trim(namewithpathandsuffix,namewithsuffix)

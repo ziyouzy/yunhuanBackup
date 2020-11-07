@@ -40,12 +40,12 @@ func NewConfValueObjectMap(path string,key string)map[string]interface{}{
 
 //拿到可以全局使用的viper变量
 func Load(){
-	viperlistener.LoadViper("./widgets_test.json"/*,/abc/def/ghi.json*/)
+	viperlistener.Load("./widgets_test.json"/*,/abc/def/ghi.json*/)
 	NodeDoConf :=NewConfValueObjectMap("./widgets_test.json","test_mainwidget.nodes")
 	AlarmFilterConf :=NewConfValueObjectMap("./widgets_test.json","test_mainwidget.alarm")
 
-	NodeDoCache :=do.NewNodeDoValueObj(3, do.NewNodeDoValueObjectMap(nodeDoConf))
-	AlarmFilterCache :=alarm.NewAlarmFilterObject(alarmFilterConf)
+	NodeDoController :=nodedocontroller.BuildNodeDoController(3, do.NewNodeDoValueObjectMap(nodeDoConf))
+	AlarmController :=alarmcontroller.BuildAlarmController(alarmFilterConf)
 
 	fmt.Println("初始化NodeDoCache成功,alarmFilterConf:",NodeDoCache)
 	fmt.Println("初始化AlarmFilterCache成功,alarmFilterConf:",AlarmFilterCache)

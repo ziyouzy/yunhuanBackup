@@ -22,22 +22,14 @@ import(
 	"fmt"
 )
 
-//使用type只是用来为其设计update方法
-//无论是NodeDoVO还是AlarmVO都是一个不能直接使用的原型
-//之后的使用方式是使用类似依赖注入的方式作为上层结构体对象的“引擎”
-//这里也是体现了分层的设计思路，借鉴与最初tcp/ip协议的设计思路
-//也就是如果不分层而把所有功能都“压”在一起，设计起来就太复杂了
-//type ConfValueObjectMap map[string]interface{}
 
 
-var(
-	Vipers map[string]*SingleViper
-)
+var Vipers map[string]*SingleViper
 
 //只设计两种情况：要么是绝对路径，要么是根目录
 func Load(jsonpaths ...string){
 	for _, data :=range jsonpath{
-		if sv :=NewSingleViper(data); sv!=nil{
+		if sv :=BuildSingleViper(data); sv!=nil{
 			sv.ListenConfigChange()
 			Vipers[data] =sv
 		}else{	

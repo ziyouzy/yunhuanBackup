@@ -1,4 +1,5 @@
-package do
+//从engine到nodedocontroller的转化本质上是运用了“组合”的编程思想
+package nodedocontroller
 
 import(
 	"time"
@@ -9,25 +10,30 @@ import(
 	"github.com/ziyouzy/mylib/physicalnode"
 )
 
+//这里模仿了time包的NewTimer的设计模式，New出来的对象生命周期为主函数
+func BuildNodeDoController(step int,base map[string]interface{}) *NodeDoController{
+	ndc :=NodeDoController{}
+	ndc.e =NewEngine(base)
+	ndc.TicketStep =step
+	ndc.quit =make(chan bool)
+	return &ndc
+}
+
+
 type NodeDoController struct{
 	//NodeDoMap map[string]NodeDo
 	e Engine
+	TicketStep int
+
 	FlushTicket *time.Ticker
 	lock *sync.Mutex
 	quit chan bool
 }
 
-//这里模仿了time包的NewTimer的设计模式，New出来的对象生命周期为主函数
-func NewNodeDoController(step int,base map[string]interface{}) *NodeDoController{
-	ndc :=NodeDoController{}
-	ndc.e =NewEngine(base)
-	ndc.FlushTicket =time.NewTicker(time.Duration(step) * time.Second)
-	return &ndc
-}
-
 //结合定时器生成NodeDo管道，里面的每个NodeDo都是最终的结果
 //上层会基于这一结果进行告警判定，以及用字符串的形式发送字节数组给前端的操作
-func (p *NodeDoController)initNodeDoCh()chan NodeDo{
+func (p *NodeDoController)GenerateNodeDoCh()chan NodeDo{
+	p.FlushTicket =time.NewTicker(time.Duration(p.TicketStep) * time.Second)
 	nodeDoCh := make(chan NodeDo)
 	go func(){
 		//当done管道收到true时，在这里优雅的关闭该管道即可，因为他不是结构体的字段，无法在Quit方法内关闭
@@ -66,7 +72,7 @@ func (p *NodeDoController)Engineing(pn physicalnode.PhysicalNode){
 	p.lock.Unlock()
 }
 
-func (p *NodeDoValueObject)Quit(){
+func (p *NodeDoController)Quit(){
 	p.quit <- true
 	close(p.quit)
 }

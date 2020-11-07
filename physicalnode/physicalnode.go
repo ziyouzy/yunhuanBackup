@@ -17,9 +17,6 @@ import (
 )
 
 type  PhysicalNode interface{
-	//GetNodeType() string
-	//GetHandler() string
-	//GetRaw() (string,string,string,string,string,string,string)
 	FullOf()
 	SelectHandlerAndTag() (string,string)
 	SelectOneValueAndTime(string, string, string) (string,string)

@@ -25,26 +25,10 @@ type Engine map[string]NodeDo
 func NewEngine(base map[string]interface{})Engine{
 	var e = make(Engine) 
 	for k,v := range base{
-		switch strings.Split(k,"-")[3]{
-		case "bool":
-			var do BoolenNodeDo
-			mapstructure.Decode(v, &do)
-			e[k] =&do
-		case "int":
-			var do IntNodeDo
-			mapstructure.Decode(v, &do)
-			e[k] =&do
-		case "float":
-			var do FloatNodeDo
-			mapstructure.Decode(v, &do)
-			e[k] =&do
-		case "common", "string":
-			var do CommonNodeDo 
-			mapstructure.Decode(v, &do)
-			e[k] =&do
-		default:
-			fmt.Println("在创建NodeDo各个缓存时，json字符串中，名为：",k,"中的",strings.Split(k,"-")[3],"类型无法被解析")
-			return nil
+		if nodedo =nodedo.NewNodeDo(strings.Split(k,"-")[3]);nodedo !=nil{
+			e[k] =nodedo
+		}else{
+			fmt.Println("在创建NodeEngine时，json字符串中，名为：",k,"中的",strings.Split(k,"-")[3],"类型无法被解析")
 		}
 	}
 	return e

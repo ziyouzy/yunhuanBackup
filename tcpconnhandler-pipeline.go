@@ -16,11 +16,13 @@ import (
 	"github.com/ziyouzy/mylib/tcp"
 )
 
-// var (
-// 	once sync.Once
-// )
 
 
+//tcphandler模块的key为ip地址(无端口号)，可与sendmsg对象无缝对接
+//后期设计sendcontroller时可以在对象结构体内部将二者组合
+//但是需要先完成将tcphandler重构成connhandler这一步
+//或者说，ticketsender和connhander做组合，同时door和connhander也作组合
+//connhander是个底层，等同于nodedo是alarmcontroller和nodedocontroller的底层一样
 type pipelineTcpHandler struct{
 	ConnMap map[string]*tcp.PipelineTcpSocketConn
 }
@@ -65,7 +67,7 @@ func (p *pipelineTcpHandler)ListenAndGenerateRecvCh()chan([]byte){
 		
 			//从这里开始调用tcp包的方法继续对conn的加工于
 			ip,tcpconn :=tcp.NewPipelineTcpSocketConn(conn,true)
-			p.ConnMap[strings.Split(ip,":")[0]] =tcpconn
+			p.ConnMap[fmt.Sprintf("tcp:%s",strings.Split(ip,":")[0]]) =tcpconn
 			fmt.Println("p.ConnMap:",p.ConnMap)
 
 			go collectOneClientMsg(ip,(*tcpconn).GenerateRecvCh())

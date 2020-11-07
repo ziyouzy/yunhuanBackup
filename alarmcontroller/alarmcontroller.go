@@ -11,13 +11,12 @@ import(
 
 
 //这里模仿了time包的NewTimer的设计模式，New出来的对象生命周期很可能为主函数
-func NewAlarmController(base map[string]interface{}) *AlarmController{
+func BuildAlarmController(base map[string]interface{}) *AlarmController{
 	ac := AlarmController{}
 	e, smstimerlimitmin, mysqltimerlimitmin := NewEngine(base)
 
 	//实例化内部字段（内部的Engine才会真正进行监测某个NodeDo是否超限）
 	ac.e =e
-
 	ac.SMStimerLimitSec = smstimerlimitmin * 60
 	ac.MYSQLtimerLimitSec  = mysqltimerlimitmin * 60
 
@@ -26,8 +25,7 @@ func NewAlarmController(base map[string]interface{}) *AlarmController{
 
 	ac.SMSAlarmCh =make(chan []byte)
 	ac.MYSQLAlarmCh =make(chan *model.AlarmEntity)
-
-	ac.done =make(chan bool)
+	ac.quit =make(chan bool)
 	
 	ac.initSMSTimer()
 	ac.initMYSQLTimer()
