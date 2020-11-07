@@ -11,30 +11,30 @@ import(
 
 
 //这里模仿了time包的NewTimer的设计模式，New出来的对象生命周期很可能为主函数
-func NewAlarmFilterObject(base map[string]interface{}) *AlarmFilterObject{
-	af := AlarmFilterObject{}
-	at, smstimerlimitmin, mysqltimerlimitmin := NewAlramTemplate(base)
+func NewAlarmController(base map[string]interface{}) *AlarmController{
+	ac := AlarmController{}
+	e, smstimerlimitmin, mysqltimerlimitmin := NewEngine(base)
 
-	//实例化内部字段（AT用来监测某个NodeDo是否超限）
-	af.at =at
+	//实例化内部字段（内部的Engine才会真正进行监测某个NodeDo是否超限）
+	ac.e =e
 
-	af.SMStimerLimitSec = smstimerlimitmin * 60
-	af.MYSQLtimerLimitSec  = mysqltimerlimitmin * 60
+	ac.SMStimerLimitSec = smstimerlimitmin * 60
+	ac.MYSQLtimerLimitSec  = mysqltimerlimitmin * 60
 
-	af.SMSAlarmIsReady =true
-	af.MYSQLAlarmIsReady =true
+	ac.SMSAlarmIsReady =true
+	ac.MYSQLAlarmIsReady =true
 
-	af.SMSAlarmCh =make(chan []byte)
-	af.MYSQLAlarmCh =make(chan *model.AlarmEntity)
+	ac.SMSAlarmCh =make(chan []byte)
+	ac.MYSQLAlarmCh =make(chan *model.AlarmEntity)
 
-	af.done =make(chan bool)
+	ac.done =make(chan bool)
 	
-	af.initSMSTimer()
-	af.initMYSQLTimer()
-	return &af
+	ac.initSMSTimer()
+	ac.initMYSQLTimer()
+	return &ac
 }
 
-type AlarmFilterObject struct{
+type AlarmController struct{
 	SMStimer *time.Timer
 	SMStimerLimitSec float64
 	SMSAlarmIsReady bool
@@ -45,22 +45,20 @@ type AlarmFilterObject struct{
 	MYSQLAlarmIsReady bool
 	MYSQLAlarmCh chan *model.AlarmEntity
 
-	//这里采用了组合的设计思路
-	//AlarmTemplate结构体只有一个方法，判断一个NodeDo是否超限
 	//这样设计是在遵顼分层的设计思路，也就是纯粹的为了分层而去采用了组合
 	//基于能组合就不继承的原则，这里无论是组合还是继承都是合理的，所以既然地位相当那还是优先组合吧
 	//退一步讲，就算是继承了，唯一的原因也只是为了分层思路而继承
-	at *AlarmTemplate
+	e *Engine
 
-	done chan bool
+	quit chan bool
 }
 
-func (p *AlarmFilterObject)initSMSTimer(){
+func (p *AlarmController)initSMSTimer(){
 	p.SMStimer =time.NewTimer(time.Duration(p.SMStimerLimitSec) * time.Second)
 	go func(){
 		for {
 			select {
-			case <-p.done:
+			case <-p.quit:
 				break
 			case <-p.SMStimer.C:
 				p.SMSAlarmIsReady =true				
@@ -69,12 +67,12 @@ func (p *AlarmFilterObject)initSMSTimer(){
 	}()
 }
 
-func (p *AlarmFilterObject)initMYSQLTimer(){
+func (p *AlarmController)initMYSQLTimer(){
 	p.MYSQLtimer =time.NewTimer(time.Duration(p.MYSQLtimerLimitSec) * time.Second)
 	go func(){
 		for {
 			select {
-			case <-p.done:
+			case <-p.quit:
 				break
 			case <-p.MYSQLtimer.C:
 				p.MYSQLAlarmIsReady =true				
@@ -83,15 +81,14 @@ func (p *AlarmFilterObject)initMYSQLTimer(){
 	}()
 }
 
-func (p *AlarmFilterObject)Filter(nd do.NodeDo)bool{
-	issafe :=false
-	newalarm :=p.at.JudgeOneNodeDo(nd)
-	if newalarm ==nil{
-		issafe =true
+func (p *AlarmController)Filter(nd do.NodeDo)bool{
+	issafe, smsArr, alarmDbEntity :=p.e.JudgeOneNodeDo(nd)
+	if issafe{
+		return issafe
 	}
 
 	if p.SMSAlarmIsReady{
-		for _,v :=range newalarm.SMSTemplate {
+		for _,v :=range smsArr {
 			p.SMSAlarmCh <-[]byte(v)
 		} 
 		p.SMSAlarmIsReady =false
@@ -102,7 +99,7 @@ func (p *AlarmFilterObject)Filter(nd do.NodeDo)bool{
 	}
 
 	if p.MYSQLAlarmIsReady{
-		p.MYSQLAlarmCh <-&(newalarm.AlarmEntityTemplate)
+		p.MYSQLAlarmCh <-alarmDbEntity
 		p.MYSQLAlarmIsReady =false
 		if !p.MYSQLtimer.Stop() {
 			<-p.MYSQLtimer.C
@@ -113,9 +110,9 @@ func (p *AlarmFilterObject)Filter(nd do.NodeDo)bool{
 	return issafe
 }
 
-func (p *AlarmFilterObject)Quit(){
-	p.done <- true
+func (p *AlarmController)Quit(){
+	p.quit <- true
 	close(p.SMSAlarmCh)
 	close(p.MYSQLAlarmCh)
-	close(p.done)
+	close(p.quit)
 }

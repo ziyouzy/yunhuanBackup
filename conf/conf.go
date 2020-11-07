@@ -26,35 +26,29 @@ var(
 	AlarmFilterCache alarm.AlarmFilterObject
 )
 
+//这个函数似乎不该属于这一层,这个要属于conf层
+func NewConfValueObjectMap(path string,key string)map[string]interface{}{
+	m :=viperlistener.Vipers[path].V.Get(key)
+
+	if value, ok :=m.(map[string]interface{});ok{
+		return value
+	}else{
+		fmt.Println("CreateConfValueObjectMap fail, path is:", path,"key is:",key)
+		return nil
+	}
+}
+
 //拿到可以全局使用的viper变量
 func Load(){
-	viperlistener.LoadViper()
-
-	nodeDoConf :=viperlistener.NewConfValueObjectMapByType("test_mainwidget.nodes")
-	alarmFilterConf :=viperlistener.NewConfValueObjectMapByType("test_mainwidget.alarm")
+	viperlistener.LoadViper("./widgets_test.json"/*,/abc/def/ghi.json*/)
+	NodeDoConf :=NewConfValueObjectMap("./widgets_test.json","test_mainwidget.nodes")
+	AlarmFilterConf :=NewConfValueObjectMap("./widgets_test.json","test_mainwidget.alarm")
 
 	NodeDoCache :=do.NewNodeDoValueObj(3, do.NewNodeDoValueObjectMap(nodeDoConf))
 	AlarmFilterCache :=alarm.NewAlarmFilterObject(alarmFilterConf)
 
 	fmt.Println("初始化NodeDoCache成功,alarmFilterConf:",NodeDoCache)
 	fmt.Println("初始化AlarmFilterCache成功,alarmFilterConf:",AlarmFilterCache)
-
-	//通过viper监听配置文件是否被改动:
-	go func(){
-		for{
-			select {
-			case <-viperlistener.ConfigIsChange:
-				nodeDoConf :=viperlistener.NewConfValueObjectMapByType("nodedo")
-				alarmFilterConf :=viperlistener.NewConfValueObjectMapByType("alarm")
-
-				NodeDoCache :=do.NewNodeDoValueObj(3, do.NewNodeDoValueObjectMap(nodeDoConf))
-				AlarmFilterCache :=alarm.NewAlarmFilterObject(alarmFilterConf)
-
-				fmt.Println("更新NodeDoCache成功,alarmFilterConf:",NodeDoCache)
-				fmt.Println("更新AlarmFilterCache成功,alarmFilterConf:",AlarmFilterCache)
-			}
-		}
-	}()
 }
 
 

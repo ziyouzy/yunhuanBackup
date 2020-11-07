@@ -9,7 +9,11 @@
 //1.存在多个.json文件
 //2.一个viper对应一个矩阵级设备
 //3.某个viper所在的json被改动时，立刻更新
-package viperlistener
+//一个viper对应了一个文本文件，核心任务是监听该文件的修改并更新相关上层对象
+//对于上层，目前主要是alarm包和do包，在去考虑一个viper对象会生成几个alarmCache和nodedoCache对象
+//届时会用到功能与NewConfValueObjectMapByType相近的方法或函数，基于一个viper对象很可能会生成多个Cache对象
+//总之这也都是上一层需要去做的，而NewConfValueObjectMapByType很可能会变成SingleViper的方法之一，就不用再去单独设计依赖注入了
+package myvipers
 
 import(
 	"github.com/spf13/viper"
@@ -25,47 +29,19 @@ import(
 //也就是如果不分层而把所有功能都“压”在一起，设计起来就太复杂了
 //type ConfValueObjectMap map[string]interface{}
 
+
 var(
-	ConfigIsChange chan bool
+	Vipers map[string]*SingleViper
 )
 
-func LoadViper(){
-	viper.SetConfigName("widgets_test") //  设置配置文件名 (不带后缀)
-	//viper.AddConfigPath("/workspace/appName/") 
-	viper.AddConfigPath(".")               // 比如添加当前目
-	viper.SetConfigType("json")
-	err := viper.ReadInConfig() // 搜索路径，并读取配置数据
-
-	if err == nil {
-		go watching()
-	}else{
-		panic(fmt.Errorf("Fatal init config file:",err))
-	}
-}
-
-func NewConfValueObjectMapByType(typeString string)map[string]interface{}{
-	m :=viper.Get(typeString)
-	if value, ok :=m.(map[string]interface{});ok{
-		return value
-	}else{
-		fmt.Println("CreateConfValueObjectMap fail, type is",typeString)
-		return nil
-	}
-}
-
-func watching() {
-	viper.WatchConfig()
-	viper.OnConfigChange(func(e fsnotify.Event) {
-		fmt.Println("Config file changed:", e.Name)
-		err := viper.ReadInConfig() // 搜索路径，并读取配置数据
-		if err == nil {
-			ConfigIsChange <-true
-			return
-		}else{
-			fmt.Println("Fatal reset config file:",err)
-			return
+//只设计两种情况：要么是绝对路径，要么是根目录
+func Load(jsonpaths ...string){
+	for _, data :=range jsonpath{
+		if sv :=NewSingleViper(data); sv!=nil{
+			sv.ListenConfigChange()
+			Vipers[data] =sv
+		}else{	
+			fmt.Println("您设置的json路径[",data,"]格式错误，只支持绝对路径与根目录两种模式")
 		}
-	})
+	}
 }
-
-
