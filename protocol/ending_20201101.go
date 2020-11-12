@@ -34,7 +34,7 @@ func ProtocolEnding_YunHuan20201101(physicalnodech chan physicalnode.PhysicalNod
 	go func(){
 		for pn := range physicalnodech{
 			//这里是利用物理节点来渲染NodeDoCache内的各个NodeDo模板
-			conf.NodeDoCache.UpdateNodeDoMap(pn)
+			conf.NodeDoController.Engineing(pn)
 		}
 	}()
 
@@ -43,9 +43,16 @@ func ProtocolEnding_YunHuan20201101(physicalnodech chan physicalnode.PhysicalNod
 	//1.拿到后会进入事件驱动模式，触发条件是NodeDoCache的定时发送所有对象实体方法，而非更新某个对象实体的方法
 	//2.连锁反映是先判断是否超限，超限的话之后的工作AlarmFilterCanche会自动完成
 	//3.将NodeDo对象序列话成字符数组装入管道
+	//这里的工作内容似乎应该属于一个service
+	//只将filter这一个动作，为其设计一个对应的service，原则上nodeDoBytesCh <-nd.GetJson()不应属于这个service
+	//于是服务内部不应包含对nodedoch的创建工作，而是将参数表设计成需要传入单独某个NodeDo的个体
+	//那么这个nodedo管道的创建工作就需要在主函数进行了
+	//或者再去设计个bytesch转physicalnodech、physicalnodech转nodedoch的一体化service
+	//似乎nodedoch的创建以及对其的操作都必须要在主函数完成了
+
 	go func(){
-		nodedoentitych :=conf.NodeDoCache.CreateNodeDoCh()
-		for nd := range nodedoentitych{
+		nodedoch :=conf.NodeDoController.GenerateNodeDoCh()
+		for nd := range nodedoch{
 			if issafe :=conf.AlarmFilterCache.Filter(nd);!issafe{
 				fmt.Println("有NodeDo超限了：",nd)
 			}

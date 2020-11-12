@@ -1,0 +1,474 @@
+{
+    "test_mainwidget":{
+        "doors":
+        {
+            "494f3031f10201-tcpsocket-di1":
+                {
+                    "southbound":"TCP:192.168.10.2",
+                    "southid":1,
+                    "name":"测试设备前门"
+                },
+    
+            "494f3031f10201-tcpsocket-di2":
+                {
+                    "southbound":"TCP:192.168.10.2",
+                    "southid":1,
+                    "name":"测试设备后门"
+                }
+        },
+
+        "nodes":{
+            "494f3031f10201-tcpsocket-do3-bool":{
+                "southbound":"TCP:192.168.10.2",
+                "southid":1,
+                "name":"烟感3",
+
+                "isonline":true,
+                "isnormal":false,
+                "value":"N/A",
+                "unit":null,
+
+                "type":"BOOL",
+                "isonsms":true,
+                "normal":0,
+                "value0":"正常",
+                "value1":"异常",
+
+                "sms":"烟感异常",
+                "date":""
+            },
+
+            "494f3031f10201-tcpsocket-do1-bool":{
+                "southbound":"TCP:192.168.10.2",
+                "southid":2,
+                "name":"烟感1",
+    
+                "isonline":true,
+                "isnormal":false,
+                "value":"N/A",
+                "unit":null,
+    
+                "type":"BOOL",
+                "isonsms":true,
+                "normal":0,
+                "value0":"正常",
+                "value1":"异常",
+    
+                "sms":"烟感异常",
+                "date":""
+            },
+
+            "494f3031f10201-tcpsocket-do2-bool":{
+                "southbound":"TCP:192.168.10.2",
+                "southid":2,
+                "name":"烟感2",
+        
+                "isonline":true,
+                "isnormal":false,
+                "value":"N/A",
+                "unit":null,
+        
+                "type":"BOOL",
+                "isonsms":true,
+                "normal":1,
+                "value0":"正常",
+                "value1":"异常",
+        
+                "sms":"烟感异常",
+                "date":""
+            }
+        },
+
+        "alarms":{
+            "tty1-serial":
+            {
+                "southbound":"TCP:192.168.10.2",
+                "southid":1,
+                "name":"告警设备",
+
+                "smssleepmin":1,
+                "smsserialize":"sAT+SMSEND=86%s,%s您好,贵公司的%s\n",
+                "smstel":
+                {
+                    "赵先生":"18611234567",
+                    "qian先生":"186221234567",
+                    "sun先生":"1863331234567",
+                    "li先生":"18644441234567"
+                },
+                "mysqlsleepmin":1
+            }
+        }
+    },
+
+
+
+    "ltd_mainwidget1":{
+        "doors":
+        {
+            "494f3031f10201-tcpsocket-di1":
+                {
+                    "southbound":"TCP:192.168.10.2",
+                    "southid":2,
+                    "name":"一号冷通道前门"
+                },
+    
+            "494f3031f10201-tcpsocket-di2":
+                {
+                    "southbound":"TCP:192.168.10.2",
+                    "southid":2,
+                    "name":"一号冷通道后门"
+                }
+        },
+
+        "nodes":
+        {
+            "494f3031f10201-tcpsocket-do1-bool":{
+                "southbound":"TCP:192.168.10.2",
+                "southid":4,
+                "name":"前门烟感",
+
+                "isonline":true,
+                "isnormal":false,
+                "value":"N/A",
+                "unit":null,
+
+                "type":"BOOL",
+                "isonsms":true,
+                "normal":0,
+                "value0":"正常",
+                "value1":"异常",
+
+                "sms":"一号冷通道前门烟感异常",
+                "date":""
+            },
+
+            "494f3031f10201-tcpsocket-do2-bool":{
+                "southbound":"TCP:192.168.10.2",
+                "southid":4,
+                "name":"后门烟感",
+    
+                "isonline":true,
+                "isnormal":false,
+                "value":"N/A",
+                "unit":null,
+    
+                "type":"BOOL",
+                "isonsms":true,
+                "normal":0,
+                "value0":"正常",
+                "value1":"异常",
+    
+                "sms":"一号冷通道后门烟感异常",
+                "date":""
+            },
+
+            "494f3031f10201-tcpsocket-do3-bool":{
+                "southbound":"TCP:192.168.10.2",
+                "southid":5,
+                "name":"前门水浸",
+        
+                "isonline":true,
+                "isnormal":false,
+                "value":"N/A",
+                "unit":null,
+        
+                "type":"BOOL",
+                "isonsms":true,
+                "normal":1,
+                "value0":"正常",
+                "value1":"异常",
+        
+                "sms":"一号冷通道前门水浸异常",
+                "date":""
+            },
+
+            "494f3031f10201-tcpsocket-do4-bool":{
+                "southbound":"TCP:192.168.10.2",
+                "southid":5,
+                "name":"后门水浸",
+    
+                "isonline":true,
+                "isnormal":false,
+                "value":"N/A",
+                "unit":null,
+    
+                "type":"BOOL",
+                "isonsms":true,
+                "normal":1,
+                "value0":"正常",
+                "value1":"异常",
+    
+                "sms":"一号冷通道后门水浸异常",
+                "date":""
+            },
+
+            "494f3031f10201-tcpsocket-do5-bool":{
+                "southbound":"TCP:192.168.10.2",
+                "southid":6,
+                "name":"前侧天窗",
+        
+                "isonline":true,
+                "isnormal":false,
+                "value":"N/A",
+                "unit":null,
+        
+                "type":"BOOL",
+                "isonsms":true,
+                "normal":1,
+                "value0":"正常",
+                "value1":"异常",
+        
+                "sms":"一号冷通道前侧天窗异常",
+                "date":""
+            },
+
+            "494f3031f10201-tcpsocket-do6-bool":{
+                "southbound":"TCP:192.168.10.2",
+                "southid":6,
+                "name":"后侧天窗",
+    
+                "isonline":true,
+                "isnormal":false,
+                "value":"N/A",
+                "unit":null,
+    
+                "type":"BOOL",
+                "isonsms":true,
+                "normal":1,
+                "value0":"正常",
+                "value1":"异常",
+    
+                "sms":"一号冷通道后侧天窗异常",
+                "date":""
+            }
+        },
+
+        "alarms":
+        {
+            "tty1-serial":
+            {
+                "southbound":"TCP:192.168.10.2",
+                "southid":1,
+                "name":"告警设备",
+
+                "smssleepmin":1,
+                "smsserialize":"sAT+SMSEND=86%s,%s您好,贵公司的%s\n",
+                "smstel":
+                {
+                    "赵先生":"18611234567",
+                    "qian先生":"186221234567",
+                    "sun先生":"1863331234567",
+                    "li先生":"18644441234567"
+                },
+                "mysqlsleepmin":1
+            }
+        }
+    },
+
+
+
+    "ltd_mainwidget2":{
+        "doors":
+        {
+            "494f3031f10201-tcpsocket-di1":
+                {
+                    "southbound":"TCP:192.168.10.2",
+                    "southid":3,
+                    "name":"二号冷通道前门"
+                },
+    
+            "494f3031f10201-tcpsocket-di2":
+                {
+                    "southbound":"TCP:192.168.10.2",
+                    "southid":3,
+                    "name":"二号冷通道后门"
+                }
+        },
+
+        "nodes":
+        {
+            "494f3031f10201-tcpsocket-do1-bool":{
+                "southbound":"TCP:192.168.10.2",
+                "southid":4,
+                "name":"前门烟感",
+
+                "isonline":true,
+                "isnormal":false,
+                "value":"N/A",
+                "unit":null,
+
+                "type":"BOOL",
+                "isonsms":true,
+                "normal":0,
+                "value0":"正常",
+                "value1":"异常",
+
+                "sms":"二号冷通道前门烟感异常",
+                "date":""
+            },
+
+            "494f3031f10201-tcpsocket-do2-bool":{
+                "southbound":"TCP:192.168.10.2",
+                "southid":4,
+                "name":"后门烟感",
+    
+                "isonline":true,
+                "isnormal":false,
+                "value":"N/A",
+                "unit":null,
+    
+                "type":"BOOL",
+                "isonsms":true,
+                "normal":0,
+                "value0":"正常",
+                "value1":"异常",
+    
+                "sms":"二号冷通道后门烟感异常",
+                "date":""
+            },
+
+            "494f3031f10201-tcpsocket-do3-bool":{
+                "southbound":"TCP:192.168.10.2",
+                "southid":5,
+                "name":"前门水浸",
+        
+                "isonline":true,
+                "isnormal":false,
+                "value":"N/A",
+                "unit":null,
+        
+                "type":"BOOL",
+                "isonsms":true,
+                "normal":1,
+                "value0":"正常",
+                "value1":"异常",
+        
+                "sms":"二号冷通道前门水浸异常",
+                "date":""
+            },
+
+            "494f3031f10201-tcpsocket-do4-bool":{
+                "southbound":"TCP:192.168.10.2",
+                "southid":5,
+                "name":"后门水浸",
+    
+                "isonline":true,
+                "isnormal":false,
+                "value":"N/A",
+                "unit":null,
+    
+                "type":"BOOL",
+                "isonsms":true,
+                "normal":1,
+                "value0":"正常",
+                "value1":"异常",
+    
+                "sms":"二号冷通道后门水侵异常",
+                "date":""
+            },
+
+            "494f3031f10201-tcpsocket-do5-bool":{
+                "southbound":"TCP:192.168.10.2",
+                "southid":6,
+                "name":"前侧天窗",
+        
+                "isonline":true,
+                "isnormal":false,
+                "value":"N/A",
+                "unit":null,
+        
+                "type":"BOOL",
+                "isonsms":true,
+                "normal":1,
+                "value0":"正常",
+                "value1":"异常",
+        
+                "sms":"二号冷通道前侧天窗异常",
+                "date":""
+            },
+
+            "494f3031f10201-tcpsocket-do6-bool":{
+                "southbound":"TCP:192.168.10.2",
+                "southid":6,
+                "name":"后侧天窗",
+    
+                "isonline":true,
+                "isnormal":false,
+                "value":"N/A",
+                "unit":null,
+    
+                "type":"BOOL",
+                "isonsms":true,
+                "normal":1,
+                "value0":"正常",
+                "value1":"异常",
+    
+                "sms":"二号冷通道后侧天窗异常",
+                "date":""
+            },
+
+            "494f3031f10201-tcpsocket-do7-bool":{
+                "southbound":"TCP:192.168.10.2",
+                "southid":7,
+                "name":"前门状态",
+        
+                "isonline":true,
+                "isnormal":false,
+                "value":"N/A",
+                "unit":null,
+        
+                "type":"BOOL",
+                "isonsms":true,
+                "normal":1,
+                "value0":"正常",
+                "value1":"异常",
+        
+                "sms":"二号冷通道前门异常",
+                "date":""
+            },
+
+            "494f3031f10201-tcpsocket-do8-bool":{
+                "southbound":"TCP:192.168.10.2",
+                "southid":7,
+                "name":"后门状态",
+    
+                "isonline":true,
+                "isnormal":false,
+                "value":"N/A",
+                "unit":null,
+    
+                "type":"BOOL",
+                "isonsms":true,
+                "normal":1,
+                "value0":"正常",
+                "value1":"异常",
+    
+                "sms":"二号冷通道后门异常",
+                "date":""
+            }
+        },
+
+        "alarms":
+        {
+            "tty1-serial":
+            {
+                "southbound":"TCP:192.168.10.2",
+                "southid":1,
+                "name":"告警设备",
+
+                "smssleepmin":1,
+                "smsserialize":"sAT+SMSEND=86%s,%s您好,贵公司的%s\n",
+                "smstel":
+                {
+                    "赵先生":"18611234567",
+                    "qian先生":"186221234567",
+                    "sun先生":"1863331234567",
+                    "li先生":"18644441234567"
+                },
+                "mysqlsleepmin":1
+            }
+        }
+    }
+}
+
+

@@ -1,5 +1,5 @@
 //从engine到nodedocontroller的转化本质上是运用了“组合”的编程思想
-package nodedocontroller
+package nodedochbuilder
 
 import(
 	"time"
@@ -10,18 +10,8 @@ import(
 	"github.com/ziyouzy/mylib/physicalnode"
 )
 
-//这里模仿了time包的NewTimer的设计模式，New出来的对象生命周期为主函数
-func BuildNodeDoController(step int,base map[string]interface{}) *NodeDoController{
-	ndc :=NodeDoController{}
-	ndc.e =NewEngine(base)
-	ndc.TicketStep =step
-	ndc.quit =make(chan bool)
-	return &ndc
-}
-
-
+var ndc *NodeDoController 
 type NodeDoController struct{
-	//NodeDoMap map[string]NodeDo
 	e Engine
 	TicketStep int
 
@@ -30,6 +20,19 @@ type NodeDoController struct{
 	quit chan bool
 }
 
+
+func AssembleEngine(step int, base map[string]interface{}){ndc =BuildNodeDoController(step, base)}
+//这里模仿了time包的NewTimer的设计模式，New出来的对象生命周期为主函数
+func BuildNodeDoController(step int,base map[string]interface{}) *NodeDoChBuilder{
+	ndcb :=NodeDoChBuilder{}
+	ndcb.e =NewEngine(base)
+	ndcb.TicketStep =step
+	ndcb.quit =make(chan bool)
+	return &ndc
+}
+
+
+func GenerateNodeDoCh()chan NodeDo{return ndc.GenerateNodeDoCh()}
 //结合定时器生成NodeDo管道，里面的每个NodeDo都是最终的结果
 //上层会基于这一结果进行告警判定，以及用字符串的形式发送字节数组给前端的操作
 func (p *NodeDoController)GenerateNodeDoCh()chan NodeDo{
@@ -54,6 +57,7 @@ func (p *NodeDoController)GenerateNodeDoCh()chan NodeDo{
 	return nodeDoCh
 }
 
+func Engineing(pn physicalnode.PhysicalNode){ndc.Engineing(pn)}
 //Engine是个map，key 举例: "494f3031f10201-tcpsocket-do3-bool"
 //PhysicalNode.SelectHandlerAndTage返回值举例："494f3031f10201","tcpsocket"
 //PhysicalNode.SelectOneValueAndTime返回值举例："value","time"
@@ -72,6 +76,7 @@ func (p *NodeDoController)Engineing(pn physicalnode.PhysicalNode){
 	p.lock.Unlock()
 }
 
+func Quit(){ndc.Quit()}
 func (p *NodeDoController)Quit(){
 	p.quit <- true
 	close(p.quit)

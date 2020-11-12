@@ -30,6 +30,7 @@ type BoolenNodeDo struct{
 	Date string 
 }
 
+
 type IntNodeDo struct{
 	Id int
 	ParentModuleId int
@@ -70,6 +71,7 @@ type FloatNodeDo struct{
 	SMS string `json:"-"`
 	Date string
 }
+
 
 type CommonNodeDo struct{
 	Id int

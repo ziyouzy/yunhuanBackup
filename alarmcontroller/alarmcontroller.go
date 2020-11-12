@@ -10,6 +10,27 @@ import(
 )
 
 
+var ac *AlarmController
+type AlarmController struct{
+	SMStimer *time.Timer
+	SMStimerLimitSec float64
+	SMSAlarmIsReady bool
+	SMSAlarmCh chan []byte 
+
+	MYSQLtimer *time.Timer
+	MYSQLtimerLimitSec float64
+	MYSQLAlarmIsReady bool
+	MYSQLAlarmCh chan *model.AlarmEntity
+
+	//这样设计是在遵顼分层的设计思路，也就是纯粹的为了分层而去采用了组合
+	//基于能组合就不继承的原则，这里无论是组合还是继承都是合理的，所以既然地位相当那还是优先组合吧
+	//退一步讲，就算是继承了，唯一的原因也只是为了分层思路而继承
+	e *Engine
+
+	quit chan bool
+}
+
+func AssembleEngine(base map[string]interface{}){ac =BuildAlarmController(base)}
 //这里模仿了time包的NewTimer的设计模式，New出来的对象生命周期很可能为主函数
 func BuildAlarmController(base map[string]interface{}) *AlarmController{
 	ac := AlarmController{}
@@ -32,25 +53,8 @@ func BuildAlarmController(base map[string]interface{}) *AlarmController{
 	return &ac
 }
 
-type AlarmController struct{
-	SMStimer *time.Timer
-	SMStimerLimitSec float64
-	SMSAlarmIsReady bool
-	SMSAlarmCh chan []byte 
 
-	MYSQLtimer *time.Timer
-	MYSQLtimerLimitSec float64
-	MYSQLAlarmIsReady bool
-	MYSQLAlarmCh chan *model.AlarmEntity
-
-	//这样设计是在遵顼分层的设计思路，也就是纯粹的为了分层而去采用了组合
-	//基于能组合就不继承的原则，这里无论是组合还是继承都是合理的，所以既然地位相当那还是优先组合吧
-	//退一步讲，就算是继承了，唯一的原因也只是为了分层思路而继承
-	e *Engine
-
-	quit chan bool
-}
-
+func InitSMSTimer(){ac.initSMSTimer()}
 func (p *AlarmController)initSMSTimer(){
 	p.SMStimer =time.NewTimer(time.Duration(p.SMStimerLimitSec) * time.Second)
 	go func(){
@@ -65,6 +69,7 @@ func (p *AlarmController)initSMSTimer(){
 	}()
 }
 
+func InitMYSQLTimer(){ac.initMYSQLTimer()}
 func (p *AlarmController)initMYSQLTimer(){
 	p.MYSQLtimer =time.NewTimer(time.Duration(p.MYSQLtimerLimitSec) * time.Second)
 	go func(){
@@ -79,6 +84,7 @@ func (p *AlarmController)initMYSQLTimer(){
 	}()
 }
 
+func Filter(nd do.NodeDo)bool{return ac.Filter(nd)}
 func (p *AlarmController)Filter(nd do.NodeDo)bool{
 	issafe, smsArr, alarmDbEntity :=p.e.JudgeOneNodeDo(nd)
 	if issafe{
@@ -108,6 +114,7 @@ func (p *AlarmController)Filter(nd do.NodeDo)bool{
 	return issafe
 }
 
+func Quit(){ac.Quit()}
 func (p *AlarmController)Quit(){
 	p.quit <- true
 	close(p.SMSAlarmCh)

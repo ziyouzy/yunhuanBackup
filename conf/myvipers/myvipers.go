@@ -23,17 +23,18 @@ import(
 )
 
 
-
-var Vipers map[string]*SingleViper
+//通过Load函数来初始化的情况下，每个SingleViper一旦实例化就会自动更新
+var vipers map[string]*SingleViper
 
 //只设计两种情况：要么是绝对路径，要么是根目录
-func Load(jsonpaths ...string){
-	for _, data :=range jsonpath{
-		if sv :=BuildSingleViper(data); sv!=nil{
-			sv.ListenConfigChange()
-			Vipers[data] =sv
+func Load(paths ...string, configischange chan bool){
+	for _, p :=range paths{
+		if sv :=BuildSingleViper(p); sv!=nil{
+			sv.ListenConfigChange(configischange )
+			vipers[p] =sv
 		}else{	
-			fmt.Println("您设置的json路径[",data,"]格式错误，只支持绝对路径与根目录两种模式")
+			fmt.Println("您设置的json路径[",p,"]格式错误，只支持绝对路径与根目录两种模式")
 		}
 	}
 }
+

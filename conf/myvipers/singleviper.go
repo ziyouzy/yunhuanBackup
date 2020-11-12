@@ -1,6 +1,10 @@
 package myvipers
 
+import(
+	"strings"
+)
 
+//SingleViper是文件级的
 func BuildSingleViper(namewithpathandsuffix string)*SingleViper{
 	strs :=strings.Split(namewithpathandsuffix, "/")
 	namewithsuffix :=strs[len(strs)-1]
@@ -47,7 +51,7 @@ type SingleViper struct{
 	ConfigIsChange chan bool
 }
 
-func (p *SingleViper)ListenConfigChange(){
+func (p *SingleViper)ListenConfigChange(configischange chan bool){
 	for{
 		select {
 		case <-p.ConfigIsChange:
@@ -58,6 +62,7 @@ func (p *SingleViper)ListenConfigChange(){
 
 			if err := p.V.ReadInConfig();err == nil {
 				p.watching()
+				configischange<-true
 			}else{
 				fmt.Println("Fatal reset config file:",err)
 			}
