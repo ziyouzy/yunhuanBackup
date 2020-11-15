@@ -8,6 +8,6 @@ service很可能会分为北向与南向因此service包内的函数命名规则
 //拿NouthServiceTickerSendModbus()和SouthServiceTickerSendNodeDo()举例，目前的核心问题在于NodeDoCh和SendModbusCh这两个管道在哪里合成，是在主函数中比较合理，还是在Service里比较合理
 package service
 
-func TickerSendNodeDoToSouthBound(nd *NodeDo){
+// func TickerSendNodeDoToSouthBound(nd *NodeDo){
 
-}
+// }

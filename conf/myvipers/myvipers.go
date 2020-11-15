@@ -16,8 +16,8 @@
 package myvipers
 
 import(
-	"github.com/spf13/viper"
-	"github.com/fsnotify/fsnotify"
+	//"github.com/spf13/viper"
+	//"github.com/fsnotify/fsnotify"
 
 	"fmt"
 )
@@ -27,7 +27,7 @@ import(
 var vipers map[string]*SingleViper
 
 //只设计两种情况：要么是绝对路径，要么是根目录
-func Load(paths ...string, configischange chan bool){
+func Load(configischange chan bool, paths ...string){
 	for _, p :=range paths{
 		if sv :=BuildSingleViper(p); sv!=nil{
 			sv.ListenConfigChange(configischange )
@@ -35,6 +35,16 @@ func Load(paths ...string, configischange chan bool){
 		}else{	
 			fmt.Println("您设置的json路径[",p,"]格式错误，只支持绝对路径与根目录两种模式")
 		}
+	}
+}
+
+func SelectOneMap(path string, key string)map[string]interface{}{
+	m :=vipers[path].V.Get(key)
+	if value, ok :=m.(map[string]interface{});ok{
+		return value
+	}else{
+		fmt.Println("SelectOneMap fail, path is:", path,"key is:",key)
+		return nil
 	}
 }
 

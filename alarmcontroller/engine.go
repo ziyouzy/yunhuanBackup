@@ -1,11 +1,11 @@
-package alarm
+package alarmcontroller
 
 import(
 	"fmt"
 	//"strings"
 	//"reflect"
-	"github.com/ziyouzy/mylib/do"
 	"github.com/ziyouzy/mylib/model"
+	"github.com/ziyouzy/mylib/nodedo"
 )
  
 func NewEngine(base map[string]interface{})(e *Engine, smstimerlimitmin float64, mysqltimerlimitmin float64){
@@ -22,7 +22,7 @@ func NewEngine(base map[string]interface{})(e *Engine, smstimerlimitmin float64,
 				if name,ok :=v.(string);ok{
 					/*sAT+SMSEND=86%s,%s您好,贵公司%s\n*/
 					fmt.Println(fmt.Sprintf(smsserialize,name, k,"%s"))
-					e =append(e,fmt.Sprintf(smsserialize,name, k,"%s"))
+					e.e =append(e.e,fmt.Sprintf(smsserialize,name, k,"%s"))
 				}
 			}
 		}
@@ -47,23 +47,28 @@ func NewEngine(base map[string]interface{})(e *Engine, smstimerlimitmin float64,
 	return
 }
 
+
+
+//type Engine []string
 //和他的上层一样，都是会常驻于内存中
-//"sAT+SMSEND=861391000000,孙子您好,贵公司的%s\n"
-type Engine []string
+type Engine struct{
+	//"sAT+SMSEND=861391000000,孙子您好,贵公司的%s\n"
+	e []string
+}
 
 
-func (p *Engine)JudgeOneNodeDo(nd do.NodeDo) (issafe bool, smsarr []string, alarmDBentity *model.AlarmEntity){
+func (p *Engine)JudgeOneNodeDo(nd nodedo.NodeDo) (issafe bool, smsarr []string, alarmDBentity *model.AlarmEntity){
 	amString := nd.PrepareSMSAlarm()
 	if amString ==""{
 		issafe =true
 		return
 	}
 
-	for _, v := range p{
+	for _, v := range p.e{
 		smsarr =append(smsarr,fmt.Sprintf(v,amString))
 	}
 	
-	nd.PrepareMYSQLAlarm(&alarmDBentity)
+	nd.PrepareMYSQLAlarm(alarmDBentity)
 
 	return
 }

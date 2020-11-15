@@ -1,12 +1,12 @@
 //这里要用到timer而不是tikcer
 //出于对节省资源的考虑，这里会先判定是否超时，如超时才会去进行下一步对NodeDo的相关计算
-package alarm
+package alarmcontroller
 
 import(
 	"time"
 
 	"github.com/ziyouzy/mylib/model"	
-	"github.com/ziyouzy/mylib/do"
+	"github.com/ziyouzy/mylib/nodedo"	
 )
 
 
@@ -84,8 +84,8 @@ func (p *AlarmController)initMYSQLTimer(){
 	}()
 }
 
-func Filter(nd do.NodeDo)bool{return ac.Filter(nd)}
-func (p *AlarmController)Filter(nd do.NodeDo)bool{
+func Filter(nd nodedo.NodeDo)bool{return ac.Filter(nd)}
+func (p *AlarmController)Filter(nd nodedo.NodeDo)bool{
 	issafe, smsArr, alarmDbEntity :=p.e.JudgeOneNodeDo(nd)
 	if issafe{
 		return issafe

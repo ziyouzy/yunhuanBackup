@@ -2,10 +2,13 @@
 package nodedo
 
 import(
+	"github.com/mitchellh/mapstructure"
+	
 	"github.com/ziyouzy/mylib/model"
+
 )
 
-func NewNodeDo(typename string)NodeDo{
+func NewNodeDo(typename string, v interface{})NodeDo{
 	switch typename{
 	case "bool":
 		var bdo BoolenNodeDo

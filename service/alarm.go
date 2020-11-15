@@ -1,19 +1,25 @@
 package service
 
+// import(
+// 	"fmt"
 
-func ServiceFilterOneNodeDoIsSafe(nd *NodeDo){
-	if issafe :=conf.AlarmFilterCache.Filter(nd);!issafe{
-		fmt.Println("有NodeDo超限了：",nd)
-	}
-}
+// 	"github.com/ziyouzy/mylib/nodedo"
+// 	"github.com/ziyouzy/mylib/conf"
+// )
 
-func SendSerialAlarmSMSToNouthBound(){
+// func ServiceFilterOneNodeDoIsSafe(nd *nodedo.NodeDo){
+// 	if issafe :=conf.AlarmFilterCache.Filter(nd);!issafe{
+// 		fmt.Println("有NodeDo超限了：",nd)
+// 	}
+// }
 
-}
+// func SendSerialAlarmSMSToNouthBound(){
 
-func CreateAlarmToMYSQL(){
+// }
 
-}
+// func CreateAlarmToMYSQL(){
+
+// }
 
 // go func(){
 // 	nodedoch :=conf.NodeDoController.GenerateNodeDoCh()

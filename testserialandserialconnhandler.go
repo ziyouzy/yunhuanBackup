@@ -2,27 +2,48 @@ package main
 
 import(
 	"fmt"
+	"time"
 	//"encoding/json"
 
 	//"github.com/ziyouzy/mylib/tcp"
 	"github.com/ziyouzy/mylib/model"
+	//"github.com/ziyouzy/mylib/service"
 	//"github.com/ziyouzy/mylib/protocol"
 	"github.com/ziyouzy/mylib/conf"
 	//"github.com/ziyouzy/mylib/physicalnode"
 	"github.com/ziyouzy/mylib/connserver"
 )
 
-var tcphandler pipelineTcpHandler
+//var tcphandler pipelineTcpHandler
 
 func main(){
 	//数据库也可以在conf.Load()里实例化，不过选在这里只是为了看着清晰一点
 	model.ConnectMySQL("yunhuan_api:13131313@tcp(127.0.0.1:3306)/yh?charset=utf8")
+	//同上，也可以在conf.Load()里实例化，不过选在这里只是为了看着清晰一点
+	connserver.ListenAndGenerateAllRecvCh()
+	//time.Sleep(5*time.Second)
+	//cs :=connserver.ClientMap()
+	//fmt.Println("cs:",cs)
+	time.Sleep(8*time.Second)
+	fmt.Println("connserver.Test() start:")
+	connserver.Test()
+	
+	//service.TickerSendModbusToNouthBound(2)
+
+	/*
+	初始化了如下内容:
+	myvipers(饿汉单例模式)
+	nodedocontroller(饿汉单例模式)
+	alarmcontroller(饿汉单例模式)
+	*/
 	conf.Load()
 
-	recvch :=connserver.RecvCh()
-	for b := range recvch{
-		fmt.Println(b)
-	}
+	// recvch :=connserver.RecvCh()
+	
+	// for b := range recvch{
+	// 	fmt.Println("字节数组为:   ",b)
+	// }
+}
 
 
 
@@ -42,7 +63,7 @@ func main(){
 	// for p :=range physicalNodeCh{
 	// 	fmt.Println(p)
 	// }
-}
+//}
 
 // func TcpSender(sendmap map[string]chan []byte){
 // 	for k,msgch :=range sendmap{
