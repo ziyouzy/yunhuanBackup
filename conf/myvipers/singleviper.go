@@ -57,22 +57,24 @@ type SingleViper struct{
 }
 
 func (p *SingleViper)ListenConfigChange(configischange chan bool){
-	for{
-		select {
-		case <-p.ConfigIsChange:
-			p.V =viper.New()
-			p.V.SetConfigName(p.Name) 
-			p.V.AddConfigPath(p.Path)   
-			p.V.SetConfigType(p.Suffix)//json yarm
+	go func(){
+		for{
+			select {
+			case <-p.ConfigIsChange:
+				p.V =viper.New()
+				p.V.SetConfigName(p.Name) 
+				p.V.AddConfigPath(p.Path)   
+				p.V.SetConfigType(p.Suffix)//json yarm
 
-			if err := p.V.ReadInConfig();err == nil {
-				p.watching()
-				configischange<-true
-			}else{
-				fmt.Println("Fatal reset config file:",err)
+				if err := p.V.ReadInConfig();err == nil {
+					p.watching()
+					configischange<-true
+				}else{
+					fmt.Println("Fatal reset config file:",err)
+				}
 			}
 		}
-	}
+	}()
 }
 
 func (p *SingleViper)watching() {

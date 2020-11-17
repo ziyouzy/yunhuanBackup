@@ -24,10 +24,14 @@ type ConnServer struct{
 	ConnClientMap map[string]connclient.ConnClient 
 	ServerRecvCh chan []byte //不需要额外设计close事件，而是与程序自身一起开启与关闭
 }
+func RecvCh()chan []byte{cs=new(ConnServer);return cs.RecvCh()}
+func (p *ConnServer)RecvCh()chan []byte{
+	p.ServerRecvCh =make(chan []byte)
+	return p.ServerRecvCh
+}
 
-
-func ListenAndGenerateAllRecvCh(){cs =new(ConnServer);cs.ListenAndGenerateAllRecvCh()}
-func (p *ConnServer)ListenAndGenerateAllRecvCh(){
+func ListenAndCollect(){cs.ListenAndCollect()}
+func (p *ConnServer)ListenAndCollect(){
 	p.ConnClientMap =make(map[string]connclient.ConnClient)
 	p.generateAndCollectTcpRecvCh(":6668")
 	//p.generateAndCollectUdpRecvCh(":6669")
@@ -70,10 +74,10 @@ func (p *ConnServer)generateAndCollectTcpRecvCh(port string){
 	}()
 }
 
-func RecvCh()chan []byte {return cs.RecvCh()}
-func (p *ConnServer)RecvCh()chan []byte{
-	return p.ServerRecvCh
-}
+// func RecvCh()chan []byte {return cs.RecvCh()}
+// func (p *ConnServer)RecvCh()chan []byte{
+// 	return p.ServerRecvCh
+// }
 
 func ClientMap()map[string]connclient.ConnClient{return cs.ClientMap()}
 func (p *ConnServer)ClientMap()map[string]connclient.ConnClient {
@@ -81,9 +85,7 @@ func (p *ConnServer)ClientMap()map[string]connclient.ConnClient {
 }
 
 func Test(){cs.Test()}
-func (p *ConnServer)Test()chan []byte{
-	// {0xf1,0x01,0x00,0x00,0x00,0x08,0x29,0x3c,},
-	// b :={0xf1,0x02,0x00,0x20,0x00,0x08,0x6c,0xf6,}
+func (p *ConnServer)Test(){
 	ch :=make(chan []byte)
 	go func(){
 		for {
@@ -101,15 +103,18 @@ func (p *ConnServer)Test()chan []byte{
 		}
 	}()
 	
-	for {
-		select{
-		case b :=<-ch:
-			fmt.Println("exsit?",p.ConnClientMap["TCPCONN:192.168.10.2"])
-			p.ConnClientMap["TCPCONN:192.168.10.2"].SendBytes(b)
-			fmt.Println("p.ConnClientMap len",len(p.ConnClientMap))
-			fmt.Println("exsit?",p.ConnClientMap)
+	go func(){
+		for {
+			select{
+			case b :=<-ch:
+				if p.ConnClientMap["TCPCONN:192.168.10.2"] !=nil{
+					p.ConnClientMap["TCPCONN:192.168.10.2"].SendBytes(b)
+					fmt.Println("p.ConnClientMap len",len(p.ConnClientMap))
+					fmt.Println("exsit?",p.ConnClientMap)
+				}
+			}
 		}
-	}
+	}()
 }
 // func SelectClients(keys []string)[]connclient.ConnClient {return cs.SelectClients(keys)}
 // func (p *ConnServer)SelectClients(keys []string)[]connclient.ConnClient {

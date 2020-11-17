@@ -2,16 +2,16 @@ package main
 
 import(
 	"fmt"
-	"time"
+	//"time"
 	//"encoding/json"
 
 	//"github.com/ziyouzy/mylib/tcp"
 	"github.com/ziyouzy/mylib/model"
-	//"github.com/ziyouzy/mylib/service"
+	"github.com/ziyouzy/mylib/service"
 	//"github.com/ziyouzy/mylib/protocol"
 	"github.com/ziyouzy/mylib/conf"
 	//"github.com/ziyouzy/mylib/physicalnode"
-	"github.com/ziyouzy/mylib/connserver"
+	//"github.com/ziyouzy/mylib/connserver"
 )
 
 //var tcphandler pipelineTcpHandler
@@ -19,14 +19,25 @@ import(
 func main(){
 	//数据库也可以在conf.Load()里实例化，不过选在这里只是为了看着清晰一点
 	model.ConnectMySQL("yunhuan_api:13131313@tcp(127.0.0.1:3306)/yh?charset=utf8")
-	//同上，也可以在conf.Load()里实例化，不过选在这里只是为了看着清晰一点
-	connserver.ListenAndGenerateAllRecvCh()
-	//time.Sleep(5*time.Second)
-	//cs :=connserver.ClientMap()
-	//fmt.Println("cs:",cs)
-	time.Sleep(8*time.Second)
-	fmt.Println("connserver.Test() start:")
-	connserver.Test()
+	fmt.Println("service start:")
+	rawCh :=service.RawCh()
+	physicalNodeCh := service.PhysicalNodeChAndListenConnServer(rawCh)
+	service.ConnServerListenAndCollect()
+	service.TickerSendModbusToNouthBound(3)
+	go func(){
+	 	for pn :=range physicalNodeCh{
+	 		fmt.Println(pn)
+	 	}
+	}()
+	// physicalNodeCh :=PhysicalConvertByProtocol(rawCh)//从些成service
+	// go func(){
+	//  	for pn :=range physicalNodeCh{
+	//  		fmt.Println(pn)
+	//  	}
+	// }()
+	// connserver.ListenAndCollect()
+	
+	//connserver.Test()
 	
 	//service.TickerSendModbusToNouthBound(2)
 
@@ -36,13 +47,18 @@ func main(){
 	nodedocontroller(饿汉单例模式)
 	alarmcontroller(饿汉单例模式)
 	*/
+	//fmt.Println("123")
 	conf.Load()
+	//fmt.Println("12346")
 
 	// recvch :=connserver.RecvCh()
 	
 	// for b := range recvch{
 	// 	fmt.Println("字节数组为:   ",b)
 	// }
+	for{
+
+	}
 }
 
 

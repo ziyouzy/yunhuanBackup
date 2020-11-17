@@ -28,6 +28,7 @@ var vipers map[string]*SingleViper
 
 //只设计两种情况：要么是绝对路径，要么是根目录
 func Load(configischange chan bool, paths ...string){
+	vipers =make(map[string]*SingleViper)
 	for _, p :=range paths{
 		if sv :=BuildSingleViper(p); sv!=nil{
 			sv.ListenConfigChange(configischange )
