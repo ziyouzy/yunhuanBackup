@@ -30,7 +30,7 @@ type AlarmController struct{
 	quit chan bool
 }
 
-func AssembleEngine(base map[string]interface{}){ac =BuildAlarmController(base)}
+func LoadSingletonPattern(base map[string]interface{}){ac =BuildAlarmController(base)}
 //这里模仿了time包的NewTimer的设计模式，New出来的对象生命周期很可能为主函数
 func BuildAlarmController(base map[string]interface{}) *AlarmController{
 	ac := AlarmController{}
@@ -113,6 +113,8 @@ func (p *AlarmController)Filter(nd nodedo.NodeDo)bool{
 
 	return issafe
 }
+func AlarmSMSbyteCh()chan []byte{return ac.SMSAlarmCh}
+func AlarmMYSQLEntityCh()chan *model.AlarmEntity{return ac.MYSQLAlarmCh}
 
 func Quit(){ac.Quit()}
 func (p *AlarmController)Quit(){

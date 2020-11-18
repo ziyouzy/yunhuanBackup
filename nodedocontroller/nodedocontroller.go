@@ -22,12 +22,13 @@ type NodeDoController struct{
 }
 
 
-func AssembleEngine(step int, base map[string]interface{}){ndc =BuildNodeDoController(step, base)}
+func LoadSingletonPattern(step int, base map[string]interface{}){ndc =BuildNodeDoController(step, base)}
 //这里模仿了time包的NewTimer的设计模式，New出来的对象生命周期为主函数
 func BuildNodeDoController(step int,base map[string]interface{}) *NodeDoController{
 	ndc :=NodeDoController{}
 	ndc.e =NewEngine(base)
 	ndc.TicketStep =step
+	ndc.lock =new(sync.Mutex)
 	ndc.quit =make(chan bool)
 	return &ndc
 }

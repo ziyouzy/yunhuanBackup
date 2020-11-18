@@ -44,21 +44,19 @@ func Load(){
 	Confofwidgets_testIsChange :=make(chan bool) 
 	myvipers.Load(Confofwidgets_testIsChange,/*,/abc/def/ghi.json*/"./widgets_test.json")
 
-	nodedocontroller.AssembleEngine(3, myvipers.SelectOneMap("./widgets_test.json", "test_mainwidget.nodes"))
-	alarmcontroller.AssembleEngine(myvipers.SelectOneMap("./widgets_test.json", "test_mainwidget.alarm"))
+	nodedocontroller.LoadSingletonPattern(3, myvipers.SelectOneMap("./widgets_test.json", "test_mainwidget.nodes"))
+	alarmcontroller.LoadSingletonPattern(myvipers.SelectOneMap("./widgets_test.json", "test_mainwidget.alarm"))
 	fmt.Println("初始化了nodedocontroller与alarmcontroller的单例模式")
 	go func(){
 		for{
 			select{
 			case <-Confofwidgets_testIsChange:
-				nodedocontroller.AssembleEngine(3, myvipers.SelectOneMap("./widgets_test.json", "test_mainwidget.nodes"))
-				alarmcontroller.AssembleEngine(myvipers.SelectOneMap("./widgets_test.json", "test_mainwidget.alarm"))
+				nodedocontroller.LoadSingletonPattern(3, myvipers.SelectOneMap("./widgets_test.json", "test_mainwidget.nodes"))
+				alarmcontroller.LoadSingletonPattern(myvipers.SelectOneMap("./widgets_test.json", "test_mainwidget.alarm"))
 				fmt.Println("更新了nodedocontroller与alarmcontroller的单例模式")
 			}
 		}
 	}()
-
-	//connserver.ListenAndGenerateAllRecvCh()
 }
 
 

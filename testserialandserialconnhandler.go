@@ -19,16 +19,31 @@ import(
 func main(){
 	//数据库也可以在conf.Load()里实例化，不过选在这里只是为了看着清晰一点
 	model.ConnectMySQL("yunhuan_api:13131313@tcp(127.0.0.1:3306)/yh?charset=utf8")
+	conf.Load()
+	
 	fmt.Println("service start:")
 	rawCh :=service.RawCh()
-	physicalNodeCh := service.PhysicalNodeChAndListenConnServer(rawCh)
 	service.ConnServerListenAndCollect()
 	service.TickerSendModbusToNouthBound(3)
+
+	physicalNodeCh := service.PhysicalNodeChAndListenConnServer(rawCh)
+
+	nodeDoCh :=service.NodeDoCh()
+	service.UpdateEveryExsitNodeDoTemplate(physicalNodeCh)
+
+	service.AlarmMYSQL()
+	service.AlarmSMS()
+
 	go func(){
-	 	for pn :=range physicalNodeCh{
-	 		fmt.Println(pn)
-	 	}
+		for nodedo :=range nodeDoCh{
+			service.SendNodeDoBytesToSouthBound(nodedo)
+			service.AlarmFiler(nodedo)
+		}
 	}()
+
+
+
+	
 	// physicalNodeCh :=PhysicalConvertByProtocol(rawCh)//从些成service
 	// go func(){
 	//  	for pn :=range physicalNodeCh{
@@ -48,7 +63,6 @@ func main(){
 	alarmcontroller(饿汉单例模式)
 	*/
 	//fmt.Println("123")
-	conf.Load()
 	//fmt.Println("12346")
 
 	// recvch :=connserver.RecvCh()

@@ -24,13 +24,13 @@ type ConnServer struct{
 	ConnClientMap map[string]connclient.ConnClient 
 	ServerRecvCh chan []byte //不需要额外设计close事件，而是与程序自身一起开启与关闭
 }
-func RecvCh()chan []byte{cs=new(ConnServer);return cs.RecvCh()}
+func LoadSingletonPatternRecvCh()chan []byte{cs=new(ConnServer);return cs.RecvCh()}
 func (p *ConnServer)RecvCh()chan []byte{
 	p.ServerRecvCh =make(chan []byte)
 	return p.ServerRecvCh
 }
 
-func ListenAndCollect(){cs.ListenAndCollect()}
+func LoadSingletonPatternListenAndCollect(){cs.ListenAndCollect()}
 func (p *ConnServer)ListenAndCollect(){
 	p.ConnClientMap =make(map[string]connclient.ConnClient)
 	p.generateAndCollectTcpRecvCh(":6668")

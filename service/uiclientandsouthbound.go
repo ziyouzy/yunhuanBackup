@@ -1,0 +1,13 @@
+package service
+
+import(
+	"fmt"
+
+	"github.com/ziyouzy/mylib/nodedo"
+	//"github.com/ziyouzy/mylib/connserver"
+)
+
+func SendNodeDoBytesToSouthBound(nd nodedo.NodeDo){
+	fmt.Println("准备通过connserver.ClientMap()['127.0.0.1']发送,nd.GetJson():",nd.GetJson())
+	//connserver.ClientMap()["127.0.0.1"].SendBytes(nd.GetJson())
+}
