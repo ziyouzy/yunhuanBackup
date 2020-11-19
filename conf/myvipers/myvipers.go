@@ -31,13 +31,28 @@ func Load(configischange chan bool, paths ...string){
 	vipers =make(map[string]*SingleViper)
 	for _, p :=range paths{
 		if sv :=BuildSingleViper(p); sv!=nil{
-			sv.ListenConfigChange(configischange )
+			//sv.ListenConfigChange(configischange )
+			go func(){
+				for changed := range sv.OneViperConfigIsChangeAndUpdateFinishCh(){
+					configischange<-changed
+				}
+			}()
+			
 			vipers[p] =sv
 		}else{	
 			fmt.Println("您设置的json路径[",p,"]格式错误，只支持绝对路径与根目录两种模式")
 		}
 	}
 }
+
+
+
+
+
+
+
+
+
 
 func SelectOneMap(path string, key string)map[string]interface{}{
 	m :=vipers[path].V.Get(key)

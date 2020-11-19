@@ -24,6 +24,8 @@ type ConnServer struct{
 	ConnClientMap map[string]connclient.ConnClient 
 	ServerRecvCh chan []byte //不需要额外设计close事件，而是与程序自身一起开启与关闭
 }
+
+//返回的管道未设定消费者
 func LoadSingletonPatternRecvCh()chan []byte{cs=new(ConnServer);return cs.RecvCh()}
 func (p *ConnServer)RecvCh()chan []byte{
 	p.ServerRecvCh =make(chan []byte)
@@ -55,20 +57,22 @@ func (p *ConnServer)generateAndCollectTcpRecvCh(port string){
 			if err != nil {fmt.Println("tcp第三次握手错误:",err.Error())}
 		
 			fmt.Println("tcp第三次握手成功高，开始收容")
+			key,client, timeout :=connclient.NewConnClient(con,connclient.NEEDCRC)
+
+			//clientrecvch的消费者子携程
+			//同时子携程也是p.ServerRecvCh的生产者
+			//p.ServerRecvCh需要在上层消费
+			clientrecvch :=client.GenerateRecvCh()
 			go func(){
-				key,client, timeout :=connclient.NewConnClient(con,connclient.NEEDCRC)
-				clientrecvch :=client.GenerateRecvCh()
-				p.ConnClientMap[key] =client
+				defer delete(p.ConnClientMap,key)
+				defer fmt.Println("该设备", timeout, "秒无应答，连接将会从ConnClientMap中删除：",key)
 				for b := range clientrecvch{
-					fmt.Println("bbbb:",b)
+					//fmt.Println("bbbb:",b)
 					p.ServerRecvCh<-b
 				} 
-
-				delete(p.ConnClientMap,key)
-				fmt.Println("该设备", timeout, "秒无应答，连接将会从ConnClientMap中删除：",key)
 			}()
 
-			
+			p.ConnClientMap[key] =client
 			fmt.Println("p.ConnClientMap updated:",p.ConnClientMap)
 		}
 	}()

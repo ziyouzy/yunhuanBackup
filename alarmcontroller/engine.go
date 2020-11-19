@@ -57,7 +57,7 @@ type Engine struct{
 }
 
 
-func (p *Engine)JudgeOneNodeDo(nd nodedo.NodeDo) (issafe bool, smsarr []string, alarmDBentity *model.AlarmEntity){
+func (p *Engine)JudgeOneNodeDo(nd nodedo.NodeDo) (issafe bool, smsarr []string, alarmdbentity *model.AlarmEntity){
 	amString := nd.PrepareSMSAlarm()
 	if amString ==""{
 		issafe =true
@@ -67,8 +67,9 @@ func (p *Engine)JudgeOneNodeDo(nd nodedo.NodeDo) (issafe bool, smsarr []string, 
 	for _, v := range p.e{
 		smsarr =append(smsarr,fmt.Sprintf(v,amString))
 	}
-	
-	nd.PrepareMYSQLAlarm(alarmDBentity)
+
+	alarmdbentity =new(model.AlarmEntity)
+	nd.PrepareMYSQLAlarm(alarmdbentity)
 
 	return
 }

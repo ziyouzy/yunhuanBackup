@@ -5,11 +5,13 @@ import(
 	
 	"github.com/ziyouzy/mylib/physicalnode"
 )
-func PhysicalNodeChAndListenConnServer(rawch chan []byte)chan physicalnode.PhysicalNode{
+
+//创建管道的同时实现了生产者,也是实现了生产者与消费者都在子携程中
+func RawChToPhysicalNodeCh(rawch chan []byte)chan physicalnode.PhysicalNode{
 	physicalnodech :=make(chan physicalnode.PhysicalNode)
 	go func(){
 		for raw := range rawch{
-			physicalNode :=buildPhysicalNode(raw)
+			physicalNode :=buildPhysicalNode_PROTOCOL_YUNHUAN20200924(raw)
 			physicalnodech<-physicalNode
 		}
 	}()
@@ -17,7 +19,7 @@ func PhysicalNodeChAndListenConnServer(rawch chan []byte)chan physicalnode.Physi
 }
 
 
-func buildPhysicalNode(b []byte)physicalnode.PhysicalNode{
+func buildPhysicalNode_PROTOCOL_YUNHUAN20200924(b []byte)physicalnode.PhysicalNode{
 	bufarr :=bytes.Fields(b)//按照空白分割
 	tag :=string(bufarr[2])
 	buf :=bufarr[3]

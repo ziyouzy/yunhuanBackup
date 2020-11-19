@@ -18,7 +18,8 @@ type TcpConn struct{
 //无法给这里设计单例模式，因为就算把他与handler分离设计成独立的package
 //引入这个包后，每当有新client连接就要执行这个方法、以及上面的NewPipelineTcpSocketConn
 func (p *TcpConn)GenerateRecvCh() chan []byte{
-	fmt.Println("read-1 err")
+	//fmt.Println("read-1 err")
+	//管道以及他的生产者子携程
 	ch := make(chan []byte)
 	go func (){
 		defer p.Conn.Close()
@@ -27,14 +28,14 @@ func (p *TcpConn)GenerateRecvCh() chan []byte{
 		buf := make([]byte, 4096)
 		for {
 			readlen, err := p.Conn.Read(buf) /*阀门*/
-			fmt.Println("read0")
+			//fmt.Println("read0")
 			if err != nil {
 				//这里应该更新为写入日志
 				fmt.Println("read1 err:",err)
 				return
 			}			
 			tempBuf :=buf[:readlen]//如494f3031f10201,crc校验时需要截取有效字段
-			fmt.Println("readx:",tempBuf)
+			//fmt.Println("readx:",tempBuf)
 			ip :=p.Conn.RemoteAddr().String()
 			tag :="tcpsocket"
 			l :=len(tempBuf)
@@ -46,13 +47,13 @@ func (p *TcpConn)GenerateRecvCh() chan []byte{
 			}else if l<4{ 
 				fmt.Println("接收到错误的字节数组：",tempBuf)
 			}else if !p.NeedCRC{
-				fmt.Println("??????!:",tempBuf)
+				//fmt.Println("??????!:",tempBuf)
 				presentTime :=time.Now().Format(TIMEFORMAT)
 				//核心，为原始字节数组依次添加了ip,时间,tag
 				ch <-bytes.Join([][]byte{[]byte(ip),[]byte(presentTime),[]byte(tag),tempBuf},[]byte(" "))
 			}else{
 				//crc校验
-				fmt.Println("??????:",tempBuf)
+				//fmt.Println("??????:",tempBuf)
 				if ok := utils.CRCCheck(tempBuf[4:],utils.ISLITTLEENDDIAN);ok{
 					presentTime :=time.Now().Format(TIMEFORMAT)
 					//核心，为原始字节数组依次添加了ip,时间,tag
@@ -67,10 +68,10 @@ func (p *TcpConn)GenerateRecvCh() chan []byte{
 }
 
 func (p *TcpConn)SendBytes(b []byte) {
-	fmt.Println("write!")
-	i,err :=p.Conn.Write(b)
+	//fmt.Println("write!")
+	_,err :=p.Conn.Write(b)
 	if err !=nil{
 		fmt.Println("write err:",err)
 	}
-	fmt.Println("write i:",i)
+	//fmt.Println("write i:",i)
 }

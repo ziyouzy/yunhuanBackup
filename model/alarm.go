@@ -9,8 +9,8 @@ import (
 type AlarmEntity struct {
 	gorm.Model
 
-	NodeID int `gorm:"comment:'从json配置中所读取的设备ID'"`
-	ModuleParentID int `gorm:"comment:'从json配置中所读取的设备父节点ID'"`
+	PresentSouthID int `gorm:"comment:'从当时json配置中所读取到的设备ID'"`
+	PresentSouthBound string `gorm:"comment:'从当时json配置中所读取到的北向通信目标地址'"`
 
 	Name string 	`gorm:"comment:'异常节点的名称'"`
 	Value string 	`gorm:"comment:'超限当时的数值'"`

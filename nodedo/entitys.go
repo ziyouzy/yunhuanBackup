@@ -10,13 +10,13 @@ import(
 )
 
 type BoolenNodeDo struct{
-	Id int
-	ParentModuleId int 
+	SouthId int
+	SouthBound string 
+	Name string 
 
 	IsOnline bool 
 	IsNormal bool 
 	IsTimeOut bool
-	Name string 
 	Value string
 	Unit string 
 
@@ -32,13 +32,13 @@ type BoolenNodeDo struct{
 
 
 type IntNodeDo struct{
-	Id int
-	ParentModuleId int
+	SouthId int
+	SouthBound string 
+	Name string 
 
 	IsOnline bool
 	IsNormal bool
 	IsTimeOut bool
-	Name string
 	Value string
 	Unit string
 
@@ -53,13 +53,13 @@ type IntNodeDo struct{
 
 
 type FloatNodeDo struct{
-	Id int
-	ParentModuleId int
+	SouthId int
+	SouthBound string 
+	Name string 
 
 	IsOnline bool
 	IsNormal bool
 	IsTimeOut bool
-	Name string
 	Value string
 	Unit string
 
@@ -74,13 +74,13 @@ type FloatNodeDo struct{
 
 
 type CommonNodeDo struct{
-	Id int
-	ParentModuleId int
+	SouthId int
+	SouthBound string 
+	Name string 
 
 	IsOnline bool
 	IsNormal bool
 	IsTimeOut bool
-	Name string
 	Value string
 	Unit string
 
@@ -343,8 +343,8 @@ func (p *CommonNodeDo)PrepareSMSAlarm()string{
 }
 
 func (p *BoolenNodeDo)PrepareMYSQLAlarm(ae *model.AlarmEntity){
-	ae.NodeID =p.Id
-	ae.ModuleParentID =p.ParentModuleId
+	ae.PresentSouthID =p.SouthId
+	ae.PresentSouthBound =p.SouthBound
 
 	ae.Name =p.Name
 	ae.Value =p.Value
@@ -353,8 +353,8 @@ func (p *BoolenNodeDo)PrepareMYSQLAlarm(ae *model.AlarmEntity){
 }
 
 func (p *IntNodeDo)PrepareMYSQLAlarm(ae *model.AlarmEntity){
-	ae.NodeID =p.Id
-	ae.ModuleParentID =p.ParentModuleId
+	ae.PresentSouthID =p.SouthId
+	ae.PresentSouthBound =p.SouthBound
 
 	ae.Name =p.Name
 	ae.Value =p.Value
@@ -363,8 +363,8 @@ func (p *IntNodeDo)PrepareMYSQLAlarm(ae *model.AlarmEntity){
 }
 
 func (p *FloatNodeDo)PrepareMYSQLAlarm(ae *model.AlarmEntity){
-	ae.NodeID =p.Id
-	ae.ModuleParentID =p.ParentModuleId
+	ae.PresentSouthID =p.SouthId
+	ae.PresentSouthBound =p.SouthBound
 
 	ae.Name =p.Name
 	ae.Value =p.Value
@@ -373,8 +373,8 @@ func (p *FloatNodeDo)PrepareMYSQLAlarm(ae *model.AlarmEntity){
 }
 
 func (p *CommonNodeDo)PrepareMYSQLAlarm(ae *model.AlarmEntity){
-	ae.NodeID =p.Id
-	ae.ModuleParentID =p.ParentModuleId
+	ae.PresentSouthID =p.SouthId
+	ae.PresentSouthBound =p.SouthBound
 
 	ae.Name =p.Name
 	ae.Value =p.Value

@@ -70,7 +70,7 @@
         
                 "type":"BOOL",
                 "isonsms":true,
-                "normal":1,
+                "normal":0,
                 "value0":"正常",
                 "value1":"异常",
         

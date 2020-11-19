@@ -6,8 +6,8 @@ import(
 	"github.com/ziyouzy/mylib/nodedo"
 )
 
-func NodeDoCh()chan nodedo.NodeDo{return nodedocontroller.GenerateNodeDoCh()}
 
+//PhysicalNodeCh的子携程消费者
 func UpdateEveryExsitNodeDoTemplate(pnch chan physicalnode.PhysicalNode){
 	go func(){
 		for ph := range pnch{
@@ -15,3 +15,8 @@ func UpdateEveryExsitNodeDoTemplate(pnch chan physicalnode.PhysicalNode){
 		}
 	}()
 }
+
+//NodeDoCh
+//下层已经实现了子携程生产者，上层去实现子携程消费者
+func GenerateNodeDoCh()chan nodedo.NodeDo{return nodedocontroller.GenerateNodeDoCh()}
+

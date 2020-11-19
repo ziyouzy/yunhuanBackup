@@ -1,3 +1,5 @@
+//每个singleViper只会被new一次
+//之后都只是更新
 package myvipers
 
 import(
@@ -36,7 +38,7 @@ func BuildSingleViper(namewithpathandsuffix string)*SingleViper{
 			V:v,
 		}
 
-		sv.ConfigIsChange =make(chan bool)
+		sv.OneViperConfigIsChangeAndUpdateFinish =make(chan bool)
 
 		sv.watching()
 
@@ -47,48 +49,58 @@ func BuildSingleViper(namewithpathandsuffix string)*SingleViper{
 	}
 }
 
+func (p *SingleViper)watching() {
+	p.V.WatchConfig()
+	p.V.OnConfigChange(func(e fsnotify.Event) {
+		fmt.Println("Config file changed:", e.Name)
+		fmt.Println("0")
+		err := p.V.ReadInConfig() // 搜索路径，并读取配置数据
+		fmt.Println("1.0")
+		if err == nil {
+			fmt.Println("1.1")
+			p.OneViperConfigIsChangeAndUpdateFinish <-true
+			fmt.Println("1.2")
+			return
+		}else{
+			fmt.Println("Fatal reset config file:",err)
+			return
+		}
+		fmt.Println("2")
+	})
+}
+
 type SingleViper struct{
 	Name string
 	Path string
 	Suffix string
 
 	V *viper.Viper
-	ConfigIsChange chan bool
+	OneViperConfigIsChangeAndUpdateFinish chan bool
 }
 
-func (p *SingleViper)ListenConfigChange(configischange chan bool){
-	go func(){
-		for{
-			select {
-			case <-p.ConfigIsChange:
-				p.V =viper.New()
-				p.V.SetConfigName(p.Name) 
-				p.V.AddConfigPath(p.Path)   
-				p.V.SetConfigType(p.Suffix)//json yarm
-
-				if err := p.V.ReadInConfig();err == nil {
-					p.watching()
-					configischange<-true
-				}else{
-					fmt.Println("Fatal reset config file:",err)
-				}
-			}
-		}
-	}()
+func (p *SingleViper)OneViperConfigIsChangeAndUpdateFinishCh()chan bool{
+	return p.OneViperConfigIsChangeAndUpdateFinish
 }
+// func (p *SingleViper)ListenConfigChange(configischange chan bool){
+// 	go func(){
+// 		for{
+// 			select {
+// 			case <-p.ConfigIsChange:
+// 				p.V =viper.New()
+// 				p.V.SetConfigName(p.Name) 
+// 				p.V.AddConfigPath(p.Path)   
+// 				p.V.SetConfigType(p.Suffix)//json yarm
 
-func (p *SingleViper)watching() {
-	p.V.WatchConfig()
-	p.V.OnConfigChange(func(e fsnotify.Event) {
-		fmt.Println("Config file changed:", e.Name)
-		err := p.V.ReadInConfig() // 搜索路径，并读取配置数据
-		if err == nil {
-			p.ConfigIsChange <-true
-			return
-		}else{
-			fmt.Println("Fatal reset config file:",err)
-			return
-		}
-	})
-}
+// 				if err := p.V.ReadInConfig();err == nil {
+// 					p.watching()
+// 					//configischange<-true
+// 				}else{
+// 					fmt.Println("Fatal reset config file:",err)
+// 				}
+// 			}
+// 		}
+// 	}()
+// }
+
+
 

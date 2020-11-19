@@ -38,7 +38,7 @@ func TickerSendModbusToNouthBound(step int){
 					}else{					
 						for _, modbus := range modbusMatrix0{
 							clients[name].SendBytes(modbus)
-							fmt.Println("sended:",modbus)
+							//fmt.Println("sended:",modbus)
 							time.Sleep(1*time.Second)
 						}
 					}
