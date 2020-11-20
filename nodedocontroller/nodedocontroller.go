@@ -64,7 +64,9 @@ func (p *NodeDoController)GenerateNodeDoCh()chan nodedo.NodeDo{
 }
 
 func Engineing(pn physicalnode.PhysicalNode){ndc.Engineing(pn)}
-//Engine是个map，key 举例: "494f3031f10201-tcpsocket-do3-bool"
+//Engine是个map，key 举例: "494f3031f10201-tcpsocket-do3-bool"，而value则是实实在在的NodeDo
+//Engineing函数的意义在于基于获取PhysicalNode节点所发来的频率更新核心map
+//而当前包也会负责根据所设定的频率生成并发送NodeDo的独立结构体
 //PhysicalNode.SelectHandlerAndTage返回值举例："494f3031f10201","tcpsocket"
 //PhysicalNode.SelectOneValueAndTime返回值举例："value","time"
 func (p *NodeDoController)Engineing(pn physicalnode.PhysicalNode){

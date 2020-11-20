@@ -24,16 +24,19 @@ func main(){
 	conf.Load()
 	
 	fmt.Println("service start:")
-	rawCh :=service.RawCh()
-	service.ConnServerListenAndCollect()
-	physicalNodeCh := service.RawChToPhysicalNodeCh(rawCh)
-	service.UpdateEveryExsitNodeDoTemplate(physicalNodeCh)
-	nodeDoCh :=service.NodeDoCh()
-	service.ActionAlarmFile(nodeDoCh)
+	rawCh :=service.RawCh()//rawCh的创建者
+	service.ConnServerListenAndCollect()//rawCh的生产者
+	physicalNodeCh := service.RawChToPhysicalNodeCh(rawCh)//rawCh的消费者和physicalNodeCh的创建者和生产者
+	service.UpdateEveryExsitNodeDoTemplate(physicalNodeCh)//physiaclNodeCh的消费者
+	nodeDoCh :=service.NodeDoCh()//nodeDoCh的创建和生产者
 
-	service.ActionAlarmSMSSender()
-	service.ActionAlarmMYSQLCreater()
- 	service.TickerSendModbusToNouthBound(2)
+	service.ActionAlarmFiler(nodeDoCh)//nodeDoCh的消费者，以及之后那三个的生产者，chan bool的消费者
+
+	service.ActionAlarmSMSSender()//消费
+	service.ActionAlarmMYSQLCreater()//消费
+
+	 service.TickerSendModbusToNouthBound(2)//非流水线设计模式
+	 for{}
 }
 	 
 	 

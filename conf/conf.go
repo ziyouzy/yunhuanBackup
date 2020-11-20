@@ -47,7 +47,7 @@ func Load(){
 
 	lock.Lock()
 	myvipers.Load(Confofwidgets_testIsChange,/*,/abc/def/ghi.json*/"./widgetsonlyserver.json")
-	nodedocontroller.LoadSingletonPattern(1, myvipers.SelectOneMap("./widgetsonlyserver.json", "test_mainwidget.nodes"))
+	nodedocontroller.LoadSingletonPattern(5, myvipers.SelectOneMap("./widgetsonlyserver.json", "test_mainwidget.nodes"))
 	alarmcontroller.LoadSingletonPattern(myvipers.SelectOneMap("./widgetsonlyserver.json", "test_mainwidget.alarms.tty1-serial"))
 	lock.Unlock()
 	fmt.Println("初始化了nodedocontroller与alarmcontroller的单例模式")
@@ -59,7 +59,7 @@ func Load(){
 
 				lock.Lock()
 				//myvipers.Load(Confofwidgets_testIsChange,/*,/abc/def/ghi.json*/"./widgetsonlyserver.json")
-				nodedocontroller.LoadSingletonPattern(1, myvipers.SelectOneMap("./widgetsonlyserver.json", "test_mainwidget.nodes"))
+				nodedocontroller.LoadSingletonPattern(5, myvipers.SelectOneMap("./widgetsonlyserver.json", "test_mainwidget.nodes"))
 				alarmcontroller.LoadSingletonPattern(myvipers.SelectOneMap("./widgetsonlyserver.json", "test_mainwidget.alarms.tty1-serial"))
 				lock.Unlock()
 				fmt.Println("更新了nodedocontroller与alarmcontroller的单例模式")
