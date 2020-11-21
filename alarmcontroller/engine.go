@@ -6,7 +6,7 @@ import(
 	"github.com/ziyouzy/mylib/nodedo"
 )
  
-func NewEngine(base map[string]interface{})(engine *Engine, smstimerlimitmin float64, mysqltimerlimitmin float64){
+func NewEngine(base map[string]interface{})(engine *Engine, smstickerlimitmin float64, mysqltickerlimitmin float64){
 	engine =new(Engine)
 	smsserialize, ok :=base["smsserialize"].(string)
 	if !ok{
@@ -29,18 +29,18 @@ func NewEngine(base map[string]interface{})(engine *Engine, smstimerlimitmin flo
 	}
 
 
-	if smstimerlimitmin,ok =base["smssleepmin"].(float64);!ok{
+	if smstickerlimitmin,ok =base["smssleepmin"].(float64);!ok{
 		fmt.Println("从json初始化smssleepmin进行断言时失败，因此将会把smssleepmin的值设置为4*60")
-		smstimerlimitmin =240
+		smstickerlimitmin =240
 	}else{
-		fmt.Println("从json初始化smssleepmin进行断言成功，smstimerlimitmin=", smstimerlimitmin)
+		fmt.Println("从json初始化smssleepmin进行断言成功，smstimerlimitmin=", smstickerlimitmin)
 	}
 
-	if mysqltimerlimitmin,ok =base["mysqlsleepmin"].(float64);!ok{
-		fmt.Println("从json初始化mysqltimerlimitmin进行断言时失败，因此将会把mysqltimerlimitmin的值设置为4*60")
-		mysqltimerlimitmin =240
+	if mysqltickerlimitmin,ok =base["mysqlsleepmin"].(float64);!ok{
+		fmt.Println("从json初始化mysqltickerlimitmin进行断言时失败，因此将会把mysqltickerlimitmin的值设置为4*60")
+		mysqltickerlimitmin =240
 	}else{
-		fmt.Println("从json初始化mysqltimerlimitmin进行断言成功，mysqltimerlimitmin=", mysqltimerlimitmin)
+		fmt.Println("从json初始化mysqltickerlimitmin进行断言成功，mysqltickerlimitmin=", mysqltickerlimitmin)
 	}
 
 	return

@@ -40,26 +40,46 @@ func GenerateNodeDoCh()chan nodedo.NodeDo{return ndc.GenerateNodeDoCh()}
 func (p *NodeDoController)GenerateNodeDoCh()chan nodedo.NodeDo{
 	p.FlushTicket =time.NewTicker(time.Duration(p.TicketStep) * time.Second)
 	nodeDoCh := make(chan nodedo.NodeDo)
-
 	//ticker的消费者与ch的生产者都在这个子携程中
 	//ticker在NewTicker的同时，其自身就是生产者，所以消费者必然在其之后
 	//select是ch的生产者，消费者会在上层实现
 	go func(){
 		//当done管道收到true时，在这里优雅的关闭该管道即可，因为他不是结构体的字段，无法在Quit方法内关闭
 		defer close(nodeDoCh)
-		for {
+		for range p.FlushTicket.C{
+			p.lock.Lock()
+			for _,v := range p.e{
+				nodeDoCh <-v
+				fmt.Println("nodedoch_b,v:",v)
+			}
+			p.lock.Unlock()
+
 			select {
 			case <-p.quit:
 				break
-			case <-p.FlushTicket.C:
-				p.lock.Lock()
-				for _,v := range p.e{
-					nodeDoCh <-v
-					fmt.Println("nodedoch_b,v:",v)
-				}
-				p.lock.Unlock()
+			default:
 			}
-		}    
+
+		}
+
+		if len(p.FlushTicket.C)>0{
+			fmt.Println("清空nodedocontroller.FlushTicker.C管道中的残留内容：",<-p.FlushTicket.C)
+		}
+		p.FlushTicket.Stop()
+
+		// for {
+		// 	select {
+		// 	case <-p.quit:
+		// 		break
+		// 	case <-p.FlushTicket.C:
+		// 		p.lock.Lock()
+		// 		for _,v := range p.e{
+		// 			nodeDoCh <-v
+		// 			fmt.Println("nodedoch_b,v:",v)
+		// 		}
+		// 		p.lock.Unlock()
+		// 	}
+		// }    
 	}()
 	return nodeDoCh
 }

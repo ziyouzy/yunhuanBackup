@@ -35,13 +35,13 @@ func LoadSingletonPattern(base map[string]interface{}){ac =BuildAlarmController(
 //这里模仿了time包的NewTimer的设计模式，New出来的对象生命周期很可能为主函数
 func BuildAlarmController(base map[string]interface{}) *AlarmController{
 	ac := AlarmController{}
-	e, smstimerlimitmin, mysqltimerlimitmin := NewEngine(base)
-	fmt.Println("smstimerlimitmin:",smstimerlimitmin,"mysqltimerlimitmin:",mysqltimerlimitmin)
+	e, smstickerlimitmin, mysqltickerlimitmin := NewEngine(base)
+	fmt.Println("smstickerlimitmin:",smstickerlimitmin,"mysqltickerlimitmin:",mysqltickerlimitmin)
 
 	//实例化内部字段（内部的Engine才会真正进行监测某个NodeDo是否超限）
 	ac.e =e
-	ac.SMStimerLimitSec = smstimerlimitmin * 60
-	ac.MYSQLtimerLimitSec  = mysqltimerlimitmin * 60
+	ac.SMStickerLimitSec = smstickerlimitmin * 60
+	ac.MYSQLtickerLimitSec  = mysqltickerlimitmin * 60
 
 	ac.quit =make(chan bool)
 	
@@ -53,8 +53,8 @@ func BuildAlarmController(base map[string]interface{}) *AlarmController{
 
 func InitSMSTicker(){ac.initSMSTicker()}
 func (p *AlarmController)initSMSTicker(){
-	if p.SMStimer ==nil{
-		//p.SMStimer =time.NewTimer(time.Duration(p.SMStimerLimitSec) * time.Second)
+	if p.SMSticker ==nil{
+		//p.SMSticker =time.NewTimer(time.Duration(p.SMStickerLimitSec) * time.Second)
 		p.SMSticker =time.NewTicker(3 * time.Second)
 		p.SMSAlarmIsReady =true
 	
@@ -87,11 +87,11 @@ func (p *AlarmController)initSMSTicker(){
 	}
 }
 
-func InitMYSQLTimer(){ac.initMYSQLTimer()}
-func (p *AlarmController)initMYSQLTimer(){
-	if p.MYSQLtimer ==nil{ 
-		//p.MYSQLtimer =time.NewTimer(time.Duration(p.MYSQLtimerLimitSec) * time.Second)
-		p.MYSQLtimer =time.NewTimer(3 * time.Second)
+func InitMYSQLTicker(){ac.initMYSQLTicker()}
+func (p *AlarmController)initMYSQLTicker(){
+	if p.MYSQLticker ==nil{ 
+		//p.MYSQLticker =time.NewTicker(time.Duration(p.MYSQLtickerLimitSec) * time.Second)
+		p.MYSQLticker =time.NewTicker(3 * time.Second)
 		p.MYSQLAlarmIsReady =true
 
 		//消费者子携程
@@ -100,7 +100,7 @@ func (p *AlarmController)initMYSQLTimer(){
 				select {
 				case <-p.quit:
 					break
-				case <-p.MYSQLtimer.C:
+				case <-p.MYSQLticker.C:
 					p.MYSQLAlarmIsReady =true	
 					fmt.Println("p.MYSQLtimer已到，仅仅p.MYSQLAlarmIsReady变为了",p.MYSQLAlarmIsReady)			
 				}
@@ -110,14 +110,14 @@ func (p *AlarmController)initMYSQLTimer(){
 	}else{
 
 		/*下面只做了两件事：停止+重置*/
-		if !p.MYSQLtimer.Stop() {
+		if !p.MYSQLticker.Stop() {
 			select{
-			case <-p.MYSQLtimer.C:
+			case <-p.MYSQLticker.C:
 			default:
 			}
 		}
-		//p.MYSQLtimer.Reset(time.Duration(p.MYSQLtimerLimitSec) * time.Second)
-		p.MYSQLtimer.Reset(3 * time.Second)
+		//p.MYSQLticker.Reset(time.Duration(p.MYSQLtickerLimitSec) * time.Second)
+		p.MYSQLticker.Reset(3 * time.Second)
 		/*----*/
 	}
 }
