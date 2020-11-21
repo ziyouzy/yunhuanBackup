@@ -42,24 +42,25 @@ import(
 //拿到可以全局使用的viper变量
 func Load(){
 	var lock sync.Mutex
-	//SingleViper是文件级的，也就是说一个文件对应一个configischange的管道，因此在这里就可以实现点对点的触发机制
-	Confofwidgets_testIsChange :=make(chan bool) 
+	//SingleViper是文件级的，个体拥有独立的chan bool管道，从而告诉上级json文档是否发生更新
+	//也就是说一个文件对应一个configischange的管道，因此在这里就可以实现点对点的触发机制
 
 	lock.Lock()
-	myvipers.Load(Confofwidgets_testIsChange,/*,/abc/def/ghi.json*/"./widgetsonlyserver.json")
-	nodedocontroller.LoadSingletonPattern(5, myvipers.SelectOneMap("./widgetsonlyserver.json", "test_mainwidget.nodes"))
+	//myvipers可以独立的去自我实现更新
+	//Load所返回的管道是个独立的管道，实现了每个SingleViper的扇入汇总
+	Confofwidgets_testIsChange := myvipers.Load(/*,/abc/def/ghi.json*/"./widgetsonlyserver.json")
+
+	nodedocontroller.LoadSingletonPattern(1, myvipers.SelectOneMap("./widgetsonlyserver.json", "test_mainwidget.nodes"))
 	alarmcontroller.LoadSingletonPattern(myvipers.SelectOneMap("./widgetsonlyserver.json", "test_mainwidget.alarms.tty1-serial"))
 	lock.Unlock()
 	fmt.Println("初始化了nodedocontroller与alarmcontroller的单例模式")
+
 	go func(){
 		for{
 			select{
 			case <-Confofwidgets_testIsChange:
-				//Confofwidgets_testIsChange :=make(chan bool) 
-
 				lock.Lock()
-				//myvipers.Load(Confofwidgets_testIsChange,/*,/abc/def/ghi.json*/"./widgetsonlyserver.json")
-				nodedocontroller.LoadSingletonPattern(5, myvipers.SelectOneMap("./widgetsonlyserver.json", "test_mainwidget.nodes"))
+				nodedocontroller.LoadSingletonPattern(1, myvipers.SelectOneMap("./widgetsonlyserver.json", "test_mainwidget.nodes"))
 				alarmcontroller.LoadSingletonPattern(myvipers.SelectOneMap("./widgetsonlyserver.json", "test_mainwidget.alarms.tty1-serial"))
 				lock.Unlock()
 				fmt.Println("更新了nodedocontroller与alarmcontroller的单例模式")

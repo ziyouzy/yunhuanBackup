@@ -55,6 +55,7 @@ func (p *NodeDoController)GenerateNodeDoCh()chan nodedo.NodeDo{
 				p.lock.Lock()
 				for _,v := range p.e{
 					nodeDoCh <-v
+					fmt.Println("nodedoch_b,v:",v)
 				}
 				p.lock.Unlock()
 			}
@@ -62,6 +63,8 @@ func (p *NodeDoController)GenerateNodeDoCh()chan nodedo.NodeDo{
 	}()
 	return nodeDoCh
 }
+
+
 
 func Engineing(pn physicalnode.PhysicalNode){ndc.Engineing(pn)}
 //Engine是个map，key 举例: "494f3031f10201-tcpsocket-do3-bool"，而value则是实实在在的NodeDo
@@ -86,6 +89,7 @@ func (p *NodeDoController)Engineing(pn physicalnode.PhysicalNode){
 
 func Quit(){ndc.Quit()}
 func (p *NodeDoController)Quit(){
+	fmt.Println("为啥NodeDo就关闭了?")
 	p.quit <- true
 	close(p.quit)
 }

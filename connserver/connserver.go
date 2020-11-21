@@ -67,8 +67,9 @@ func (p *ConnServer)generateAndCollectTcpRecvCh(port string){
 				defer delete(p.ConnClientMap,key)
 				defer fmt.Println("该设备", timeout, "秒无应答，连接将会从ConnClientMap中删除：",key)
 				for b := range clientrecvch{
-					//fmt.Println("bbbb:",b)
+					fmt.Println("rawch_a")
 					p.ServerRecvCh<-b
+					fmt.Println("rawch_b")
 				} 
 			}()
 

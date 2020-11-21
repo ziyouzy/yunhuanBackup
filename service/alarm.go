@@ -37,11 +37,12 @@ func ActionAlarmSMSSender(){
 //NodeDoCh的子携程消费者
 //Filter实现了NodeDoCh的子线程消费，以及AlarmSMSbyteCh、AlarmMYSQLEntityCh、chan bool的生产
 func ActionAlarmFiler(ndch chan nodedo.NodeDo){
-	ch := alarmcontroller.Filter(ndch)
-	go func(){
-		for bo := range ch{
-			fmt.Println("c.当前的NodeDo正常吗:",bo)
-		}
-   }()
+	/*ch := */alarmcontroller.Filter(ndch)
+// 	go func(){
+// 		for bo := range ch{
+// 			fmt.Println("end issafech-a")
+// 			fmt.Println(time.Now().Format("20060102150405"),"c.当前的NodeDo正常吗:",bo)
+// 		}
+//    }()
 }
 

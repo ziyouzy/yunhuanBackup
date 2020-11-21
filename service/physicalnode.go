@@ -2,9 +2,11 @@ package service
 
 import(
 	"bytes"
+	"fmt"
 	
 	"github.com/ziyouzy/mylib/physicalnode"
 )
+//1121-11:03 39.39
 
 //创建管道的同时实现了生产者,也是实现了生产者与消费者都在子携程中
 func RawChToPhysicalNodeCh(rawch chan []byte)chan physicalnode.PhysicalNode{
@@ -12,7 +14,9 @@ func RawChToPhysicalNodeCh(rawch chan []byte)chan physicalnode.PhysicalNode{
 	go func(){
 		for raw := range rawch{
 			physicalNode :=buildPhysicalNode_PROTOCOL_YUNHUAN20200924(raw)
+			fmt.Println("physicalnodech_a")
 			physicalnodech<-physicalNode
+			fmt.Println("physicalnodech_b")
 		}
 	}()
 	return physicalnodech

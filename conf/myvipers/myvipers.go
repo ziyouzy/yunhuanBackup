@@ -27,8 +27,10 @@ import(
 var vipers map[string]*SingleViper
 
 //只设计两种情况：要么是绝对路径，要么是根目录
-func Load(configischange chan bool, paths ...string){
+func Load(paths ...string) chan bool{
 	vipers =make(map[string]*SingleViper)
+	configischange :=make(chan bool)
+
 	for _, p :=range paths{
 		if sv :=BuildSingleViper(p); sv!=nil{
 			//sv.ListenConfigChange(configischange )
@@ -43,6 +45,8 @@ func Load(configischange chan bool, paths ...string){
 			fmt.Println("您设置的json路径[",p,"]格式错误，只支持绝对路径与根目录两种模式")
 		}
 	}
+
+	return configischange
 }
 
 

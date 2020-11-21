@@ -20,31 +20,41 @@ func TickerSendModbusToNouthBound(step int){
 		{0xf1,0x01,0x00,0x00,0x00,0x08,0x29,0x3c,},
 		{0xf1,0x02,0x00,0x20,0x00,0x08,0x6c,0xf6,},
 	}
+	time.Sleep(5*time.Second)
+	client :=connserver.ClientMap()["TCPCONN:192.168.10.2"]
 
-	connNames0 :=[]string{"TCPCONN:192.168.10.2",}
+	//connNames0 :=[]string{"TCPCONN:192.168.10.2",}
 
+	
 	go func(){
 		for{
-			time.Sleep(1*time.Second)
-			clients :=connserver.ClientMap()
-			if clients ==nil{
-				fmt.Println("当前connserver.ClientMap()为空")
-				continue
-			}else{
-				for _, name := range connNames0{
-					if clients[name] ==nil{
-						fmt.Println("当前connserver.ClientMap[",name,"]并不存在")
-						continue
-					}else{					
-						for _, modbus := range modbusMatrix0{
-							clients[name].SendBytes(modbus)
-							//fmt.Println("sended:",modbus)
-							time.Sleep(1*time.Second)
-						}
-					}
-				}
+			for _,modbus := range modbusMatrix0{
+				fmt.Println("client.SendBytes(modbus):",modbus)
+				client.SendBytes(modbus)
+				time.Sleep(1*time.Second)
 			}
 		}
+		// for{
+		// 	time.Sleep(1*time.Second)
+		// 	clients :=connserver.ClientMap()
+		// 	if clients ==nil{
+		// 		fmt.Println("当前connserver.ClientMap()为空")
+		// 		continue
+		// 	}else{
+		// 		for _, name := range connNames0{
+		// 			if clients[name] ==nil{
+		// 				fmt.Println("当前connserver.ClientMap[",name,"]并不存在")
+		// 				continue
+		// 			}else{					
+		// 				for _, modbus := range modbusMatrix0{
+		// 					clients[name].SendBytes(modbus)
+		// 					//fmt.Println("sended:",modbus)
+		// 					time.Sleep(1*time.Second)
+		// 				}
+		// 			}
+		// 		}
+		// 	}
+		// }
 	}()
 }
 
