@@ -18,7 +18,45 @@
         },
 
         "nodes":{
-           
+            "494f3031f10201-tcpsocket-do3-bool":{
+                "southbound":"TCP:192.168.10.2",
+                "southid":1,
+                "name":"烟感3",
+
+                "isonline":true,
+                "isnormal":false,
+                "value":"N/A",
+                "unit":null,
+
+                "type":"BOOL",
+                "isonsms":true,
+                "normal":0,
+                "value0":"正常",
+                "value1":"异常",
+
+                "sms":"烟感异常",
+                "date":""
+            },
+
+            "494f3031f10201-tcpsocket-do1-bool":{
+                "southbound":"TCP:192.168.10.2",
+                "southid":2,
+                "name":"烟感1",
+    
+                "isonline":true,
+                "isnormal":false,
+                "value":"N/A",
+                "unit":null,
+    
+                "type":"BOOL",
+                "isonsms":true,
+                "normal":0,
+                "value0":"正常",
+                "value1":"异常",
+    
+                "sms":"烟感异常",
+                "date":""
+            },
 
             "494f3031f10201-tcpsocket-do2-bool":{
                 "southbound":"TCP:192.168.10.2",
@@ -32,7 +70,7 @@
         
                 "type":"BOOL",
                 "isonsms":true,
-                "normal":1,
+                "normal":0,
                 "value0":"正常",
                 "value1":"异常",
         

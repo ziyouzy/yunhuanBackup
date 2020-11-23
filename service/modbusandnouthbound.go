@@ -10,30 +10,49 @@ package service
 
 import(
 	"time"
-	"fmt"
+	//"fmt"
 
 	"github.com/ziyouzy/mylib/connserver"
 )
-
-func TickerSendModbusToNouthBound(step int){
+func TickerSendModbusToNouthBound_RangeTest(){
 	modbusMatrix0 := [][]byte{
 		{0xf1,0x01,0x00,0x00,0x00,0x08,0x29,0x3c,},
 		{0xf1,0x02,0x00,0x20,0x00,0x08,0x6c,0xf6,},
 	}
 	time.Sleep(5*time.Second)
+	
 	client :=connserver.ClientMap()["TCPCONN:192.168.10.2"]
 
-	//connNames0 :=[]string{"TCPCONN:192.168.10.2",}
-
-	
-	go func(){
-		for{
-			for _,modbus := range modbusMatrix0{
-				fmt.Println("client.SendBytes(modbus):",modbus)
-				client.SendBytes(modbus)
-				time.Sleep(1*time.Second)
-			}
+	for{
+		for _,modbus := range modbusMatrix0{
+			client.SendBytes(modbus)
+			time.Sleep(5*time.Millisecond)
 		}
+	}
+}
+
+func TickerSendModbusToNouthBound(step int){	
+	//go func(){
+		modbusMatrix0 := [][]byte{
+			{0xf1,0x01,0x00,0x00,0x00,0x08,0x29,0x3c,},
+			{0xf1,0x02,0x00,0x20,0x00,0x08,0x6c,0xf6,},
+		}
+		time.Sleep(5*time.Second)
+		
+		client :=connserver.ClientMap()["TCPCONN:192.168.10.2"]
+		for i :=0;i<=2;i++{
+			if i==2{
+				i=0
+			}
+			//fmt.Println("doing",time.Now().Format("20060102150405"))
+			//temp :=append([]byte{},modbusMatrix0[i])
+			//fmt.Println("modbusticket modbus:",modbusMatrix0[i],time.Now().Format("20060102150405"))//三秒死
+			//fmt.Println("modbusticket modbus:",temp,time.Now().Format("20060102150405"))//三秒死
+			client.SendBytes(modbusMatrix0[i])
+			time.Sleep(5*time.Millisecond)
+		}
+	//}()
+}
 		// for{
 		// 	time.Sleep(1*time.Second)
 		// 	clients :=connserver.ClientMap()
@@ -55,7 +74,7 @@ func TickerSendModbusToNouthBound(step int){
 		// 		}
 		// 	}
 		// }
-	}()
-}
+	//}()
+//}
 
 

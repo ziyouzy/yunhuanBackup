@@ -25,21 +25,31 @@ func main(){
 	fmt.Println("service start:")
 	rawCh :=service.RawCh()//rawCh的创建者a-b
 	service.ConnServerListenAndCollect()//rawCh的生产者
+	//go func(){
+	//	for raw := range rawCh{
+	//		_ =raw
+	//	}
+	//}()
 
 	physicalNodeCh := service.RawChToPhysicalNodeCh(rawCh)//rawCh的消费者和physicalNodeCh的创建者和生产者a-b
-
+	//go func(){
+	//	for pn := range physicalNodeCh{
+	//		_ =pn
+	//	}
+	//}()
 	service.UpdateEveryExsitNodeDoTemplate(physicalNodeCh)//physiaclNodeCh的消费者
 	nodeDoCh :=service.NodeDoCh()//nodeDoCh的创建和生产者a-b-?
 	
 
-	 service.ActionAlarmFiler(nodeDoCh)//nodeDoCh的消费者，以及之后那三个的生产者，chan bool的消费者
-	// service.ActionAlarmSMSSender()//消费
-	// service.ActionAlarmMYSQLCreater()//消费
+	service.ActionAlarmFiler(nodeDoCh)//nodeDoCh的消费者，以及之后那三个的生产者，chan bool的消费者
+	service.ActionAlarmSMSSender()//消费
+	service.ActionAlarmMYSQLCreater()//消费
 
 
 	//service.TickerSendModbusToNouthBound(2)//非流水线设计模式
+	service.TickerSendModbusToNouthBound_RangeTest()
 	
-	for{}
+	//for{}
 	// for nodedo := range nodeDoCh{
 	// 	fmt.Println(nodedo)
 	// }

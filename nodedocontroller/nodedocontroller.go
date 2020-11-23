@@ -50,7 +50,6 @@ func (p *NodeDoController)GenerateNodeDoCh()chan nodedo.NodeDo{
 			p.lock.Lock()
 			for _,v := range p.e{
 				nodeDoCh <-v
-				fmt.Println("nodedoch_b,v:",v)
 			}
 			p.lock.Unlock()
 
@@ -59,27 +58,12 @@ func (p *NodeDoController)GenerateNodeDoCh()chan nodedo.NodeDo{
 				break
 			default:
 			}
-
 		}
 
 		if len(p.FlushTicket.C)>0{
 			fmt.Println("清空nodedocontroller.FlushTicker.C管道中的残留内容：",<-p.FlushTicket.C)
 		}
-		p.FlushTicket.Stop()
-
-		// for {
-		// 	select {
-		// 	case <-p.quit:
-		// 		break
-		// 	case <-p.FlushTicket.C:
-		// 		p.lock.Lock()
-		// 		for _,v := range p.e{
-		// 			nodeDoCh <-v
-		// 			fmt.Println("nodedoch_b,v:",v)
-		// 		}
-		// 		p.lock.Unlock()
-		// 	}
-		// }    
+		p.FlushTicket.Stop()   
 	}()
 	return nodeDoCh
 }
@@ -102,6 +86,7 @@ func (p *NodeDoController)Engineing(pn physicalnode.PhysicalNode){
 		nodename :=strings.Split(k,"-")[2]
 
 		pvalue,ptime := pn.SelectOneValueAndTime(handler, tag, nodename)
+		fmt.Println("pvalue,ptime :",pvalue,ptime)
 		p.e[k].UpdateOneNodeDo(pvalue,ptime)
 	}
 	p.lock.Unlock()

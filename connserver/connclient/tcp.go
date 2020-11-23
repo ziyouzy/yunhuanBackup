@@ -28,7 +28,7 @@ func (p *TcpConn)GenerateRecvCh() chan []byte{
 		buf := make([]byte, 4096)
 		for {
 			readlen, err := p.Conn.Read(buf) /*阀门*/
-			//fmt.Println("read0")
+			fmt.Println("len(buf):",len(buf))
 			if err != nil {
 				//这里应该更新为写入日志
 				fmt.Println("read1 err:",err)

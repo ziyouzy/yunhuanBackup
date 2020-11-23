@@ -13,13 +13,13 @@ import(
 
 var ac *AlarmController
 type AlarmController struct{
-	SMSticker *time.Ticker
-	SMStickerLimitSec float64
+	SMStimer *time.Timer
+	SMStimerLimitSec float64
 	SMSAlarmIsReady bool
 	SMSAlarmCh chan []byte 
 
-	MYSQLticker *time.Ticker
-	MYSQLtickerLimitSec float64
+	MYSQLtimer *time.Timer
+	MYSQLtimerLimitSec float64
 	MYSQLAlarmIsReady bool
 	MYSQLAlarmCh chan *model.AlarmEntity
 
@@ -35,92 +35,113 @@ func LoadSingletonPattern(base map[string]interface{}){ac =BuildAlarmController(
 //这里模仿了time包的NewTimer的设计模式，New出来的对象生命周期很可能为主函数
 func BuildAlarmController(base map[string]interface{}) *AlarmController{
 	ac := AlarmController{}
-	e, smstickerlimitmin, mysqltickerlimitmin := NewEngine(base)
-	fmt.Println("smstickerlimitmin:",smstickerlimitmin,"mysqltickerlimitmin:",mysqltickerlimitmin)
+	e, smstimerlimitmin, mysqltimerlimitmin := NewEngine(base)
+	fmt.Println("smstimerlimitmin:",smstimerlimitmin,"mysqltimerlimitmin:",mysqltimerlimitmin)
 
 	//实例化内部字段（内部的Engine才会真正进行监测某个NodeDo是否超限）
 	ac.e =e
-	ac.SMStickerLimitSec = smstickerlimitmin * 60
-	ac.MYSQLtickerLimitSec  = mysqltickerlimitmin * 60
+	ac.SMStimerLimitSec = smstimerlimitmin * 60
+	ac.MYSQLtimerLimitSec  = mysqltimerlimitmin * 60
 
 	ac.quit =make(chan bool)
 	
-	ac.initSMSTicker()
-	ac.initMYSQLTicker()
+	ac.newSMSTimer()
+	ac.newMYSQLTimer()
 	return &ac
 }
 
 
-func InitSMSTicker(){ac.initSMSTicker()}
-func (p *AlarmController)initSMSTicker(){
-	if p.SMSticker ==nil{
-		//p.SMSticker =time.NewTimer(time.Duration(p.SMStickerLimitSec) * time.Second)
-		p.SMSticker =time.NewTicker(3 * time.Second)
-		p.SMSAlarmIsReady =true
-	
-		//消费者子携程
-		go func(){
-			for {
-				select {
-				case <-p.quit:
-					break
-				case <-p.SMSticker.C:
-					p.SMSAlarmIsReady =true				
-					fmt.Println("p.SMStimer已到，仅仅p.SMSAlarmIsReady变为了",p.SMSAlarmIsReady)		
-				}
-			}    
-		}()
+func NewSMSTimer(){ac.newSMSTimer()}
+func (p *AlarmController)newSMSTimer(){
+	if p.SMStimer !=nil{
+		p.quit<-true
+		time.Sleep(time.Second)
+	}
 
-	}else{
+	//p.SMSticker =time.NewTimer(time.Duration(p.SMStickerLimitSec) * time.Second)
+	p.SMStimer =time.NewTimer(3 * time.Second)
+	p.SMSAlarmIsReady =true
 
-		/*下面只做了两件事：停止+重置*/
-		if !p.SMSticker.Stop() {
-			select{
-			case <-p.SMSticker.C:
-			default:
+	//消费者子携程
+	go func(){
+		for{
+  			select {
+  			case <-p.SMStimer.C:
+				fmt.Println("p.SMStimer已到，仅仅p.SMSAlarmIsReady变为了",p.SMSAlarmIsReady,time.Now().Format("20060102150405"))
+				p.SMSAlarmIsReady =true
+				p.SMStimer.Reset(3 *time.Second)
+			case <-p.quit:
+				break
 			}
 		}
-		//p.SMStimer.Reset(time.Duration(p.SMStimerLimitSec) * time.Second)
-		//p.SMSticker.Reset(time.Duration(3 * time.Second))
-		p.SMSticker =time.NewTicker(3 * time.Second)
-		/*----*/
-	}
-}
+		p.SMStimer.Stop()
+	}()
+}	
 
-func InitMYSQLTicker(){ac.initMYSQLTicker()}
-func (p *AlarmController)initMYSQLTicker(){
-	if p.MYSQLticker ==nil{ 
-		//p.MYSQLticker =time.NewTicker(time.Duration(p.MYSQLtickerLimitSec) * time.Second)
-		p.MYSQLticker =time.NewTicker(3 * time.Second)
-		p.MYSQLAlarmIsReady =true
+func NewMYSQLTimer(){ac.newMYSQLTimer()}
+func (p *AlarmController)newMYSQLTimer(){
+	if p.MYSQLtimer !=nil{
+		p.quit<-true
+		time.Sleep(time.Second)
+	} 
 
-		//消费者子携程
-		go func(){
-			for {
-				select {
-				case <-p.quit:
-					break
-				case <-p.MYSQLticker.C:
-					p.MYSQLAlarmIsReady =true	
-					fmt.Println("p.MYSQLtimer已到，仅仅p.MYSQLAlarmIsReady变为了",p.MYSQLAlarmIsReady)			
-				}
-			}    
-		}()
+	//p.MYSQLticker =time.NewTicker(time.Duration(p.MYSQLtickerLimitSec) * time.Second)
+	p.MYSQLtimer =time.NewTimer(3 * time.Second)
+	p.MYSQLAlarmIsReady =true
 
-	}else{
-
-		/*下面只做了两件事：停止+重置*/
-		if !p.MYSQLticker.Stop() {
+	//消费者子携程
+	go func(){
+		for{
 			select{
-			case <-p.MYSQLticker.C:
-			default:
+			case <-p.MYSQLtimer.C:
+				fmt.Println("p.MYSQLtimer已到，仅仅p.MYSQLAlarmIsReady变为了",p.MYSQLAlarmIsReady,time.Now().Format("20060102150405"))
+				p.MYSQLAlarmIsReady =true
+				p.MYSQLtimer.Reset(3 *time.Second)
+			case <-p.quit:
+				break
 			}
 		}
-		//p.MYSQLticker.Reset(time.Duration(p.MYSQLtickerLimitSec) * time.Second)
-		p.MYSQLticker.Reset(3 * time.Second)
-		/*----*/
-	}
+		p.MYSQLtimer.Stop()
+	}()
 }
+// 	go func(){
+// 		for range p.MYSQLticker.C{
+// 			p.MYSQLAlarmIsReady =true	
+// 			fmt.Println("p.MYSQLtimer已到，仅仅p.MYSQLAlarmIsReady变为了",p.MYSQLAlarmIsReady)			
+// 			select {
+// 			case <-p.quit:
+// 				break
+// 			default:
+// 			}
+// 		}
+// 		if len(p.MYSQLticker.C)>0{
+// 			fmt.Println("清空MYSQLticker.C管道中的残留内容：",<-p.MYSQLticker.C)
+// 		}
+// 		p.MYSQLticker.Stop()   
+// 	}()
+// }
+// 			for {
+				
+// 				case <-p.MYSQLticker.C:
+// 					p
+// 				}
+// 			}    
+// 		}()
+
+// 	}else{
+
+// 		/*下面只做了两件事：停止+重置*/
+// 		if !p.MYSQLticker.Stop() {
+// 			select{
+// 			case <-p.MYSQLticker.C:
+// 			default:
+// 			}
+// 		}
+// 		//p.MYSQLticker.Reset(time.Duration(p.MYSQLtickerLimitSec) * time.Second)
+// 		p.MYSQLticker.Reset(3 * time.Second)
+// 		/*----*/
+// 	}
+// }
 
 //当前未设定消费者
 func GenerateSMSbyteCh()chan []byte{return ac.GenerateSMSbyteCh()}
@@ -159,18 +180,7 @@ func (p *AlarmController)Filter(ndch chan nodedo.NodeDo)/*chan bool*/{
 					}
 				}() 
 				p.SMSAlarmIsReady =false
-
-				/*下面只做了两件事：停止+重置*/
-				if !p.SMStimer.Stop() {
-					fmt.Println("p.SMStimer.Stop()==false")
-					select{
-					case <-p.SMStimer.C:
-					default:
-					}
-				}
-				//p.SMStimer.Reset(time.Duration(p.SMStimerLimitSec) * time.Second)
-				p.SMStimer.Reset(3 * time.Second)
-				/*----*/
+				p.SMStimer.Reset(3 *time.Second)
 			}
 
 			if p.MYSQLAlarmIsReady{
@@ -178,18 +188,7 @@ func (p *AlarmController)Filter(ndch chan nodedo.NodeDo)/*chan bool*/{
 					p.MYSQLAlarmCh <-alarmdbentity
 				}()
 				p.MYSQLAlarmIsReady =false
-
-				/*下面只做了两件事：停止+重置*/
-				if !p.MYSQLtimer.Stop() {
-					fmt.Println("p.MYSQLtimer.Stop()=false")
-					select{
-					case <-p.MYSQLtimer.C:
-					default:
-					}
-				}
-				//p.MYSQLtimer.Reset(time.Duration(p.MYSQLtimerLimitSec) * time.Second)
-				p.MYSQLtimer.Reset(3 * time.Second)
-				/*----*/
+				p.MYSQLtimer.Reset(3 *time.Second)
 			}
 
 			fmt.Println("false issafech-a")
