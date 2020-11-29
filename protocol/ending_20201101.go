@@ -11,7 +11,7 @@ import(
 	"github.com/ziyouzy/mylib/conf"
 	//"github.com/ziyouzy/mylib/do" 
 	"github.com/ziyouzy/mylib/physicalnode"
-	"github.com/ziyouzy/mylib/model"
+	"github.com/ziyouzy/mylib/mysql"
 
 	"fmt"
 	//"encoding/json"
@@ -25,16 +25,16 @@ import(
 //我也考虑了要不要先用NodeDoCache把PhysicalNode转化为Nodedo
 //但是似乎不太合理，因为应该有个工具函数将PhysicalNode分别扇出为NodeDo的管道，短信告警的管道，还有告警录入数据库的管道
 //这个函数似乎既可以属于主函数，也可以属于protocol包，考虑到以后每个项目到了这里很可能都会有巨大的不同，所以还是先让他属于protocol吧
-func ProtocolEnding_YunHuan20201101(physicalnodech chan physicalnode.PhysicalNode)(chan []byte, chan []byte, chan *model.AlarmEntity){
+func ProtocolEnding_YunHuan20201101(physicalnodech chan physicalnode.PhysicalNode)(chan []byte, chan []byte, chan *mysql.Alarm){
 	nodeDoBytesCh := make(chan []byte)//用来发送给前端软件,其实是将nodedo的每个实体，先经过判定告警的操作后，再转化为字节数组
 	//alarmSMSBytesCh := make(chan []byte)//用来232串口的短信报警，会将string转化为[]byte
-	//alarmEntityCh := make(chan *model.AlarmEntity)//用来mysql的告警信息录入
+	//alarmEntityCh := make(chan *mysql.Alarm)//用来mysql的告警信息录入
 
 	//对physicalnode管道相关的操作
 	go func(){
 		for pn := range physicalnodech{
 			//这里是利用物理节点来渲染NodeDoCache内的各个NodeDo模板
-			conf.NodeDoController.Engineing(pn)
+			conf.NodeDoBuilder.Engineing(pn)
 		}
 	}()
 
@@ -51,7 +51,7 @@ func ProtocolEnding_YunHuan20201101(physicalnodech chan physicalnode.PhysicalNod
 	//似乎nodedoch的创建以及对其的操作都必须要在主函数完成了
 
 	go func(){
-		nodedoch :=conf.NodeDoController.GenerateNodeDoCh()
+		nodedoch :=conf.NodeDoBuilder.GenerateNodeDoCh()
 		for nd := range nodedoch{
 			if issafe :=conf.AlarmFilterCache.Filter(nd);!issafe{
 				fmt.Println("有NodeDo超限了：",nd)

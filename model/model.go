@@ -1,2 +1,0 @@
-//model包针对的是所有需要与数据库交互的结构体
-package model

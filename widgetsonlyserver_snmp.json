@@ -1,0 +1,128 @@
+{
+    "ltd_mainwidget1":{
+        "nodes":
+        {
+            "1.3.6.1.4.1.38729.20.1.2.11.0-snmpv_-UAB1-float":{
+                "southbound":"TCP:192.168.10.2",
+                "southid":4,
+                "name":"交流输入电压(UAB1)",
+
+                "isonline":true,
+                "isnormal":false,
+                "value":"N/A",
+                "unit":null,
+
+                "type":"BOOL",
+                "isonsms":true,
+                "normal":0,
+                "value0":"正常",
+                "value1":"异常",
+
+                "sms":"一号冷通道前门烟感异常",
+                "date":""
+            },
+
+            "1.3.6.1.4.1.38729.20.1.2.12.0-snmpv_-UBC1-float":{
+                "southbound":"TCP:192.168.10.2",
+                "southid":4,
+                "name":"交流输入电压(UBC1)",
+    
+                "isonline":true,
+                "isnormal":false,
+                "value":"N/A",
+                "unit":null,
+    
+                "type":"BOOL",
+                "isonsms":true,
+                "normal":0,
+                "value0":"正常",
+                "value1":"异常",
+    
+                "sms":"一号冷通道后门烟感异常",
+                "date":""
+            },
+
+            "1.3.6.1.4.1.38729.20.1.2.14.0-snmpv-IA1-float":{
+                "southbound":"TCP:192.168.10.2",
+                "southid":5,
+                "name":"交流输入电流(IA1)",
+        
+                "isonline":true,
+                "isnormal":false,
+                "value":"N/A",
+                "unit":null,
+        
+                "type":"BOOL",
+                "isonsms":true,
+                "normal":1,
+                "value0":"正常",
+                "value1":"异常",
+        
+                "sms":"一号冷通道前门水浸异常",
+                "date":""
+            },
+
+            "494f3031f10201-tcpsocket-do4-bool":{
+                "southbound":"TCP:192.168.10.2",
+                "southid":5,
+                "name":"后门水浸",
+    
+                "isonline":true,
+                "isnormal":false,
+                "value":"N/A",
+                "unit":null,
+    
+                "type":"BOOL",
+                "isonsms":true,
+                "normal":1,
+                "value0":"正常",
+                "value1":"异常",
+    
+                "sms":"一号冷通道后门水浸异常",
+                "date":""
+            },
+
+            "494f3031f10201-tcpsocket-do5-bool":{
+                "southbound":"TCP:192.168.10.2",
+                "southid":6,
+                "name":"前侧天窗",
+        
+                "isonline":true,
+                "isnormal":false,
+                "value":"N/A",
+                "unit":null,
+        
+                "type":"BOOL",
+                "isonsms":true,
+                "normal":1,
+                "value0":"正常",
+                "value1":"异常",
+        
+                "sms":"一号冷通道前侧天窗异常",
+                "date":""
+            },
+
+            "494f3031f10201-tcpsocket-do6-bool":{
+                "southbound":"TCP:192.168.10.2",
+                "southid":6,
+                "name":"后侧天窗",
+    
+                "isonline":true,
+                "isnormal":false,
+                "value":"N/A",
+                "unit":null,
+    
+                "type":"BOOL",
+                "isonsms":true,
+                "normal":1,
+                "value0":"正常",
+                "value1":"异常",
+    
+                "sms":"一号冷通道后侧天窗异常",
+                "date":""
+            }
+        }
+    }
+}
+
+

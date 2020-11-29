@@ -7,7 +7,7 @@ package protocol
 import(
 	"github.com/ziyouzy/mylib/conf"
 	//"github.com/ziyouzy/mylib/view" 取代他的是do包
-	"github.com/ziyouzy/mylib/model"
+	"github.com/ziyouzy/mylib/mysql"
 
 	//"fmt"
 	"encoding/json"
@@ -69,13 +69,13 @@ var (
 
 //拿到主函数去使用,入参是个实体，返回的是个管道
 //我要重写新的协议了20201004将被抛弃
-func ProtocolViewNodesHandler_YunHuan20201004(confnodech chan conf.ConfNode)(chan []byte, chan []byte, chan []byte, chan []byte, chan *model.AlarmEntity){
+func ProtocolViewNodesHandler_YunHuan20201004(confnodech chan conf.ConfNode)(chan []byte, chan []byte, chan []byte, chan []byte, chan *mysql.Alarm){
 	moduleViewCh := make(chan []byte)
 	systemViewCh := make(chan []byte)
 	matrixViewCh := make(chan []byte)
 
 	alarmSMSCh := make(chan []byte)
-	alarmEntityCh := make(chan *model.AlarmEntity)
+	alarmEntityCh := make(chan *mysql.Alarm)
 
 	smsticketlimit =3600*24
 	smsticket =3600*24
@@ -110,7 +110,7 @@ func ProtocolViewNodesHandler_YunHuan20201004(confnodech chan conf.ConfNode)(cha
 				if(mysqlticket >=mysqlticketlimit){
 					go func(){
 						//装配一个alarmentity并放入管道
-						ae := 	model.AlarmEntity{
+						ae := 	mysql.Alarm{
 							Name : confalarm.MySQLNameString,
 							Value : confalarm.MySQLValueString,
 							Unit : confalarm.MySQLUnitString,

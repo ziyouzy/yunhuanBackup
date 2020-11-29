@@ -4,7 +4,6 @@ import(
 	"fmt"
 
 	"github.com/ziyouzy/mylib/nodedo"
-	//"github.com/ziyouzy/mylib/connserver"
 )
 
 func SendNodeDoBytesToSouthBound(nd nodedo.NodeDo){

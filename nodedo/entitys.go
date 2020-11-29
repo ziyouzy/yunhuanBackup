@@ -6,28 +6,30 @@ import(
 	"fmt"
 	"encoding/json"
 
-	"github.com/ziyouzy/mylib/model"
+	"github.com/ziyouzy/mylib/mysql"
 )
 
 type BoolenNodeDo struct{
 	SouthId int
 	SouthBound string 
 	Name string 
+	Type string `json:"-"`
+	Unit string //单位
+	ValueStr string
 
 	IsOnline bool 
-	IsNormal bool 
-	IsTimeOut bool
-	Value string
-	Unit string 
-
-	Type string `json:"-"`
 	IsOnSMS bool `json:"-"`
-	Normal int `json:"-"`
-	Value0 string  `json:"-"`
-	Value1 string  `json:"-"`
 
-	SMS string  `json:"-"`
+	IsTimeOut bool
+	TimeOutSec int
+
+	IsNormal bool 
+	NormalValue bool `json:"-"`
+	// Value0 string  `json:"-"`
+	// Value1 string  `json:"-"`
+
 	Date string 
+	SMS string  `json:"-"`
 }
 
 
@@ -39,7 +41,7 @@ type IntNodeDo struct{
 	IsOnline bool
 	IsNormal bool
 	IsTimeOut bool
-	Value string
+	ValueStr string
 	Unit string
 
 	Type string `json:"-"`
@@ -60,7 +62,7 @@ type FloatNodeDo struct{
 	IsOnline bool
 	IsNormal bool
 	IsTimeOut bool
-	Value string
+	ValueStr string
 	Unit string
 
 	Type string `json:"-"`
@@ -81,7 +83,7 @@ type CommonNodeDo struct{
 	IsOnline bool
 	IsNormal bool
 	IsTimeOut bool
-	Value string
+	ValueStr string
 	Unit string
 
 	Type string `json:"-"`
@@ -342,7 +344,7 @@ func (p *CommonNodeDo)PrepareSMSAlarm()string{
 	}
 }
 
-func (p *BoolenNodeDo)PrepareMYSQLAlarm(ae *model.AlarmEntity){
+func (p *BoolenNodeDo)PrepareMYSQLAlarm(ae *mysql.Alarm){
 	ae.PresentSouthID =p.SouthId
 	ae.PresentSouthBound =p.SouthBound
 
@@ -352,7 +354,7 @@ func (p *BoolenNodeDo)PrepareMYSQLAlarm(ae *model.AlarmEntity){
 	ae.Content =fmt.Sprintf("%s[发生异常时间为%s]", p.SMS, p.Date)
 }
 
-func (p *IntNodeDo)PrepareMYSQLAlarm(ae *model.AlarmEntity){
+func (p *IntNodeDo)PrepareMYSQLAlarm(ae *mysql.Alarm){
 	ae.PresentSouthID =p.SouthId
 	ae.PresentSouthBound =p.SouthBound
 
@@ -362,7 +364,7 @@ func (p *IntNodeDo)PrepareMYSQLAlarm(ae *model.AlarmEntity){
 	ae.Content =fmt.Sprintf("%s[发生异常时间为%s]", p.SMS, p.Date)
 }
 
-func (p *FloatNodeDo)PrepareMYSQLAlarm(ae *model.AlarmEntity){
+func (p *FloatNodeDo)PrepareMYSQLAlarm(ae *mysql.Alarm){
 	ae.PresentSouthID =p.SouthId
 	ae.PresentSouthBound =p.SouthBound
 
@@ -372,7 +374,7 @@ func (p *FloatNodeDo)PrepareMYSQLAlarm(ae *model.AlarmEntity){
 	ae.Content =fmt.Sprintf("%s[发生异常时间为%s]", p.SMS, p.Date)
 }
 
-func (p *CommonNodeDo)PrepareMYSQLAlarm(ae *model.AlarmEntity){
+func (p *CommonNodeDo)PrepareMYSQLAlarm(ae *mysql.Alarm){
 	ae.PresentSouthID =p.SouthId
 	ae.PresentSouthBound =p.SouthBound
 
@@ -381,3 +383,6 @@ func (p *CommonNodeDo)PrepareMYSQLAlarm(ae *model.AlarmEntity){
 	ae.Unit =p.Unit
 	ae.Content =fmt.Sprintf("%s[发生异常时间为%s]", p.SMS, p.Date)
 }
+
+//真正触发超时的信号会在nodedobuilder发送
+func TimeOut(){}

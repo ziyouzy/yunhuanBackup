@@ -6,7 +6,7 @@ import(
 	"fmt"
 	"encoding/json"
 
-	"github.com/ziyouzy/mylib/model"
+	"github.com/ziyouzy/mylib/mysql"
 )
 
 type BoolenNodeDo struct{
@@ -342,7 +342,7 @@ func (p *CommonNodeDo)PrepareSMSAlarm()string{
 	}
 }
 
-func (p *BoolenNodeDo)PrepareMYSQLAlarm(ae *model.AlarmEntity){
+func (p *BoolenNodeDo)PrepareMYSQLAlarm(ae *mysql.Alarm){
 	ae.NodeID =p.Id
 	ae.ModuleParentID =p.ParentModuleId
 
@@ -352,7 +352,7 @@ func (p *BoolenNodeDo)PrepareMYSQLAlarm(ae *model.AlarmEntity){
 	ae.Content =fmt.Sprintf("%s[发生异常时间为%s]", p.SMS, p.Date)
 }
 
-func (p *IntNodeDo)PrepareMYSQLAlarm(ae *model.AlarmEntity){
+func (p *IntNodeDo)PrepareMYSQLAlarm(ae *mysql.Alarm){
 	ae.NodeID =p.Id
 	ae.ModuleParentID =p.ParentModuleId
 
@@ -362,7 +362,7 @@ func (p *IntNodeDo)PrepareMYSQLAlarm(ae *model.AlarmEntity){
 	ae.Content =fmt.Sprintf("%s[发生异常时间为%s]", p.SMS, p.Date)
 }
 
-func (p *FloatNodeDo)PrepareMYSQLAlarm(ae *model.AlarmEntity){
+func (p *FloatNodeDo)PrepareMYSQLAlarm(ae *mysql.Alarm){
 	ae.NodeID =p.Id
 	ae.ModuleParentID =p.ParentModuleId
 
@@ -372,7 +372,7 @@ func (p *FloatNodeDo)PrepareMYSQLAlarm(ae *model.AlarmEntity){
 	ae.Content =fmt.Sprintf("%s[发生异常时间为%s]", p.SMS, p.Date)
 }
 
-func (p *CommonNodeDo)PrepareMYSQLAlarm(ae *model.AlarmEntity){
+func (p *CommonNodeDo)PrepareMYSQLAlarm(ae *mysql.Alarm){
 	ae.NodeID =p.Id
 	ae.ModuleParentID =p.ParentModuleId
 
