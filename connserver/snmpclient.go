@@ -29,7 +29,7 @@ func (p *ConnServer)SnmpRecvCh(port string){
 	key,client, timeout :=con.NewSNMPCon(snmpv1,"192.168.10.3")
 	switch key{
 	case "SNMPCONN:192.168.10.3":
-		client.InitOwnActiveEventSender(conf.SnmpOids1)
+		client.InitActiveEventSender(conf.SnmpOids1)
 	}
 	p.ConnClientMap[key] =client
 	clientrecvch :=client.GenerateRecvCh()

@@ -7,6 +7,8 @@ import(
 	"github.com/ziyouzy/mylib/mysql"
 	"github.com/ziyouzy/mylib/conf/myvipers"
 	"github.com/ziyouzy/mylib/alarmbuilder"
+
+	"github.com/ziyouzy/mylib/nodedo"
 	"github.com/ziyouzy/mylib/nodedobuilder"
 )
 
@@ -19,6 +21,8 @@ var (
 		[]byte("test1"),
 		[]byte("test2"),
 	}
+
+	NodeDoCh = make(chan nodedo.NodeDo) 
 )
 
 
@@ -35,16 +39,32 @@ func Load(){
 
 	nodedobuilder.LoadSingletonPattern(1, myvipers.SelectOneMap("./widgetsonlyserver.json", "test_mainwidget.nodes"))
 	alarmbuilder.LoadSingletonPattern(myvipers.SelectOneMap("./widgetsonlyserver.json", "test_mainwidget.alarms.tty1-serial"))
+
+	NodeDoCh =nodedobuilder.GenerateNodeDoCh()
+	
 	lock.Unlock()
 	fmt.Println("初始化了nodedobuilder与alarmbuilder的单例模式")
 
 	go func(){
-		for{
-			select{
-			case <-Confofwidgets_testIsChange:
+		defer close(Confofwidgets_testIsChange )
+		for changed := range Confofwidgets_testIsChange{
+			if changed{
+				fmt.Println("changedd0:",changed)
 				lock.Lock()
+				fmt.Println("changedd1:",changed)
+				nodedobuilder.Quit()
+				fmt.Println("changedd2:",changed)
+				alarmbuilder.Quit()
+				fmt.Println("changedd3:",changed)
 				nodedobuilder.LoadSingletonPattern(1, myvipers.SelectOneMap("./widgetsonlyserver.json", "test_mainwidget.nodes"))
+				fmt.Println("changedd4:",changed)
 				alarmbuilder.LoadSingletonPattern(myvipers.SelectOneMap("./widgetsonlyserver.json", "test_mainwidget.alarms.tty1-serial"))
+				fmt.Println("changedd5:",changed)
+
+				//内层已对管道设计好了析构逻辑
+				NodeDoCh =nodedobuilder.GenerateNodeDoCh()
+				fmt.Println("changedd6:",changed)
+
 				lock.Unlock()
 				fmt.Println("更新了nodedobuilder与alarmbuilder的单例模式")
 			}

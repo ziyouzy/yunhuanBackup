@@ -2,7 +2,7 @@ package service
 
 import(
 	"bytes"
-	"fmt"
+	//"fmt"
 	
 	"github.com/ziyouzy/mylib/physicalnode"
 )
@@ -14,9 +14,9 @@ func RawChToPhysicalNodeCh(rawch chan []byte)chan physicalnode.PhysicalNode{
 	go func(){
 		for raw := range rawch{
 			physicalNode :=buildPhysicalNode_PROTOCOL_YUNHUAN20200924(raw)
-			fmt.Println("physicalnodech_a")
+			//fmt.Println("physicalnodech_a")
 			physicalnodech<-physicalNode
-			fmt.Println("physicalnodech_b")
+			//fmt.Println("physicalnodech_b")
 		}
 	}()
 	return physicalnodech

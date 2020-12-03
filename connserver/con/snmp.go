@@ -46,7 +46,7 @@ func (p *SnmpConn)GenerateRecvCh() chan []byte{
 	return ch
 }
 
-func (p *SnmpConn)InitOwnActiveEventSender(oidsbytes [][]byte){
+func (p *SnmpConn)InitActiveEventSender(oidsbytes [][]byte){
 	var err error
 	for b := range oidsbytes{
 		p.oids =append(p.oids,string(b))

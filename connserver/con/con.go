@@ -20,7 +20,7 @@ const (
 type Con interface{
 	GenerateRecvCh() chan([]byte)
 	SendBytes([]byte)
-	InitOwnActiveEventSender([][]byte)
+	InitActiveEventSender([][]byte)
 }
 
 func NewTcpCon(c net.Conn, needcrc bool)(string,Con,int){

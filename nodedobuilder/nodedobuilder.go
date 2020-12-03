@@ -1,4 +1,5 @@
 //从engine到nodedobuilder的转化本质上是运用了“组合”的编程思想
+//当监测到viper配置文档发生改变时，当前整个NodeDoBuilder整体都会被重置，而不是内部某个字段被重置
 package nodedobuilder
 
 import(
@@ -20,7 +21,7 @@ type NodeDoBuilder struct{
 	FlushTicket *time.Ticker
 	lock *sync.Mutex
 
-	quit chan bool
+	stopNodeCh chan bool
 }
 
 
@@ -29,27 +30,41 @@ func LoadSingletonPattern(step int, sourcefromviper map[string]interface{}){buil
 func BuildNodeDoBuilder(step int,sourcefromviper map[string]interface{}) *NodeDoBuilder{
 	builder :=NodeDoBuilder{}
 	builder.e =NewEngine(sourcefromviper)
+	builder.timeOutTriggerMap =make(map[string]*time.Timer)
 
 	for key, nodedo :=range builder.e{
-		t :=time.NewTimer(time.Duration(nodedo.timeoutsec() ) * time.Second)//timeOutTriggerMap
-		go func(nd nodedo.Nodedo){
+		timer :=time.NewTimer(time.Duration(nodedo.GetTimeOutSec()) * time.Second)//timeOutTriggerMap
+		go func(){
 			for{
+				if nodedo ==nil{goto CLEANUP}//这里的break只是为了配合Quit()函数实现最后一个析构步骤,也就是只负责跳出这个循环而不负责当前nodedo所对应timer的销毁
 				select{
-				case <-t.C:
-					nd.TimeOut()
+				case <-timer.C:
+					//只有一种情况nodedo会被销毁，那就是就的builder.e被销毁的时候，同时新的builder.e还未完成实例化，也就是json配置文档热更新的过程中
+					//这个过程中也会先调用nodedobuilder.Quit()，该函数会销毁每一个nodedo所对应的timer的管道，从而实现解开在这里的引用
+					nodedo.TimeOut(); timer.Reset(time.Duration(nodedo.GetTimeOutSec()) *time.Second)
 				}
 			}
-		}(nodedo)
-		builder.timeOutTriggerMap[key] =t
+
+			CLEANUP:
+				if len(timer.C)>0{
+					<-timer.C
+				}
+				timer.Stop()
+				fmt.Println("nodedo.Timeout")
+
+		}()
+		//上边的NewEngine先实例化了builder.e，而timeOutTriggerMap的键名是从builder.e直接拿到的
+		builder.timeOutTriggerMap[key] =timer
 	}
 
 	builder.TicketStep =step
 	builder.lock =new(sync.Mutex)
-	builder.quit =make(chan bool)
+	builder.stopNodeCh =make(chan bool)
 	return &builder
 }
 
 
+//json文档改变后需要从新获得该管道
 func GenerateNodeDoCh()chan nodedo.NodeDo{return builder.GenerateNodeDoCh()}
 //结合定时器生成NodeDo管道，里面的每个NodeDo都是最终的结果
 //上层会基于这一结果进行告警判定，以及用字符串的形式发送字节数组给前端的操作
@@ -61,25 +76,33 @@ func (p *NodeDoBuilder)GenerateNodeDoCh()chan nodedo.NodeDo{
 	//select是ch的生产者，消费者会在上层实现
 	go func(){
 		//当done管道收到true时，在这里优雅的关闭该管道即可，因为他不是结构体的字段，无法在Quit方法内关闭
-		defer close(nodeDoCh)
-		for range p.FlushTicket.C{
-			p.lock.Lock()
-			for _,v := range p.e{
-				nodeDoCh <-v
-			}
-			p.lock.Unlock()
-
+		for{ 
 			select {
-			case <-p.quit:
-				break
-			default:
+			case stop :=<-p.stopNodeCh:
+				fmt.Println("stop ok?")
+				if stop{ 
+					fmt.Println("stop ok!")
+					goto CLEANUP
+				}
+			case <-p.FlushTicket.C:
+				p.lock.Lock()
+				for _,v := range p.e{
+					nodeDoCh <-v
+				}
+				p.lock.Unlock()
 			}
 		}
 
+	CLEANUP:
+		fmt.Println("stop NodeCh wtf1???")
 		if len(p.FlushTicket.C)>0{
 			fmt.Println("清空nodedobuilder.FlushTicker.C管道中的残留内容：",<-p.FlushTicket.C)
 		}
-		p.FlushTicket.Stop()   
+		fmt.Println("stop NodeCh wtf2???")
+		p.FlushTicket.Stop()  
+		close(nodeDoCh)
+		close(p.stopNodeCh) 
+		fmt.Println("stop NodeCh wtf3???")
 	}()
 	return nodeDoCh
 }
@@ -100,22 +123,29 @@ func (p *NodeDoBuilder)Engineing(pn physicalnode.PhysicalNode){
 		if !strings. Contains(k,fmt.Sprintf("%s-%s",handler,tag)){
 			continue
 		}
-		nodename :=strings.Split(k,"-")[2]
-
+		
 		//PhysicalNode.SelectOneValueAndTime返回值举例："value","time"
-		pvalue,ptime := pn.SelectOneValueAndTime(handler, tag, nodename)
-		p.e[k].UpdateOneNodeDo(pvalue,ptime)
+		nodename :=strings.Split(k,"-")[2];    pvalue,ptime := pn.SelectOneValueAndTime(handler, tag, nodename)
+		sec :=p.e[k].UpdateOneNodeDoAndGetTimeOutSec(pvalue,ptime)
+		go p.timeOutTriggerMap[k].Reset(time.Duration(sec) *time.Second)
 	}
 	p.lock.Unlock()
 }
 
-func TimeOut(){
-
-}
-
 func Quit(){builder.Quit()}
 func (p *NodeDoBuilder)Quit(){
-	fmt.Println("为啥NodeDo就关闭了?")
-	p.quit <- true
-	close(p.quit)
+	fmt.Println("0")
+	p.stopNodeCh <- true//只负责关闭返回给上层的NodeDoCh管道
+	fmt.Println("1")
+	p.lock.Lock()
+	for key, _ := range p.e{
+		delete(p.e, key)
+		if len(p.timeOutTriggerMap[key].C)>0 {
+			<-p.timeOutTriggerMap[key].C
+			p.timeOutTriggerMap[key].Stop()
+		}
+		delete(p.timeOutTriggerMap, key)
+	}
+	fmt.Println("2")
+	p.lock.Unlock()
 }

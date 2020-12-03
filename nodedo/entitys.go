@@ -10,311 +10,232 @@ import(
 )
 
 type BoolenNodeDo struct{
-	SouthId int
-	SouthBound string 
-	Name string 
-	Type string `json:"-"`
-	Unit string //单位
-	ValueStr string
+	SouthId int //从json配置文档获取
+	SouthBound string //从json配置文档获取
+	Name string //从json配置文档获取
+	Type string `json:"-"`//从json配置文档获取
+	//单位
+	Unit string //从json配置文档获取
+	//无论从哪个类型的physicalnode拿到的RawStr一定会是string
+	RawStr string//由UpdateOneNodeDo方法实时更新
 
-	IsOnline bool 
-	IsOnSMS bool `json:"-"`
+	IsOnline bool //从json配置文档获取
+	IsOnSMS bool `json:"-"`//从json配置文档获取
 
 	IsTimeOut bool
-	TimeOutSec int
+	TimeOutSec int //从json配置文档获取
 
-	IsNormal bool 
-	NormalValue bool `json:"-"`
-	// Value0 string  `json:"-"`
-	// Value1 string  `json:"-"`
+	IsNormal bool //由UpdateOneNodeDo方法实时更新
+	//Condition:条件-该字段描述正常所需满足的条件值 
+	ConditionValue bool `json:"-"`//从json配置文档获取
+	//UpdateOneNodeDo方法内会基于后端正异常逻辑所判断出的结果，生成对应的值，前端拿到后也可以忽略这个字段，而是结合其他字段去设计逻辑，自定义显示的值
+	FrontEndStr string//由UpdateOneNodeDo方法实时更新
 
-	Date string 
-	SMS string  `json:"-"`
+	SMS string  `json:"-"`//从json配置文档获取
+	DateTime string //由UpdateOneNodeDo方法实时更新
 }
 
 
 type IntNodeDo struct{
-	SouthId int
-	SouthBound string 
-	Name string 
+	SouthId int //从json配置文档获取
+	SouthBound string //从json配置文档获取
+	Name string //从json配置文档获取
+	Type string `json:"-"` //从json配置文档获取
+	//单位
+	Unit string //从json配置文档获取
+	//无论从哪个类型的physicalnode拿到的RawStr一定会是string
+	RawStr string //由UpdateOneNodeDo方法实时更新
 
-	IsOnline bool
-	IsNormal bool
+	IsOnline bool //从json配置文档获取
+	IsOnSMS bool `json:"-"`//从json配置文档获取
+
 	IsTimeOut bool
-	ValueStr string
-	Unit string
+	TimeOutSec int //从json配置文档获取
 
-	Type string `json:"-"`
-	IsOnSMS bool `json:"-"`
-	Max int `json:"-"`
-	Min int `json:"-"`
-	
-	SMS string `json:"-"`
-	Date string
+	IsNormal bool //由UpdateOneNodeDo方法实时更新
+	Max int `json:"-"` //从json配置文档获取
+	Min int `json:"-"` //从json配置文档获取
+	//UpdateOneNodeDo方法内会基于后端正异常逻辑所判断出的结果，生成对应的值，前端拿到后也可以忽略这个字段，而是结合其他字段去设计逻辑，自定义显示的值
+	FrontEndStr string //由UpdateOneNodeDo方法实时更新
+
+	SMS string `json:"-"`//从json配置文档获取
+	DateTime string //由UpdateOneNodeDo方法实时更新
 }
 
 
 type FloatNodeDo struct{
-	SouthId int
-	SouthBound string 
-	Name string 
+	SouthId int //从json配置文档获取
+	SouthBound string //从json配置文档获取
+	Name string //从json配置文档获取
+	Type string `json:"-"`//从json配置文档获取
+	//单位
+	Unit string //从json配置文档获取
+	//无论从哪个类型的physicalnode拿到的RawStr一定会是string
+	RawStr string //由UpdateOneNodeDo方法实时更新
 
-	IsOnline bool
-	IsNormal bool
-	IsTimeOut bool
-	ValueStr string
-	Unit string
+	IsOnline bool //从json配置文档获取
+	IsOnSMS bool `json:"-"`//从json配置文档获取
 
-	Type string `json:"-"`
-	IsOnSMS bool `json:"-"`
-	Max float64 `json:"-"`
-	Min float64 `json:"-"`
+	IsTimeOut bool //由UpdateOneNodeDo或TimeOut方法实时更新
+	TimeOutSec int //从json配置文档获取
+
+	IsNormal bool //由UpdateOneNodeDo方法实时更新
+	Max float64 `json:"-"`//从json配置文档获取
+	Min float64 `json:"-"` //从json配置文档获取
+	//UpdateOneNodeDo方法内会基于后端正异常逻辑所判断出的结果，生成对应的值，前端拿到后也可以忽略这个字段，而是结合其他字段去设计逻辑，自定义显示的值
+	FrontEndStr string //由UpdateOneNodeDo方法实时更新
 	
-	SMS string `json:"-"`
-	Date string
+	SMS string `json:"-"`//从json配置文档获取
+	DateTime string //由UpdateOneNodeDo方法实时更新
 }
 
 
 type CommonNodeDo struct{
-	SouthId int
-	SouthBound string 
-	Name string 
+	SouthId int //从json配置文档获取
+	SouthBound string //从json配置文档获取
+	Name string //从json配置文档获取
+	Type string `json:"-"`//从json配置文档获取
+	//单位
+	Unit string //从json配置文档获取
+	//无论从哪个类型的physicalnode拿到的RawStr一定会是string
+	RawStr string //由UpdateOneNodeDo方法实时更新
 
-	IsOnline bool
-	IsNormal bool
+	IsOnline bool //从json配置文档获取
+	IsOnSMS bool `json:"-"`//从json配置文档获取
+
 	IsTimeOut bool
-	ValueStr string
-	Unit string
+	TimeOutSec int //从json配置文档获取
 
-	Type string `json:"-"`
-	IsOnSMS bool `json:"-"`
+	IsNormal1 bool `json:"-"` //由UpdateOneNodeDo方法实时更新
+	Min1 float64 `json:"-"` //从json配置文档获取
+	Max1 float64 `json:"-"` //从json配置文档获取
+	IsNormal2 bool `json:"-"` //由UpdateOneNodeDo方法实时更新
+	Min2 float64 `json:"-"` //从json配置文档获取
+	Max2 float64 `json:"-"`//从json配置文档获取
+	IsNormal3 bool `json:"-"` //由UpdateOneNodeDo方法实时更新
+	Min3 float64 `json:"-"` //从json配置文档获取
+	Max3 float64 `json:"-"` //从json配置文档获取
+	IsNormal4 bool `json:"-"` //由UpdateOneNodeDo方法实时更新
+	Min4 float64 `json:"-"` //从json配置文档获取
+	Max4 float64 `json:"-"` //从json配置文档获取
+	IsNormal5 bool `json:"-"` //由UpdateOneNodeDo方法实时更新
+	Min5 float64 `json:"-"` //从json配置文档获取
+	Max5 float64 `json:"-"` //从json配置文档获取
+	IsNormal6 bool `json:"-"` //由UpdateOneNodeDo方法实时更新
+	Min6 float64 `json:"-"` //从json配置文档获取
+	Max6 float64 `json:"-"`//从json配置文档获取
+	//UpdateOneNodeDo方法内会基于后端正异常逻辑所判断出的结果，生成对应的值，前端拿到后也可以忽略这个字段，而是结合其他字段去设计逻辑，自定义显示的值
+	FrontEndStr string //由UpdateOneNodeDo方法实时更新
 
-	Min1 float64 `json:"-"`
-	Max1 float64 `json:"-"`
-	Judge1 bool `json:"-"`
-	Value1 string `json:"-"`
-
-	Min2 float64 `json:"-"`
-	Max2 float64 `json:"-"`
-	Judge2 bool `json:"-"`
-	Value2 string `json:"-"`
-
-	Min3 float64 `json:"-"`
-	Max3 float64 `json:"-"`
-	Judge3 bool `json:"-"`
-	Value3 string `json:"-"`
-
-	Min4 float64 `json:"-"`
-	Max4 float64 `json:"-"`
-	Judge4 bool `json:"-"`
-	Value4 string `json:"-"`
-
-	Min5 float64 `json:"-"`
-	Max5 float64 `json:"-"`
-	Judge5 bool `json:"-"`
-	Value5 string `json:"-"`
-
-	Min6 float64 `json:"-"`
-	Max6 float64 `json:"-"`
-	Judge6 bool `json:"-"`
-	Value6 string `json:"-"`
-
-	SMS string `json:"-"`
-	Date string 
+	SMS string `json:"-"`//从json配置文档获取
+	DateTime string  //由UpdateOneNodeDo方法实时更新
 }
 
-func (p *BoolenNodeDo)UpdateOneNodeDo(intstring string,time string){
-	p.IsTimeOut =false
-
-	if !p.IsOnline{
-		p.IsNormal =true
-		p.Value = "**"
-		p.Date =time
-		return
-	}
-		
-	i, err := strconv.Atoi(intstring)
-	if(strings.Compare(intstring,"timeout")==0||strings.Compare(intstring,"undefined")==0||err !=nil){
+func (p *BoolenNodeDo)UpdateOneNodeDo(value string,time string){
+	p.IsTimeOut =false; p.DateTime =time
+	i, err := strconv.Atoi(value)
+	//p.IsTimeOut和从physicalNode所返回的"timeout"字符串是有区别的，后者是更为底层的问题，是用来兼容就系统而特殊设计的
+	if(err !=nil || strings.Compare(value,"timeout")==0||strings.Compare(value,"undefined")==0||!p.IsOnline){
+		p.IsNormal =true; p.RawStr = "**"; p.FrontEndStr  ="**"
 		return
 	}
 
-	p.Date =time
-
-	if p.Normal==i{
-		p.IsNormal =true
-		p.Value=p.Value0
-		return
-	}else{
-		p.Value=p.Value1
-		return
-	}
-}
-
-func (p *IntNodeDo)UpdateOneNodeDo(intstring string, time string){
-	p.IsTimeOut =false
-
-	if !p.IsOnline{
-		p.IsNormal =true
-		p.Value = "**"
-		p.Date =time
-		return
-	}
-
-	i,err := strconv.Atoi(intstring)
-	if(strings.Compare(intstring,"timeout")==0||strings.Compare(intstring,"undefined")==0||err !=nil){
-		return
-	}
-
-	p.Date =time
-
-	if (p.Min !=0&&p.Max !=0&&p.Min<=i&&i<=p.Max){
-		p.Value =intstring
-		p.IsNormal =true
-	}
-
-	return
-
-}
-
-func (p *FloatNodeDo)UpdateOneNodeDo(floatstring string, time string){
-	p.IsTimeOut =false
-
-	if !p.IsOnline{
-		p.IsNormal =true
-		p.Date =time
-		p.Value = "**"
-		return
-	}
-
-	fl,err := strconv.ParseFloat(floatstring, 64)
-	if(strings.Compare(floatstring,"timeout")==0||strings.Compare(floatstring,"undefined")==0||err !=nil){
-		return
-	}
-
-	p.Date =time
-
-	if (p.Min !=0&&p.Max !=0&&p.Min<=fl&&fl<=p.Max){
-		p.Value =floatstring
-		p.IsNormal =true
-	}
-
+	p.IsNormal =false; p.RawStr =value;p.FrontEndStr ="异常"
+	if (i ==0&&p.ConditionValue==false){p.FrontEndStr ="正常"; p.IsNormal =true}
+	if (i ==1&&p.ConditionValue==true){p.FrontEndStr ="正常"; p.IsNormal =true}
 	return
 }
 
-func (p *CommonNodeDo)UpdateOneNodeDo(floatstring string, time string){
-	p.IsTimeOut =false
-	
-	if !p.IsOnline{
-		p.IsNormal =true
-		p.Value = "**"
+func (p *IntNodeDo)UpdateOneNodeDo(value string, time string){
+	p.IsTimeOut =false; p.DateTime =time
+	i,err := strconv.Atoi(value)
+	//p.IsTimeOut和从physicalNode所返回的"timeout"字符串是有区别的，后者是更为底层的问题，是用来兼容就系统而特殊设计的
+	if(err !=nil || strings.Compare(value,"timeout")==0||strings.Compare(value,"undefined")==0||!p.IsOnline){
+		p.IsNormal =true; p.RawStr = "**"; p.FrontEndStr ="**"
 		return
 	}
 
-	fl,err := strconv.ParseFloat(floatstring,64)
-	if(strings.Compare(floatstring,"timeout")==0||strings.Compare(floatstring,"undefined")==0||err !=nil){
-		return
-	}
-
-	p.Date =time
-
-	if (p.Min1 !=0&&p.Max1 !=0&&p.Min1<=fl&&fl<=p.Max1){
-		p.IsNormal =p.Judge1//这里也需要从conf里读取配置（judge字段）
-		if strings.Compare(p.Value1,"self") !=0{
-			p.Value =p.Value1
-			return
-		}else{
-			p.Value =floatstring
-			return
-		}
-	}
-
-	if (p.Min2 !=0&&p.Max2 !=0&&p.Min2<=fl&&fl<=p.Max2){
-		p.IsNormal =p.Judge2//这里也需要从conf里读取配置（judge字段）
-		if strings.Compare(p.Value2,"self") !=0{
-			p.Value =p.Value2
-			return
-		}else{
-			p.Value =floatstring
-			return
-		}
-	}
-
-	if (p.Min3 !=0&&p.Max3 !=0&&p.Min3<=fl&&fl<=p.Max3){
-		p.IsNormal =p.Judge3//这里也需要从conf里读取配置（judge字段）
-		if strings.Compare(p.Value3,"self") !=0{
-			p.Value =p.Value3
-			return
-		}else{
-			p.Value =floatstring
-			return
-		}
-	}
-
-	if (p.Min4 !=0&&p.Max4 !=0&&p.Min4<=fl&&fl<=p.Max4){
-		p.IsNormal =p.Judge4//这里也需要从conf里读取配置（judge字段）
-		if strings.Compare(p.Value4,"self") !=0{
-			p.Value =p.Value4
-			return
-		}else{
-			p.Value =floatstring
-			return
-		}
-	}
-
-	if (p.Min5 !=0&&p.Max5 !=0&&p.Min5<=fl&&fl<=p.Max5){
-		p.IsNormal =p.Judge5//这里也需要从conf里读取配置（judge字段）
-		if strings.Compare(p.Value5,"self") !=0{
-			p.Value =p.Value5
-			return
-		}else{
-			p.Value =floatstring
-			return
-		}
-	}
-
-	if (p.Min6 !=0&&p.Max6 !=0&&p.Min6<=fl&&fl<=p.Max6){
-		p.IsNormal =p.Judge6//这里也需要从conf里读取配置（judge字段）
-		if strings.Compare(p.Value6,"self") !=0{
-			p.Value =p.Value6
-			return
-		}else{
-			p.Value =floatstring
-			return
-		}
-	}
-
+	p.IsNormal =false; p.RawStr =value;p.FrontEndStr =value
+	if (p.Min<=i&&i<=p.Max){ p.IsNormal =true}
 	return
 }
 
+func (p *FloatNodeDo)UpdateOneNodeDo(value string, time string){
+	p.IsTimeOut =false; p.DateTime =time
+	fl,err := strconv.ParseFloat(value, 64)
+	//p.IsTimeOut和从physicalNode所返回的"timeout"字符串是有区别的，后者是更为底层的问题，是用来兼容就系统而特殊设计的
+	if (err !=nil || strings.Compare(value,"timeout")==0||strings.Compare(value,"undefined")==0||!p.IsOnline){
+		p.IsNormal =true; p.RawStr = "**"; p.FrontEndStr = "**"
+		return
+	}
 
-
-func (p *BoolenNodeDo)GetJson()[]byte{
-	//如果错误，则自动返回空值
-	data, _ := json.Marshal(p)
-	return data
+	p.IsNormal =false; p.RawStr =value;p.FrontEndStr =value
+	if (p.Min<=fl&&fl<=p.Max){p.IsNormal =true}
+	return
 }
 
-func (p *IntNodeDo)GetJson()[]byte{
-	data, _ := json.Marshal(p)
-	return data
+func (p *CommonNodeDo)UpdateOneNodeDo(value string, time string){
+	//value一定会是个可以转化为float64的字符串，同时也一定不会是个汉字或者字母的字符串
+	//设计CommonNodeDo的目的是用来处理如下情况:
+	/*
+		某设备：
+		1--正常关闭
+		2--异常关闭
+		3--供电正常
+		4--供电异常
+		1和3为IsNormail
+	*/
+	//于是就需要跳跃性的比较某个float64类型的大小值了
+	p.IsTimeOut =false; p.DateTime =time
+	fl,err := strconv.ParseFloat(value,64)
+	//p.IsTimeOut和从physicalNode所返回的"timeout"字符串是有区别的，后者是更为底层的问题，是用来兼容就系统而特殊设计的
+	if(err !=nil || strings.Compare(value,"timeout")==0||strings.Compare(value,"undefined")==0||!p.IsOnline){
+		p.IsNormal1 =true; p.IsNormal2 =true; p.IsNormal3 =true; p.IsNormal4 =true; p.IsNormal5 =true; p.IsNormal6 =true; p.RawStr = "**"; p.FrontEndStr = "**"
+		return
+	}
+
+	p.IsNormal1 =false; p.IsNormal2 =false; p.IsNormal3 =false; p.IsNormal4 =false; p.IsNormal5 =false; p.IsNormal6 =false; p.RawStr =value;p.FrontEndStr ="异常"
+	if (p.Min1<=fl&&fl<=p.Max1){p.IsNormal1=true}
+	if (p.Min2<=fl&&fl<=p.Max2){p.IsNormal2=true}
+	if (p.Min3<=fl&&fl<=p.Max3){p.IsNormal3=true}
+	if (p.Min4<=fl&&fl<=p.Max4){p.IsNormal4=true}
+	if (p.Min5<=fl&&fl<=p.Max5){p.IsNormal5=true}
+	if (p.Min6<=fl&&fl<=p.Max6){p.IsNormal6=true}
+	if p.IsNormal1&&p.IsNormal2&&p.IsNormal3&&p.IsNormal4&&p.IsNormal5&&p.IsNormal6{
+		p.FrontEndStr ="正常"
+	}
+	return
 }
 
-func (p *FloatNodeDo)GetJson()[]byte{
-	data, _ := json.Marshal(p)
-	return data
-}
+//无法通过接口直接拿到内部字段，只能设计独立的方法
+func (p *BoolenNodeDo)GetTimeOutSec()int {return p.TimeOutSec}
+func (p *IntNodeDo)GetTimeOutSec()int {return p.TimeOutSec}
+func (p *FloatNodeDo)GetTimeOutSec()int {return p.TimeOutSec}
+func (p *CommonNodeDo)GetTimeOutSec()int {return p.TimeOutSec}
 
-func (p *CommonNodeDo)GetJson()[]byte{
-	data, _ := json.Marshal(p)
-	return data
-}
+func (p *BoolenNodeDo)UpdateOneNodeDoAndGetTimeOutSec(value string, time string) int{p.UpdateOneNodeDo(value,time); return p.GetTimeOutSec()}
+func (p *IntNodeDo)UpdateOneNodeDoAndGetTimeOutSec(value string, time string) int{p.UpdateOneNodeDo(value,time);return p.GetTimeOutSec()}
+func (p *FloatNodeDo)UpdateOneNodeDoAndGetTimeOutSec(value string, time string) int{p.UpdateOneNodeDo(value,time);return p.GetTimeOutSec()}
+func (p *CommonNodeDo)UpdateOneNodeDoAndGetTimeOutSec(value string, time string) int{p.UpdateOneNodeDo(value,time);return p.GetTimeOutSec()}
+
+//触发超时的信号会在nodedobuilder发送
+func (p *BoolenNodeDo)TimeOut(){p.IsTimeOut =true}
+func (p *IntNodeDo)TimeOut(){p.IsTimeOut =true}
+func (p *FloatNodeDo)TimeOut(){p.IsTimeOut =true}
+func (p *CommonNodeDo)TimeOut(){p.IsTimeOut =true}
 
 
+
+//如果错误，则自动返回空值
+func (p *BoolenNodeDo)GetJson()[]byte{;data, _ := json.Marshal(p); return data}
+func (p *IntNodeDo)GetJson()[]byte{data, _ := json.Marshal(p); return data}
+func (p *FloatNodeDo)GetJson()[]byte{data, _ := json.Marshal(p); return data}
+func (p *CommonNodeDo)GetJson()[]byte{data, _ := json.Marshal(p); return data}
 
 
 func (p *BoolenNodeDo)PrepareSMSAlarm()string{
 	if !p.IsNormal&&p.IsOnSMS{
-		return fmt.Sprintf("%s[发生异常时间为%s]", p.SMS, p.Date)
+		return fmt.Sprintf("%s[发生异常时间为%s]", p.SMS, p.DateTime)
 	}else{
 		return ""
 	}
@@ -322,7 +243,7 @@ func (p *BoolenNodeDo)PrepareSMSAlarm()string{
 
 func (p *IntNodeDo)PrepareSMSAlarm()string{
 	if !p.IsNormal&&p.IsOnSMS{
-		return fmt.Sprintf("%s[发生异常时间为%s]", p.SMS, p.Date)
+		return fmt.Sprintf("%s[发生异常时间为%s]", p.SMS, p.DateTime)
 	}else{
 		return ""
 	}
@@ -330,59 +251,45 @@ func (p *IntNodeDo)PrepareSMSAlarm()string{
 
 func (p *FloatNodeDo)PrepareSMSAlarm()string{
 	if !p.IsNormal&&p.IsOnSMS{
-		return fmt.Sprintf("%s[发生异常时间为%s]", p.SMS, p.Date)
+		return fmt.Sprintf("%s[发生异常时间为%s]", p.SMS, p.DateTime)
 	}else{
 		return ""
 	}
 }
 
 func (p *CommonNodeDo)PrepareSMSAlarm()string{
-	if !p.IsNormal&&p.IsOnSMS{
-		return fmt.Sprintf("%s[发生异常时间为%s]", p.SMS, p.Date)
+	if !p.IsNormal1||!p.IsNormal2||!p.IsNormal3||!p.IsNormal4||!p.IsNormal5||!p.IsNormal6{
+		if p.IsOnSMS{
+			return fmt.Sprintf("%s[发生异常时间为%s]", p.SMS, p.DateTime)
+		}else{
+			return ""
+		}
 	}else{
 		return ""
 	}
 }
 
 func (p *BoolenNodeDo)PrepareMYSQLAlarm(ae *mysql.Alarm){
-	ae.PresentSouthID =p.SouthId
-	ae.PresentSouthBound =p.SouthBound
-
-	ae.Name =p.Name
-	ae.Value =p.Value
-	ae.Unit =p.Unit
-	ae.Content =fmt.Sprintf("%s[发生异常时间为%s]", p.SMS, p.Date)
+	ae.PresentSouthID =p.SouthId;        ae.PresentSouthBound =p.SouthBound
+	ae.Name =p.Name;        ae.RawStr =p.RawStr;         ae.FrontEndStr =p.FrontEndStr;        ae.Unit =p.Unit
+	ae.Content =fmt.Sprintf("%s[发生异常时间为%s]", p.SMS, p.DateTime)
 }
 
 func (p *IntNodeDo)PrepareMYSQLAlarm(ae *mysql.Alarm){
-	ae.PresentSouthID =p.SouthId
-	ae.PresentSouthBound =p.SouthBound
-
-	ae.Name =p.Name
-	ae.Value =p.Value
-	ae.Unit =p.Unit
-	ae.Content =fmt.Sprintf("%s[发生异常时间为%s]", p.SMS, p.Date)
+	ae.PresentSouthID =p.SouthId;        ae.PresentSouthBound =p.SouthBound
+	ae.Name =p.Name;        ae.RawStr =p.RawStr;         ae.FrontEndStr =p.FrontEndStr;        ae.Unit =p.Unit
+	ae.Content =fmt.Sprintf("%s[发生异常时间为%s]", p.SMS, p.DateTime)
 }
 
 func (p *FloatNodeDo)PrepareMYSQLAlarm(ae *mysql.Alarm){
-	ae.PresentSouthID =p.SouthId
-	ae.PresentSouthBound =p.SouthBound
-
-	ae.Name =p.Name
-	ae.Value =p.Value
-	ae.Unit =p.Unit
-	ae.Content =fmt.Sprintf("%s[发生异常时间为%s]", p.SMS, p.Date)
+	ae.PresentSouthID =p.SouthId;        ae.PresentSouthBound =p.SouthBound
+	ae.Name =p.Name;        ae.RawStr =p.RawStr;         ae.FrontEndStr =p.FrontEndStr;        ae.Unit =p.Unit
+	ae.Content =fmt.Sprintf("%s[发生异常时间为%s]", p.SMS, p.DateTime)
 }
 
 func (p *CommonNodeDo)PrepareMYSQLAlarm(ae *mysql.Alarm){
-	ae.PresentSouthID =p.SouthId
-	ae.PresentSouthBound =p.SouthBound
-
-	ae.Name =p.Name
-	ae.Value =p.Value
-	ae.Unit =p.Unit
-	ae.Content =fmt.Sprintf("%s[发生异常时间为%s]", p.SMS, p.Date)
+	ae.PresentSouthID =p.SouthId;        ae.PresentSouthBound =p.SouthBound
+	ae.Name =p.Name;        ae.RawStr =p.RawStr;         ae.FrontEndStr =p.FrontEndStr;        ae.Unit =p.Unit
+	ae.Content =fmt.Sprintf("%s[发生异常时间为%s]", p.SMS, p.DateTime)
 }
 
-//真正触发超时的信号会在nodedobuilder发送
-func TimeOut(){}

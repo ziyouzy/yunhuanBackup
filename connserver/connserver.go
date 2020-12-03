@@ -44,17 +44,3 @@ func (p *ConnServer)ListenAndCollect(){
 	//p.SnmpRecvCh(":161")
 	//p.generateAndCollectUdpRecvCh(":6669")
 }
-
-// func SelectClients(keys []string)[]connclient.ConnClient {return cs.SelectClients(keys)}
-// func (p *ConnServer)SelectClients(keys []string)[]connclient.ConnClient {
-// 	clients :=make([]connclient.ConnClient,1,5)
-// 	for _,v :=range keys{
-// 		//fmt.Println("vvv:",v)
-// 		if c :=p.ConnClientMap[v];c !=nil{
-// 			clients =append(clients,c)
-// 		}else{
-// 			fmt.Println("ConnClientMap[v] is nil,map is ",p.ConnClientMap)
-// 		}
-// 	}
-// 	return clients
-// }

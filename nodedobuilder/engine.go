@@ -19,7 +19,7 @@ func NewEngine(base map[string]interface{})Engine{
 		//将k拆分后第4个元素可能为:bool、boolen、int、float、string、common
 		datatype :=strings.Split(key,"-")[3]
 		if nd :=nodedo.NewNodeDo(datatype,inter);nd !=nil{
-			e[k] =nd
+			e[key] =nd
 		}else{
 			fmt.Println("在创建NodeEngine时，json字符串中，名为：",key,"中的",datatype,"类型无法被解析")
 		}

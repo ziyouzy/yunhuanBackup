@@ -16,9 +16,6 @@
 package myvipers
 
 import(
-	//"github.com/spf13/viper"
-	//"github.com/fsnotify/fsnotify"
-
 	"fmt"
 )
 
@@ -33,9 +30,10 @@ func Load(paths ...string) chan bool{
 
 	for _, p :=range paths{
 		if sv :=BuildSingleViper(p); sv!=nil{
-			//sv.ListenConfigChange(configischange )
+			//sv.ListenConfigChange(configischange)
 			go func(){
-				for changed := range sv.OneViperConfigIsChangeAndUpdateFinishCh(){
+				defer close(sv.OneViperConfigIsChangeAndUpdateFinishCh)
+				for changed := range sv.OneViperConfigIsChangeAndUpdateFinishCh{
 					configischange<-changed
 				}
 			}()
@@ -48,12 +46,6 @@ func Load(paths ...string) chan bool{
 
 	return configischange
 }
-
-
-
-
-
-
 
 
 

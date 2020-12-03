@@ -12,17 +12,12 @@ import(
 
 //SingleViper是文件级的
 func BuildSingleViper(namewithpathandsuffix string)*SingleViper{
-	strs :=strings.Split(namewithpathandsuffix, "/")
-	namewithsuffix :=strs[len(strs)-1]
-	path :=strings.Replace(namewithpathandsuffix,namewithsuffix,"",1)
+	strs :=strings.Split(namewithpathandsuffix, "/");    namewithsuffix :=strs[len(strs)-1];    path :=strings.Replace(namewithpathandsuffix,namewithsuffix,"",1)
 	fmt.Println("path:",path,"namewithpathandsuffix:",namewithpathandsuffix,"namewithsuffix:",namewithsuffix)
 	//对相对路径的判定与额外操作
-	if strings.Compare(path,"./")==0{
-		path ="."
-	}
-	strs =strings.Split(namewithsuffix,".")
-	name :=strs[0]
-	suffix :=strs[1]
+	if strings.Compare(path,"./")==0{path ="."}
+
+	strs =strings.Split(namewithsuffix,".");    name :=strs[0];    suffix :=strs[1]
 	
 	v :=viper.New()
 	v.SetConfigName(name) 
@@ -38,35 +33,18 @@ func BuildSingleViper(namewithpathandsuffix string)*SingleViper{
 			V:v,
 		}
 
-		sv.OneViperConfigIsChangeAndUpdateFinish =make(chan bool)
+		sv.OneViperConfigIsChangeAndUpdateFinishCh =make(chan bool)
 
 		sv.watching()
 
 		return &sv
+
 	}else{
+
 		fmt.Println("初始化配置json失败,名称、路径、后缀名分别为:",name,path,suffix)
 		return nil
+		
 	}
-}
-
-func (p *SingleViper)watching() {
-	p.V.WatchConfig()
-	p.V.OnConfigChange(func(e fsnotify.Event) {
-		fmt.Println("Config file changed:", e.Name)
-		fmt.Println("0")
-		err := p.V.ReadInConfig() // 搜索路径，并读取配置数据
-		fmt.Println("1.0")
-		if err == nil {
-			fmt.Println("1.1")
-			p.OneViperConfigIsChangeAndUpdateFinish <-true
-			fmt.Println("1.2")
-			return
-		}else{
-			fmt.Println("Fatal reset config file:",err)
-			return
-		}
-		fmt.Println("2")
-	})
 }
 
 type SingleViper struct{
@@ -75,12 +53,28 @@ type SingleViper struct{
 	Suffix string
 
 	V *viper.Viper
-	OneViperConfigIsChangeAndUpdateFinish chan bool
+	OneViperConfigIsChangeAndUpdateFinishCh chan bool
 }
 
-func (p *SingleViper)OneViperConfigIsChangeAndUpdateFinishCh()chan bool{
-	return p.OneViperConfigIsChangeAndUpdateFinish
+func (p *SingleViper)watching() {
+	p.V.WatchConfig()
+	p.V.OnConfigChange(func(e fsnotify.Event) {
+		fmt.Println("Config file changed:", e.Name)
+		err := p.V.ReadInConfig() // 搜索路径，并读取配置数据
+		if err == nil {
+			p.OneViperConfigIsChangeAndUpdateFinishCh <-true
+			fmt.Println("Success reset config file")
+			return
+		}else{
+			fmt.Println("Fatal reset config file:",err)
+			return
+		}
+	})
 }
+
+// func (p *SingleViper)OneViperConfigIsChangeAndUpdateFinishCh()chan bool{
+// 	return p.OneViperConfigIsChangeAndUpdateFinish
+// }
 // func (p *SingleViper)ListenConfigChange(configischange chan bool){
 // 	go func(){
 // 		for{

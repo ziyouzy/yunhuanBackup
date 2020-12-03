@@ -13,22 +13,24 @@ import(
 
 var builder *AlarmBuilder
 type AlarmBuilder struct{
-	SMStimer *time.Timer
-	SMStimerLimitSec float64
-	SMSAlarmIsReady bool
-	SMSAlarmCh chan []byte 
+	smsTimer *time.Timer
+	smsTimerLimitSec float64
+	smsTimerStop chan bool
+	smsAlarmIsReady bool
+	smsAlarmCh chan []byte 
 
-	MYSQLtimer *time.Timer
-	MYSQLtimerLimitSec float64
-	MYSQLAlarmIsReady bool
-	MYSQLAlarmCh chan *mysql.Alarm
+
+	mysqlTimer *time.Timer
+	mysqlTimerLimitSec float64
+	mysqlTimerStop chan bool
+	mysqlAlarmIsReady bool
+	mysqlAlarmCh chan *mysql.Alarm
+
 
 	//这样设计是在遵顼分层的设计思路，也就是纯粹的为了分层而去采用了组合
 	//基于能组合就不继承的原则，这里无论是组合还是继承都是合理的，所以既然地位相当那还是优先组合吧
 	//退一步讲，就算是继承了，唯一的原因也只是为了分层思路而继承
 	e *Engine
-
-	quit chan bool
 }
 
 func LoadSingletonPattern(sourcefromviper map[string]interface{}){builder =BuildAlarmBuilder(sourcefromviper)}
@@ -40,10 +42,8 @@ func BuildAlarmBuilder(sourcefromviper map[string]interface{}) *AlarmBuilder{
 
 	//实例化内部字段（内部的Engine才会真正进行监测某个NodeDo是否超限）
 	builder.e =e
-	builder.SMStimerLimitSec = smstimerlimitmin * 60
-	builder.MYSQLtimerLimitSec  = mysqltimerlimitmin * 60
-
-	builder.quit =make(chan bool)
+	builder.smsTimerLimitSec = smstimerlimitmin * 60
+	builder.mysqlTimerLimitSec  = mysqltimerlimitmin * 60
 	
 	builder.newSMSTimer()
 	builder.newMYSQLTimer()
@@ -53,149 +53,111 @@ func BuildAlarmBuilder(sourcefromviper map[string]interface{}) *AlarmBuilder{
 
 func NewSMSTimer(){builder.newSMSTimer()}
 func (p *AlarmBuilder)newSMSTimer(){
-	if p.SMStimer !=nil{
-		p.quit<-true
-		time.Sleep(time.Second)
-	}
+	if p.smsTimer !=nil{p.smsTimerStop <-true;time.Sleep(time.Second)}
 
-	//p.SMSticker =time.NewTimer(time.Duration(p.SMStickerLimitSec) * time.Second)
-	p.SMStimer =time.NewTimer(3 * time.Second)
-	p.SMSAlarmIsReady =true
+	p.smsTimer =time.NewTimer(time.Duration(p.smsTimerLimitSec) * time.Second)
+	p.smsAlarmIsReady =true
+	p.smsTimerStop =make(chan bool)
 
-	//消费者子携程
 	go func(){
+		defer close(p.smsTimerStop)
 		for{
   			select {
-  			case <-p.SMStimer.C:
-				fmt.Println("p.SMStimer已到，仅仅p.SMSAlarmIsReady变为了",p.SMSAlarmIsReady,time.Now().Format("20060102150405"))
-				p.SMSAlarmIsReady =true
-				p.SMStimer.Reset(3 *time.Second)
-			case <-p.quit:
-				break
+  			case <-p.smsTimer.C:
+				fmt.Println("p.smsTimer已到，仅仅p.smsAlarmIsReady变为了",p.smsAlarmIsReady,time.Now().Format("20060102150405"))
+				p.smsAlarmIsReady =true
+				p.smsTimer.Reset(time.Duration(p.smsTimerLimitSec) *time.Second)
+			case stop := <-p.smsTimerStop:
+				if stop {break}
 			}
 		}
-		p.SMStimer.Stop()
+	
+		//跳出for循环可确保再没有指针指向这个管道，下面这句确保管道内的数据排空
+		//从而在Stop()后实现有效的内存回收
+		if len(p.smsTimer.C)>0 {<-p.smsTimer.C}
+		p.smsTimer.Stop()
 	}()
 }	
 
 func NewMYSQLTimer(){builder.newMYSQLTimer()}
 func (p *AlarmBuilder)newMYSQLTimer(){
-	if p.MYSQLtimer !=nil{
-		p.quit<-true
-		time.Sleep(time.Second)
-	} 
+	if p.mysqlTimer !=nil{p.mysqlTimerStop <-true; time.Sleep(time.Second)} 
 
-	//p.MYSQLticker =time.NewTicker(time.Duration(p.MYSQLtickerLimitSec) * time.Second)
-	p.MYSQLtimer =time.NewTimer(3 * time.Second)
-	p.MYSQLAlarmIsReady =true
+	p.mysqlAlarmIsReady =true
+	p.mysqlTimerStop =make(chan bool)
+	p.mysqlTimer =time.NewTimer(time.Duration(p.mysqlTimerLimitSec) * time.Second)
 
-	//消费者子携程
 	go func(){
+		defer close(p.mysqlTimerStop)
 		for{
 			select{
-			case <-p.MYSQLtimer.C:
-				fmt.Println("p.MYSQLtimer已到，仅仅p.MYSQLAlarmIsReady变为了",p.MYSQLAlarmIsReady,time.Now().Format("20060102150405"))
-				p.MYSQLAlarmIsReady =true
-				p.MYSQLtimer.Reset(3 *time.Second)
-			case <-p.quit:
-				break
+			case <-p.mysqlTimer.C:
+				fmt.Println("p.mysqltimer已到，仅仅p.mysqlAlarmIsReady变为了",p.mysqlAlarmIsReady,time.Now().Format("20060102150405"))
+				p.mysqlAlarmIsReady =true
+				p.mysqlTimer.Reset(time.Duration(p.mysqlTimerLimitSec)  *time.Second)
+			case  stop := <-p.mysqlTimerStop:
+				if stop {break}
 			}
 		}
-		p.MYSQLtimer.Stop()
+
+		//跳出for循环可确保再没有指针指向这个管道，下面这句确保管道内的数据排空
+		//从而在Stop()后实现有效的内存回收
+		if len(p.mysqlTimer.C)>0 {<-p.mysqlTimer.C}
+		p.mysqlTimer.Stop()
 	}()
-}
-// 	go func(){
-// 		for range p.MYSQLticker.C{
-// 			p.MYSQLAlarmIsReady =true	
-// 			fmt.Println("p.MYSQLtimer已到，仅仅p.MYSQLAlarmIsReady变为了",p.MYSQLAlarmIsReady)			
-// 			select {
-// 			case <-p.quit:
-// 				break
-// 			default:
-// 			}
-// 		}
-// 		if len(p.MYSQLticker.C)>0{
-// 			fmt.Println("清空MYSQLticker.C管道中的残留内容：",<-p.MYSQLticker.C)
-// 		}
-// 		p.MYSQLticker.Stop()   
-// 	}()
-// }
-// 			for {
-				
-// 				case <-p.MYSQLticker.C:
-// 					p
-// 				}
-// 			}    
-// 		}()
-
-// 	}else{
-
-// 		/*下面只做了两件事：停止+重置*/
-// 		if !p.MYSQLticker.Stop() {
-// 			select{
-// 			case <-p.MYSQLticker.C:
-// 			default:
-// 			}
-// 		}
-// 		//p.MYSQLticker.Reset(time.Duration(p.MYSQLtickerLimitSec) * time.Second)
-// 		p.MYSQLticker.Reset(3 * time.Second)
-// 		/*----*/
-// 	}
-// }
-
-//当前未设定消费者
-func GenerateSMSbyteCh()chan []byte{return builder.GenerateSMSbyteCh()}
-func(p *AlarmBuilder)GenerateSMSbyteCh()chan []byte{
-	p.SMSAlarmCh =make(chan []byte)
-	return p.SMSAlarmCh
-}
-
-//当前未设定消费者
-func GenerateMYSQLAlarmCh()chan *mysql.Alarm{return builder.GenerateMYSQLAlarmCh()}
-func(p *AlarmBuilder)GenerateMYSQLAlarmCh()chan *mysql.Alarm{
-	p.MYSQLAlarmCh =make(chan *mysql.Alarm)
-	return p.MYSQLAlarmCh
 }
 
 //两个管道的子线程生产者
-//同时也会返回一个bool管道,也实现了这个管道的生产者
 func Filter(ndch chan nodedo.NodeDo){builder.Filter(ndch)}
 func (p *AlarmBuilder)Filter(ndch chan nodedo.NodeDo){
 	go func(){
 		for nd := range ndch{
 			issafe, smsarr, alarmdbentity :=p.e.JudgeOneNodeDo(nd)
-			fmt.Println("issafe, smsarr, alarmdbentity-:")
-			fmt.Println(issafe, smsarr, alarmdbentity)
-			if issafe{
-				continue
-			}
+			//fmt.Println("issafe, smsarr, alarmdbentity-:"); fmt.Println(issafe, smsarr, alarmdbentity)
 
-			//似乎是这里的问题，异常的nodedo会进入到这里，但是由于p.SMSAlarmIsReady==false，他不会把异常数据存入管道，而是直接执行for末尾的issafech <-false
-			if p.SMSAlarmIsReady{
+			if issafe {continue}
+			if p.smsAlarmIsReady{
 				go func(){
 					for _,v :=range smsarr {
-						p.SMSAlarmCh <-[]byte(v)
+						p.smsAlarmCh <-[]byte(v)
 					}
 				}() 
-				p.SMSAlarmIsReady =false
-				p.SMStimer.Reset(3 *time.Second)
+				p.smsAlarmIsReady =false
+				p.smsTimer.Reset(time.Duration(p.smsTimerLimitSec) *time.Second)
 			}
 
-			if p.MYSQLAlarmIsReady{
+			if p.mysqlAlarmIsReady{
 				go func(){
-					p.MYSQLAlarmCh <-alarmdbentity
+					p.mysqlAlarmCh <-alarmdbentity
 				}()
-				p.MYSQLAlarmIsReady =false
-				p.MYSQLtimer.Reset(3 *time.Second)
+				p.mysqlAlarmIsReady =false
+				p.mysqlTimer.Reset(time.Duration(p.mysqlTimerLimitSec)  *time.Second)
 			}
 		}
 	}()
 }
 
+
+//当前未设定消费者
+func GenerateSMSbyteCh()chan []byte{return builder.GenerateSMSbyteCh()}
+func(p *AlarmBuilder)GenerateSMSbyteCh()chan []byte{
+	if p.smsAlarmCh !=nil{close(p.smsAlarmCh)}
+	p.smsAlarmCh =make(chan []byte)
+	return p.smsAlarmCh
+}
+
+//当前未设定消费者
+func GenerateMYSQLAlarmCh()chan *mysql.Alarm{return builder.GenerateMYSQLAlarmCh()}
+func(p *AlarmBuilder)GenerateMYSQLAlarmCh()chan *mysql.Alarm{
+	if p.mysqlAlarmCh !=nil{close(p.mysqlAlarmCh)}
+	p.mysqlAlarmCh =make(chan *mysql.Alarm)
+	return p.mysqlAlarmCh
+}
+
 func Quit(){builder.Quit()}
 func (p *AlarmBuilder)Quit(){
-	p.quit <- true
-	close(p.SMSAlarmCh)
-	close(p.MYSQLAlarmCh)
-	close(p.quit)
+	p.mysqlTimerStop<-true//对应的计时器被销毁之后会立刻defer close该管道，因此就不用在这里close了
+	p.smsTimerStop<-true//对应的计时器被销毁之后会立刻defer close该管道，因此就不用在这里close了
+	close(p.smsAlarmCh)//是为了返回给上层关闭事件
+	close(p.mysqlAlarmCh)//是为了返回给上层关闭事件
 }

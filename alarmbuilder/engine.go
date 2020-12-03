@@ -23,8 +23,6 @@ func NewEngine(base map[string]interface{})(engine *Engine, smstickerlimitmin fl
 					engine.e =append(engine.e,fmt.Sprintf(smsserialize,name, k,"%s"))
 				}
 			}
-			//engine.smsArr =make([]string,len(engine.e))
-			//engine.alarmDBEntity =new(mysql.Alarm)
 		}
 	}
 
@@ -48,31 +46,24 @@ func NewEngine(base map[string]interface{})(engine *Engine, smstickerlimitmin fl
 
 
 
-//type Engine []string
 //和他的上层一样，都是会常驻于内存中
 type Engine struct{
 	//"sAT+SMSEND=861391000000,孙子您好,贵公司的%s\n"
 	e []string
-
 }
 
 
 func (p *Engine)JudgeOneNodeDo(nd nodedo.NodeDo) (bool,[]string,*mysql.Alarm){
-	fmt.Println("JudgeOneNodeDo0")
 	amString := nd.PrepareSMSAlarm()
-	fmt.Println("JudgeOneNodeDo1.amString:",amString)
 	if amString ==""{
 		return true,nil,nil
 	}
-	fmt.Println("JudgeOneNodeDo2")
 	var sms []string
 	for _, v := range p.e{
 		sms =append(sms,fmt.Sprintf(v,amString))
 	}
-	fmt.Println("JudgeOneNodeDo3")
 	alarm :=mysql.Alarm{}
 	nd.PrepareMYSQLAlarm(&alarm)
-	fmt.Println("JudgeOneNodeDo5")
 	return false,sms,&alarm
 }
 
