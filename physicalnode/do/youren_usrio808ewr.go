@@ -6,19 +6,19 @@ import(
 	//"bytes"
 	//"fmt"
 	//"encoding/binary"
+	"github.com/imroc/biu"
 )
 
 type DO_YOUREN_USRIO808EWR_20200924 struct{
 	NodeType string
 	ProtocolType string
 
-	InputTime string
-	Value string
-	Mark string
+	TimeUnixNano int64
+	Raw []byte
+	//Mark string
 
 	Handler string
 	Tag string
-	//nodename为临时变量
 
 	DO1 string 
 	DO2 string
@@ -31,7 +31,7 @@ type DO_YOUREN_USRIO808EWR_20200924 struct{
 }
 
 func (p *DO_YOUREN_USRIO808EWR_20200924)FullOf(){
-	if strings.Contains(p.Value, "timeout"){
+	if bytes.Contains(p.Raw, []byte("timeout")){
 		p.DO8 ="timeout"
 		p.DO7 ="timeout"
 		p.DO6 ="timeout"
@@ -43,47 +43,53 @@ func (p *DO_YOUREN_USRIO808EWR_20200924)FullOf(){
 		return
 	}
 	
-	if strings.Index(p.Value,"494f")==0{
-		hex,err := strconv.ParseInt(p.Value[12:16],16,0)
-		if err ==nil{
-			tempStr :=string([]byte(strconv.FormatInt(hex,2)[1:]))
-			p.DO8 =string([]byte(tempStr)[0:1])
-			p.DO7 =string([]byte(tempStr)[1:2])
-			p.DO6 =string([]byte(tempStr)[2:3])
-			p.DO5 =string([]byte(tempStr)[3:4])
-			p.DO4 =string([]byte(tempStr)[4:5])
-			p.DO3 =string([]byte(tempStr)[5:6])
-			p.DO2 =string([]byte(tempStr)[6:7])
-			p.DO1 =string([]byte(tempStr)[7:8])
-			return
-		}
+	var binStr string
+	if bytes.Index(p.Raw,{0x49,0x4f})==0&&strings.Compare(p.Tag,"tcpsocket")==0{
+		binStr =biu.BytesToBinaryString(p.Raw[12:16])
+	}else if strings.Compare(p.Tag,"serial")==0{
+		binStr =biu.BytesToBinaryString(p.Raw[8:12])
 	}
 
-	if strings.Compare(p.Tag,"serial")==0{
-		hex,err := strconv.ParseInt(p.Value[8:12],16,0)
-		if err ==nil{
-			tempStr :=string([]byte(strconv.FormatInt(hex,2)[1:]))
-			p.DO8 =string([]byte(tempStr)[0:1])
-			p.DO7 =string([]byte(tempStr)[1:2])
-			p.DO6 =string([]byte(tempStr)[2:3])
-			p.DO5 =string([]byte(tempStr)[3:4])
-			p.DO4 =string([]byte(tempStr)[4:5])
-			p.DO3 =string([]byte(tempStr)[5:6])
-			p.DO2 =string([]byte(tempStr)[6:7])
-			p.DO1 =string([]byte(tempStr)[7:8])
-			return
-		}
+	if len(binStr) ==8{
+		p.DO8 =binStr[0]
+		p.DO7 =binStr[1]
+		p.DO6 =binStr[2]
+		p.DO5 =binStr[3]
+		p.DO4 =binStr[4]
+		p.DO3 =binStr[5]
+		p.DO2 =binStr[6]
+		p.DO1 =binStr[7]
+	}else{
+		p.DO8 = "undefined"
+		p.DO7 = "undefined"
+		p.DO6 = "undefined"
+		p.DO5 = "undefined"
+		p.DO4 = "undefined"
+		p.DO3 = "undefined"
+		p.DO2 = "undefined"
+		p.DO1 = "undefined"
 	}
 
-	p.DO8 = "undefined"
-	p.DO7 = "undefined"
-	p.DO6 = "undefined"
-	p.DO5 = "undefined"
-	p.DO4 = "undefined"
-	p.DO3 = "undefined"
-	p.DO2 = "undefined"
-	p.DO1 = "undefined"
 	return
+
+	// if strings.Compare(p.Tag,[]byte("serial"))==0{
+	// 	binStr :=biu.BytesToBinaryString(p.Raw[8:12])
+	// 	//hex,err := strconv.ParseInt(p.Value[8:12],16,0)
+	// 	if len() ==nil{
+	// 		tempStr :=string([]byte(strconv.FormatInt(hex,2)[1:]))
+	// 		p.DO8 =string([]byte(tempStr)[0:1])
+	// 		p.DO7 =string([]byte(tempStr)[1:2])
+	// 		p.DO6 =string([]byte(tempStr)[2:3])
+	// 		p.DO5 =string([]byte(tempStr)[3:4])
+	// 		p.DO4 =string([]byte(tempStr)[4:5])
+	// 		p.DO3 =string([]byte(tempStr)[5:6])
+	// 		p.DO2 =string([]byte(tempStr)[6:7])
+	// 		p.DO1 =string([]byte(tempStr)[7:8])
+	// 		return
+	// 	}
+	// }
+
+
 }
 
 // func (p *DO_YOUREN_USRIO808EWR_20200924)GetNodeType() string{
@@ -103,27 +109,27 @@ func (p *DO_YOUREN_USRIO808EWR_20200924)SelectHandlerAndTag() (string, string){
 // }
 
 
-func (p *DO_YOUREN_USRIO808EWR_20200924)SelectOneValueAndTime(nodedohandler string, nodedotag string, nodedoname string) (string,string){
+func (p *DO_YOUREN_USRIO808EWR_20200924)SelectOneValueAndTime(nodedohandler string, nodedotag string, nodedoname string) (string,int64){
 	if strings.Compare(p.Handler,nodedohandler)!=0||strings.Compare(p.Tag, nodedotag)!=0{
 		return "",""
 	}
 	switch (nodedoname){
 	case "do8":
-		return p.DO8,p.InputTime
+		return p.DO8,p.TimeUnixNano
 	case "do7":
-		return p.DO7,p.InputTime
+		return p.DO7,p.TimeUnixNano
 	case "do6":
-		return p.DO6,p.InputTime
+		return p.DO6,p.TimeUnixNano
 	case "do5":
-		return p.DO5,p.InputTime
+		return p.DO5,p.TimeUnixNano
 	case "do4":
-		return p.DO4,p.InputTime
+		return p.DO4,p.TimeUnixNano
 	case "do3":
-		return p.DO3,p.InputTime
+		return p.DO3,p.TimeUnixNano
 	case "do2":
-		return p.DO2,p.InputTime
+		return p.DO2,p.TimeUnixNano
 	case "do1":
-		return p.DO1,p.InputTime
+		return p.DO1,p.TimeUnixNano
 	default :
 		return "",""
 	}

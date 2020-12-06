@@ -44,16 +44,19 @@ func (p *TcpConn)GenerateRecvCh() chan []byte{
 				fmt.Println("接收到错误的字节数组：",tempBuf);    continue
 			}else if !p.NeedCRC{
 				//fmt.Println("??????!:",tempBuf)
-				presentTime :=time.Now().Format(TIMEFORMAT)
+				presentTime :=time.Now().UnixNano()
 				//核心，为原始字节数组依次添加了ip,时间,tag
-				ch <-bytes.Join([][]byte{[]byte(ip),[]byte(presentTime),[]byte(tag),tempBuf},[]byte(" "))
+				//ch <-bytes.Join([][]byte{[]byte(ip),[]byte(presentTime),[]byte(tag),tempBuf},[]byte(" "))
+				ch <-bytes.Join([][]byte{[]byte(ip),,[]byte(tag),tempBuf},[]byte(" "))
 			}else{
 				//crc校验
 				//fmt.Println("??????:",tempBuf)
 				if ok := utils.CRCCheck(tempBuf[4:],utils.ISLITTLEENDDIAN);ok{
-					presentTime :=time.Now().Format(TIMEFORMAT)
+					//presentTime :=time.Now().Format(TIMEFORMAT)
+					timeBuf := make([]byte, 8)
+					binary.BigEndian.PutUint64(timeBuf, time.Now().Format(TIMEFORMAT))
 					//核心，为原始字节数组依次添加了ip,时间,tag
-					ch <-bytes.Join([][]byte{[]byte(ip),[]byte(presentTime),[]byte(tag),tempBuf},[]byte(" "))
+					ch <-bytes.Join([][]byte{[]byte(ip),timeBuf,[]byte(tag),tempBuf},[]byte(" "))
 				}else{
 					fmt.Println("tcp北向通信时crc校验失败:",tempBuf[4:])
 				}

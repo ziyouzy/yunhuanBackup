@@ -24,6 +24,7 @@ type BoolenNodeDo struct{
 
 	IsTimeOut bool
 	TimeOutSec int //从json配置文档获取
+	TimeUnixNano uint64 //由UpdateOneNodeDo方法实时更新
 
 	IsNormal bool //由UpdateOneNodeDo方法实时更新
 	//Condition:条件-该字段描述正常所需满足的条件值 
@@ -32,7 +33,6 @@ type BoolenNodeDo struct{
 	FrontEndStr string//由UpdateOneNodeDo方法实时更新
 
 	SMS string  `json:"-"`//从json配置文档获取
-	DateTime string //由UpdateOneNodeDo方法实时更新
 }
 
 
@@ -51,6 +51,7 @@ type IntNodeDo struct{
 
 	IsTimeOut bool
 	TimeOutSec int //从json配置文档获取
+	TimeUnixNano uint64 //由UpdateOneNodeDo方法实时更新
 
 	IsNormal bool //由UpdateOneNodeDo方法实时更新
 	Max int `json:"-"` //从json配置文档获取
@@ -59,7 +60,6 @@ type IntNodeDo struct{
 	FrontEndStr string //由UpdateOneNodeDo方法实时更新
 
 	SMS string `json:"-"`//从json配置文档获取
-	DateTime string //由UpdateOneNodeDo方法实时更新
 }
 
 
@@ -78,6 +78,7 @@ type FloatNodeDo struct{
 
 	IsTimeOut bool //由UpdateOneNodeDo或TimeOut方法实时更新
 	TimeOutSec int //从json配置文档获取
+	TimeUnixNano uint64 //由UpdateOneNodeDo方法实时更新
 
 	IsNormal bool //由UpdateOneNodeDo方法实时更新
 	Max float64 `json:"-"`//从json配置文档获取
@@ -86,7 +87,6 @@ type FloatNodeDo struct{
 	FrontEndStr string //由UpdateOneNodeDo方法实时更新
 	
 	SMS string `json:"-"`//从json配置文档获取
-	DateTime string //由UpdateOneNodeDo方法实时更新
 }
 
 
@@ -105,6 +105,7 @@ type CommonNodeDo struct{
 
 	IsTimeOut bool
 	TimeOutSec int //从json配置文档获取
+	TimeUnixNano uint64  //由UpdateOneNodeDo方法实时更新
 
 	IsNormal1 bool `json:"-"` //由UpdateOneNodeDo方法实时更新
 	Min1 float64 `json:"-"` //从json配置文档获取
@@ -125,14 +126,16 @@ type CommonNodeDo struct{
 	Min6 float64 `json:"-"` //从json配置文档获取
 	Max6 float64 `json:"-"`//从json配置文档获取
 	//UpdateOneNodeDo方法内会基于后端正异常逻辑所判断出的结果，生成对应的值，前端拿到后也可以忽略这个字段，而是结合其他字段去设计逻辑，自定义显示的值
-	FrontEndStr string //由UpdateOneNodeDo方法实时更新
+	FrontEndStr string //由UpdateOneNodeDo方法实时更新89
 
 	SMS string `json:"-"`//从json配置文档获取
-	DateTime string  //由UpdateOneNodeDo方法实时更新
 }
 
-func (p *BoolenNodeDo)UpdateOneNodeDo(value string,time string){
-	p.IsTimeOut =false; p.DateTime =time
+func (p *BoolenNodeDo)UpdateOneNodeDo(value string,time uint64){
+	p.IsTimeOut =false;        if (time - p.TimeUnixNano>p.TimeOutSec){p.IsTimeOut =true}
+	p.TimeUnixNano =time//在这里设计判定是否过期的逻辑，也要用到TimeOutSec字段，同时需要将字段内容转化为时间戳
+	
+	
 	i, err := strconv.Atoi(value)
 	//p.IsTimeOut和从physicalNode所返回的"timeout"字符串是有区别的，后者是更为底层的问题，是用来兼容就系统而特殊设计的
 	if(err !=nil || strings.Compare(value,"timeout")==0||strings.Compare(value,"undefined")==0||!p.IsOnline){

@@ -6,15 +6,16 @@ import(
 	"fmt"
 	//"bytes"
 	//"encoding/binary"
+	"github.com/imroc/biu"
 )
 
 type DI_YOUREN_USRIO808EWR_20200924 struct{
 	NodeType string
 	ProtocolType string
 
-	InputTime string
-	Value string
-	Mark string
+	TimeUnixNano uint64
+	Raw []byte
+	//Mark string
 
 	//唯一标识，很重要，之后很多功能都需要通过他来实现
 	//如494f3031f10201,代表了IO01-主控-DO，之后在生成UINode时就需要用到他了
@@ -109,7 +110,7 @@ func (p *DI_YOUREN_USRIO808EWR_20200924)SelectOneValueAndTime(nodedohandler stri
 	if strings.Compare(p.Handler,nodedohandler)!=0||strings.Compare(p.Tag, nodedotag)!=0{
 		return "",""
 	}
-	fmt.Println("p.Handler, p.Tag nice")
+	//fmt.Println("p.Handler, p.Tag nice")
 	switch (nodedoname){
 	case "di8":
 		return p.DI8,p.InputTime

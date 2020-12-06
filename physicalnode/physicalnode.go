@@ -10,7 +10,7 @@ import (
 	"bytes"
 	//"fmt"
 	"encoding/hex"
-	//"encoding/binary"
+	"encoding/binary"
 
 	"github.com/ziyouzy/mylib/physicalnode/di"
 	"github.com/ziyouzy/mylib/physicalnode/do"
@@ -35,12 +35,14 @@ func NewPhysicalNodeFromBytes(b []byte,tag string,protocoltype string,nodetype s
 				NodeType :nodetype,
 				ProtocolType:protocoltype,
 
-				Tag:string(b[2]),
-				InputTime:string(b[1]),
-				Value:string(hex.EncodeToString(b[3])),
-				Mark:string(b[0]),
+				TimeUnixNano:binary.BigEndian.Uint64(b[1]),
+				//hex.EncodeToString(b[3])含义是将一个raw先基于16进制协议转化为16进制数，再将这个16进制数基于utf8协议转化为string
+				//但是现在就用不到他了
+				Raw:b[3],
+				//Mark:string(b[0]),
 
-				Handler:string(hex.EncodeToString(b[3][:7])),
+				Tag:string(b[2]),
+				Handler:hex.EncodeToString(b[3][:7]),
 			}
 			physicalnode.FullOf()
 			return &physicalnode
@@ -51,12 +53,12 @@ func NewPhysicalNodeFromBytes(b []byte,tag string,protocoltype string,nodetype s
 				NodeType :nodetype,
 				ProtocolType:protocoltype,
 
-				Tag:string(b[2]),
-				InputTime:string(b[1]),
-				Value:string(hex.EncodeToString(b[3])),
-				Mark:string(b[0]),
+				TimeUnixNano:binary.BigEndian.Uint64(b[1]),
+				Raw:b[3],
 
-				Handler:string(hex.EncodeToString(b[3][:7])),
+				//Mark:string(b[0]),
+				Tag:string(b[2]),
+				Handler:hex.EncodeToString(b[3][:7]),
 			}
 			physicalnode.FullOf()
 			return &physicalnode
