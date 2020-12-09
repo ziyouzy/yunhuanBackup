@@ -93,15 +93,11 @@ func (p *NodeDoBuilder)GenerateNodeDoCh()chan nodedo.NodeDo{
 		}
 
 	CLEANUP:
-		fmt.Println("stop NodeCh wtf1???")
 		if len(p.FlushTicket.C)>0{
 			fmt.Println("清空nodedobuilder.FlushTicker.C管道中的残留内容：",<-p.FlushTicket.C)
 		}
-		fmt.Println("stop NodeCh wtf2???")
 		p.FlushTicket.Stop()  
 		close(nodeDoCh)
-		close(p.stopNodeCh) 
-		fmt.Println("stop NodeCh wtf3???")
 	}()
 	return nodeDoCh
 }
@@ -130,18 +126,12 @@ func (p *NodeDoBuilder)Engineing(pn physicalnode.PhysicalNode){
 
 func Quit(){builder.Quit()}
 func (p *NodeDoBuilder)Quit(){
-	fmt.Println("0")
+	defer close(p.stopNodeCh) 
 	p.stopNodeCh <- true//只负责关闭返回给上层的NodeDoCh管道
-	fmt.Println("1")
 	p.lock.Lock()
 	for key, _ := range p.e{
+		/*在这里清空所有旧NodeDo，同时还不算完，map以及*/
 		delete(p.e, key)
-		// if len(p.timeOutTriggerMap[key].C)>0 {
-		// 	<-p.timeOutTriggerMap[key].C
-		// 	p.timeOutTriggerMap[key].Stop()
-		// }
-		// delete(p.timeOutTriggerMap, key)
 	}
-	fmt.Println("2")
 	p.lock.Unlock()
 }

@@ -19,36 +19,39 @@ import(
 	"fmt"
 )
 
-
 //通过Load函数来初始化的情况下，每个SingleViper一旦实例化就会自动更新
-var vipers map[string]*SingleViper
+var (
+	vipers map[string]*SingleViper
+	configischange chan string
+)
 
 //只设计两种情况：要么是绝对路径，要么是根目录
-func Load(paths ...string) chan bool{
+func Load(paths ...string) chan string{
 	vipers =make(map[string]*SingleViper)
-	configischange :=make(chan bool)
+	configischange :=make(chan string)
 
-	for _, p :=range paths{
-		if sv :=BuildSingleViper(p); sv!=nil{
-			//sv.ListenConfigChange(configischange)
-			go func(){
-				defer close(sv.OneViperConfigIsChangeAndUpdateFinishCh)
-				for changed := range sv.OneViperConfigIsChangeAndUpdateFinishCh{
-					configischange<-changed
-				}
-			}()
-			
-			vipers[p] =sv
-		}else{	
-			fmt.Println("您设置的json路径[",p,"]格式错误，只支持绝对路径与根目录两种模式")
-		}
-	}
+	AddSingleVipers(paths)
 
 	return configischange
 }
 
 
-
+func AddSingleVipers(paths []string){
+	for _, p :=range paths{
+		if sv :=BuildSingleViper(p); sv!=nil{
+			vipers[p] =sv
+			go func(p string){
+				//可以写一些退出逻辑,sv.OneViperConfigIsChangeAndUpdateFinishCh是个一次性管道
+				defer delete(vipers,p)
+				for changedJSONName := range sv.OneViperConfigIsChangeAndUpdateFinishCh{
+					configischange<-changedJSONName
+				}
+			}(p)
+		}else{	
+			fmt.Println("您设置的json路径[",p,"]格式错误，只支持绝对路径与根目录两种模式")
+		}
+	}
+}
 
 func SelectOneMap(path string, key string)map[string]interface{}{
 	m :=vipers[path].V.Get(key)

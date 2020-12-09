@@ -8,8 +8,8 @@ package physicalnode
 
 import (
 	"bytes"
-	"time"
-	"fmt"
+	//"time"
+	//"fmt"
 	"encoding/hex"
 	"encoding/binary"
 
@@ -20,58 +20,106 @@ import (
 type  PhysicalNode interface{
 	FullOf()
 	SelectHandlerAndTag() (string,string)
-	SelectOneValueAndTimeUnixNano(string, string, string) ([]byte, uint64)
+	SelectOneValueAndTimeUnixNano(string, string, string) (string, uint64)
 }
 
-func NewPhysicalNodeFromBytes(char []byte,tag string,protocoltype string,nodetype string) PhysicalNode{
-	//fmt.Println("in NewPhysicalNodeFromBytes,nodetype,protocoltype:",nodetype,protocoltype)
-	switch (protocoltype){
-	case "YUNHUAN20200924":
-		switch (nodetype){
-		case "DO20200924":
-			arr := bytes.Split(char, []byte(" /-/ "));
-			/*ip:arr[0]    time:arr[1]    tag:arr[2]    buf:arr[3]*/
-			if len(arr[1]) ==7 {/*b[1] =append(b[1],0);*/fmt.Println("do,timeunixnano==7",time.Unix(0, int64(binary.BigEndian.Uint64(append(arr[1],0)))).Format("2006-01-02 15:04:05.000000000"))}
-			fmt.Println("DO,",time.Unix(0, int64(binary.BigEndian.Uint64(arr[1]))).Format("2006-01-02 15:04:05.000000000"))
-			
-			physicalnode := do.DO_YOUREN_USRIO808EWR_20200924{
-				NodeType :nodetype,
-				ProtocolType:protocoltype,
+func NewPhysicalNodeFromBytes(char []byte, tag string, protocolnodetype string) PhysicalNode{
+	switch (protocolnodetype){
+	case "PROTOCOLDO20200924":
+		arr := bytes.Split(char, []byte(" /-/ "));
+		/*ip:arr[0]    time:arr[1]    tag:arr[2]    buf:arr[3]*/
+		physicalnode := do.DO_YOUREN_USRIO808EWR_20200924{
+			ProtocolNodeType :protocolnodetype,
+	
+			Tag:string(arr[2]),
+			Handler:hex.EncodeToString(arr[3][:7]),
 
-				TimeUnixNano:uint64(binary.BigEndian.Uint64(arr[1])),
-				//hex.EncodeToString(b[3])含义是将一个raw先基于16进制协议转化为16进制数，再将这个16进制数基于utf8协议转化为string
-				//但是现在就用不到他了
-				Raw:arr[3],
-				//Mark:string(b[0]),
+			TimeUnixNano:uint64(binary.BigEndian.Uint64(arr[1])),
+			Raw:arr[3],
+		}
+		physicalnode.FullOf()
+		return &physicalnode
 
-				Tag:string(arr[2]),
-				Handler:hex.EncodeToString(arr[3][:7]),
-			}
-			physicalnode.FullOf()
-			return &physicalnode
-		case "DI20200924":
-			arr := bytes.Split(char, []byte(" /-/ "));
-			/*ip:arr[0]    time:arr[1]    tag:arr[2]    buf:arr[3]*/
-			if len(arr[1]) ==7 {/*arr[1] =append(arr[1],0);*/fmt.Println("di,timeunixnano==7")}
-			fmt.Println("DI,",time.Unix(0, int64(binary.BigEndian.Uint64(arr[1]))).Format("2006-01-02 15:04:05.000000000"))
-			
-			physicalnode := di.DI_YOUREN_USRIO808EWR_20200924{
-				NodeType :nodetype,
-				ProtocolType:protocoltype,
+	case "PROTOCOLDI20200924":
+		arr := bytes.Split(char, []byte(" /-/ "));
+		/*ip:arr[0]    time:arr[1]    tag:arr[2]    buf:arr[3]*/
+		physicalnode := di.DI_YOUREN_USRIO808EWR_20200924{
+			ProtocolNodeType :protocolnodetype,
 
-				TimeUnixNano:uint64(binary.BigEndian.Uint64(arr[1])),
-				Raw:arr[3],
+			Tag:string(arr[2]),
+			Handler:hex.EncodeToString(arr[3][:7]),
 
-				//Mark:string(b[0]),
-				Tag:string(arr[2]),
-				Handler:hex.EncodeToString(arr[3][:7]),
-			}
-			physicalnode.FullOf()
-			return &physicalnode
-		default:
-			return nil
-		}//switch (nodeType)
+			TimeUnixNano:uint64(binary.BigEndian.Uint64(arr[1])),
+			Raw:arr[3],
+		}
+		physicalnode.FullOf()
+		return &physicalnode
 	default:
 		return nil
-	}//switch (protocolType)
+	}//switch (nodeType)
+}
+
+func RawChToPhysicalNodeCh(rawch chan []byte)chan PhysicalNode{
+	physicalnodech :=make(chan PhysicalNode)
+	go func(){
+		defer close(physicalnodech)
+		for raw := range rawch{
+			physicalNode :=buildPhysicalNode_PROTOCOLYUNHUAN20200924(raw)
+			physicalnodech<-physicalNode
+		}
+	}()
+	return physicalnodech
+}
+
+
+
+
+func buildPhysicalNode_PROTOCOLYUNHUAN20200924(char []byte)PhysicalNode{
+	arr :=bytes.Split(char,[]byte(" /-/ "))//按照空白分割
+	tag :=string(arr[2])
+	buf :=arr[3]
+	//开始实现协议
+	switch (tag){
+	case "tcpsocket":
+		switch {//s1
+		case buf[0]==0x49&&buf[1]==0x4f&&buf[2]==0x30&&buf[3]==0x31:
+			switch {//s2
+			case buf[4]==0xf1:
+				switch {//s3
+				case buf[5]==0x01&&buf[6]==0x01:
+					return NewPhysicalNodeFromBytes(char, tag, "PROTOCOLDI20200924")
+				case buf[5]==0x02&&buf[6]==0x01:
+					return NewPhysicalNodeFromBytes(char, tag, "PROTOCOLDO20200924")
+				default:
+					return nil
+				}//s3
+			default:
+				return nil	
+			}//s2
+		default:
+			return nil		
+		}//s1
+
+	// case "serial":
+	// 	switch{
+	// 	case buf[0]==0xf1:
+	// 		switch {//s1
+	// 		case buf[1]==0x01&&buf[2]==0x01:
+	// 			//fmt.Println("f10101!")
+	// 			return physicalnode.NewPhysicalNodeFromBytes(b, tag, "YUNHUAN20200924","DO20200924")
+	// 		case buf[1]==0x02&&buf[2]==0x01:
+	// 			//fmt.Println("f10201!")
+	// 			return physicalnode.NewPhysicalNodeFromBytes(b, tag, "YUNHUAN20200924","DI20200924")
+	// 		default:
+	// 			return nil
+	// 		}//s1
+	// 	default:
+	// 		return nil
+	// 	}//s2
+	// //case "localqt":
+	// 	//反序列化buf为某种功能结构体(如physicalnode.NewDoorMgr)
+	// 	//return 这个结构体
+	 default:
+	 	return nil	
+	}//tag
 }

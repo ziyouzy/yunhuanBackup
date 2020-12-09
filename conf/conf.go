@@ -5,7 +5,7 @@ import(
 	"sync"
 
 	"github.com/ziyouzy/mylib/mysql"
-	"github.com/ziyouzy/mylib/conf/myvipers"
+	"github.com/ziyouzy/mylib/myvipers"
 	"github.com/ziyouzy/mylib/alarmbuilder"
 
 	"github.com/ziyouzy/mylib/nodedo"
@@ -23,12 +23,13 @@ var (
 	}
 
 	NodeDoCh = make(chan nodedo.NodeDo) 
+
+	lock sync.Mutex
 )
 
 
 //拿到可以全局使用的viper变量
 func Load(){
-	var lock sync.Mutex
 	//SingleViper是文件级的，个体拥有独立的chan bool管道，从而告诉上级json文档是否发生更新
 	//也就是说一个文件对应一个configischange的管道，因此在这里就可以实现点对点的触发机制
 	mysql.ConnectMySQL("yunhuan_api:13131313@tcp(127.0.0.1:3306)/yh?charset=utf8")
@@ -36,35 +37,43 @@ func Load(){
 	//myvipers可以独立的去自我实现更新
 	//Load所返回的管道是个独立的管道，实现了每个SingleViper的扇入汇总
 	Confofwidgets_testIsChange := myvipers.Load(/*,/abc/def/ghi.json*/"./widgetsonlyserver.json")
-
 	nodedobuilder.LoadSingletonPattern(1, myvipers.SelectOneMap("./widgetsonlyserver.json", "test_mainwidget.nodes"))
 	alarmbuilder.LoadSingletonPattern(myvipers.SelectOneMap("./widgetsonlyserver.json", "test_mainwidget.alarms.tty1-serial"))
-
-	NodeDoCh =nodedobuilder.GenerateNodeDoCh()
 	
+	ch =nodedobuilder.GenerateNodeDoCh()
+	go func(){
+		//该上游会自动关闭
+		for nodedo := range ch{
+			NodeDoCh<-nodedo
+		}
+	}()
 	lock.Unlock()
 	fmt.Println("初始化了nodedobuilder与alarmbuilder的单例模式")
 
+	Watching(Confofwidgets_testIsChange)
+}
+
+func Watching(Confofwidgets_testIsChange chan string){
 	go func(){
-		defer close(Confofwidgets_testIsChange )
+		defer close(Confofwidgets_testIsChange)
 		for changed := range Confofwidgets_testIsChange{
-			if changed{
-				fmt.Println("changedd0:",changed)
+			switch changed{
+			case "./widgetsonlyserver.json":
 				lock.Lock()
-				fmt.Println("changedd1:",changed)
 				nodedobuilder.Quit()
-				fmt.Println("changedd2:",changed)
 				alarmbuilder.Quit()
-				fmt.Println("changedd3:",changed)
+
 				nodedobuilder.LoadSingletonPattern(1, myvipers.SelectOneMap("./widgetsonlyserver.json", "test_mainwidget.nodes"))
-				fmt.Println("changedd4:",changed)
 				alarmbuilder.LoadSingletonPattern(myvipers.SelectOneMap("./widgetsonlyserver.json", "test_mainwidget.alarms.tty1-serial"))
-				fmt.Println("changedd5:",changed)
 
 				//内层已对管道设计好了析构逻辑
-				NodeDoCh =nodedobuilder.GenerateNodeDoCh()
-				fmt.Println("changedd6:",changed)
-
+				ch =nodedobuilder.GenerateNodeDoCh()
+				go func(){
+					//该上游会自动关闭
+					for nodedo := range ch{
+						NodeDoCh<-nodedo
+					}
+				}()
 				lock.Unlock()
 				fmt.Println("更新了nodedobuilder与alarmbuilder的单例模式")
 			}

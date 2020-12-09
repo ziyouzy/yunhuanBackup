@@ -4,40 +4,41 @@ import(
 	"strings"
 	//"strconv"
 	"bytes"
-	"fmt"
+	//"fmt"
 	//"encoding/binary"
 	"github.com/imroc/biu"
 )
 
 type DO_YOUREN_USRIO808EWR_20200924 struct{
-	NodeType string
-	ProtocolType string
+	ProtocolNodeType string
+	//ProtocolType string
 	Handler string
 	Tag string
 
 	TimeUnixNano uint64
 
 	Raw []byte
-	DO1 []byte 
-	DO2 []byte 
-	DO3 []byte 
-	DO4 []byte 
-	DO5 []byte 
-	DO6 []byte 
-	DO7 []byte 
-	DO8 []byte 
+
+	DO1 string 
+	DO2 string 
+	DO3 string 
+	DO4 string 
+	DO5 string 
+	DO6 string 
+	DO7 string 
+	DO8 string 
 }
 
 func (p *DO_YOUREN_USRIO808EWR_20200924)FullOf(){
 	if bytes.Contains(p.Raw, []byte("timeout")){
-		p.DO8 =[]byte("timeout")
-		p.DO7 =[]byte("timeout")
-		p.DO6 =[]byte("timeout")
-		p.DO5 =[]byte("timeout")
-		p.DO4 =[]byte("timeout")
-		p.DO3 =[]byte("timeout")
-		p.DO2 =[]byte("timeout")
-		p.DO1 =[]byte("timeout")
+		p.DO8 ="timeout"
+		p.DO7 ="timeout"
+		p.DO6 ="timeout"
+		p.DO5 ="timeout"
+		p.DO4 ="timeout"
+		p.DO3 ="timeout"
+		p.DO2 ="timeout"
+		p.DO1 ="timeout"
 		return
 	}
 	
@@ -49,28 +50,24 @@ func (p *DO_YOUREN_USRIO808EWR_20200924)FullOf(){
 	}
 
 	if len(binStr) ==10{
-		//binStr[0]=="[
-		p.DO8 =append(p.DO8,binStr[1])
-		p.DO7 =append(p.DO7,binStr[2])
-		p.DO6 =append(p.DO6,binStr[3])
-		p.DO5 =append(p.DO5,binStr[4])
-		p.DO4 =append(p.DO4,binStr[5])
-		p.DO3 =append(p.DO3,binStr[6])
-		p.DO2 =append(p.DO2,binStr[7])
-		p.DO1 =append(p.DO1,binStr[8])
-		//binStr[9]=="]
+		p.DO8 =string(binStr[1])
+		p.DO7 =string(binStr[2])
+		p.DO6 =string(binStr[3])
+		p.DO5 =string(binStr[4])
+		p.DO4 =string(binStr[5])
+		p.DO3 =string(binStr[6])
+		p.DO2 =string(binStr[7])
+		p.DO1 =string(binStr[8])
 	}else{
-		p.DO8 = []byte("undefined")
-		p.DO7 = []byte("undefined")
-		p.DO6 = []byte("undefined")
-		p.DO5 = []byte("undefined")
-		p.DO4 = []byte("undefined")
-		p.DO3 = []byte("undefined")
-		p.DO2 = []byte("undefined")
-		p.DO1 = []byte("undefined")
+		p.DO8 = "undefined"
+		p.DO7 = "undefined"
+		p.DO6 = "undefined"
+		p.DO5 = "undefined"
+		p.DO4 = "undefined"
+		p.DO3 = "undefined"
+		p.DO2 = "undefined"
+		p.DO1 = "undefined"
 	}
-
-	fmt.Println("p.DO8:",p.DO8,"p.DO7:",p.DO7,"p.DO6:",p.DO6,"p.DO5:",p.DO5,"p.DO4:",p.DO4,"p.DO3:",p.DO3,"p.DO2:",p.DO2,"p.DO1:",p.DO1)
 	return
 }
 
@@ -80,8 +77,8 @@ func (p *DO_YOUREN_USRIO808EWR_20200924)SelectHandlerAndTag() (string, string){
 }
 
 
-func (p *DO_YOUREN_USRIO808EWR_20200924)SelectOneValueAndTimeUnixNano(nodedohandler string, nodedotag string, nodedoname string) ([]byte,uint64){
-	if strings.Compare(p.Handler,nodedohandler)!=0||strings.Compare(p.Tag, nodedotag)!=0{ return nil, 0 }
+func (p *DO_YOUREN_USRIO808EWR_20200924)SelectOneValueAndTimeUnixNano(nodedohandler string, nodedotag string, nodedoname string) (string,uint64){
+	if strings.Compare(p.Handler,nodedohandler)!=0||strings.Compare(p.Tag, nodedotag)!=0{ return "", 0 }
 	switch (nodedoname){
 	case "do8", "DO8":
 		return p.DO8,p.TimeUnixNano
@@ -100,7 +97,7 @@ func (p *DO_YOUREN_USRIO808EWR_20200924)SelectOneValueAndTimeUnixNano(nodedohand
 	case "do1", "DO1":
 		return p.DO1,p.TimeUnixNano
 	default :
-		return nil, 0
+		return "", 0
 	}
 }
 
