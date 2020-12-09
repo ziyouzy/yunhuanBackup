@@ -33,10 +33,10 @@ func NewNodeDo(datatype string, v interface{})NodeDo{
 }
 
 type NodeDo interface{
-	UpdateOneNodeDo(string, string)
-	GetTimeOutSec()int
-	UpdateOneNodeDoAndGetTimeOutSec(string,string) int
-	TimeOut()
+	UpdateOneNodeDo(string, uint64)
+	//GetTimeOutSec()int
+	//UpdateOneNodeDoAndGetTimeOutSec(string,string) int
+	JudgeTimeOut()
 
 	GetJson()[]byte
 	

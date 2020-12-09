@@ -23,10 +23,10 @@ func RawChToPhysicalNodeCh(rawch chan []byte)chan physicalnode.PhysicalNode{
 }
 
 
-func buildPhysicalNode_PROTOCOL_YUNHUAN20200924(b []byte)physicalnode.PhysicalNode{
-	bufarr :=bytes.Fields(b)//按照空白分割
-	tag :=string(bufarr[2])
-	buf :=bufarr[3]
+func buildPhysicalNode_PROTOCOL_YUNHUAN20200924(char []byte)physicalnode.PhysicalNode{
+	arr :=bytes.Split(char,[]byte(" /-/ "))//按照空白分割
+	tag :=string(arr[2])
+	buf :=arr[3]
 	//开始实现协议
 	switch (tag){
 	case "tcpsocket":
@@ -36,9 +36,9 @@ func buildPhysicalNode_PROTOCOL_YUNHUAN20200924(b []byte)physicalnode.PhysicalNo
 			case buf[4]==0xf1:
 				switch {//s3
 				case buf[5]==0x01&&buf[6]==0x01:
-					return physicalnode.NewPhysicalNodeFromBytes(b, tag, "YUNHUAN20200924","DI20200924")
+					return physicalnode.NewPhysicalNodeFromBytes(char, tag, "YUNHUAN20200924","DI20200924")
 				case buf[5]==0x02&&buf[6]==0x01:
-					return physicalnode.NewPhysicalNodeFromBytes(b, tag, "YUNHUAN20200924","DO20200924")
+					return physicalnode.NewPhysicalNodeFromBytes(char, tag, "YUNHUAN20200924","DO20200924")
 				default:
 					return nil
 				}//s3

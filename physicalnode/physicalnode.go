@@ -8,7 +8,8 @@ package physicalnode
 
 import (
 	"bytes"
-	//"fmt"
+	"time"
+	"fmt"
 	"encoding/hex"
 	"encoding/binary"
 
@@ -19,46 +20,51 @@ import (
 type  PhysicalNode interface{
 	FullOf()
 	SelectHandlerAndTag() (string,string)
-	SelectOneValueAndTime(string, string, string) (string,string)
+	SelectOneValueAndTimeUnixNano(string, string, string) ([]byte, uint64)
 }
 
-func NewPhysicalNodeFromBytes(b []byte,tag string,protocoltype string,nodetype string) PhysicalNode{
+func NewPhysicalNodeFromBytes(char []byte,tag string,protocoltype string,nodetype string) PhysicalNode{
 	//fmt.Println("in NewPhysicalNodeFromBytes,nodetype,protocoltype:",nodetype,protocoltype)
 	switch (protocoltype){
 	case "YUNHUAN20200924":
 		switch (nodetype){
 		case "DO20200924":
-			b := bytes.Fields(b);
-			/*ip:b[0]    time:b[1]    tag:b[2]    buf:b[3]*/
-			//hex,err := strconv.ParseInt((p.Value)[12:16],16,0)
+			arr := bytes.Split(char, []byte(" /-/ "));
+			/*ip:arr[0]    time:arr[1]    tag:arr[2]    buf:arr[3]*/
+			if len(arr[1]) ==7 {/*b[1] =append(b[1],0);*/fmt.Println("do,timeunixnano==7",time.Unix(0, int64(binary.BigEndian.Uint64(append(arr[1],0)))).Format("2006-01-02 15:04:05.000000000"))}
+			fmt.Println("DO,",time.Unix(0, int64(binary.BigEndian.Uint64(arr[1]))).Format("2006-01-02 15:04:05.000000000"))
+			
 			physicalnode := do.DO_YOUREN_USRIO808EWR_20200924{
 				NodeType :nodetype,
 				ProtocolType:protocoltype,
 
-				TimeUnixNano:binary.BigEndian.Uint64(b[1]),
+				TimeUnixNano:uint64(binary.BigEndian.Uint64(arr[1])),
 				//hex.EncodeToString(b[3])含义是将一个raw先基于16进制协议转化为16进制数，再将这个16进制数基于utf8协议转化为string
 				//但是现在就用不到他了
-				Raw:b[3],
+				Raw:arr[3],
 				//Mark:string(b[0]),
 
-				Tag:string(b[2]),
-				Handler:hex.EncodeToString(b[3][:7]),
+				Tag:string(arr[2]),
+				Handler:hex.EncodeToString(arr[3][:7]),
 			}
 			physicalnode.FullOf()
 			return &physicalnode
 		case "DI20200924":
-			b := bytes.Fields(b);
-			/*ip:b[0]    time:b[1]    tag:b[2]    buf:b[3]*/
+			arr := bytes.Split(char, []byte(" /-/ "));
+			/*ip:arr[0]    time:arr[1]    tag:arr[2]    buf:arr[3]*/
+			if len(arr[1]) ==7 {/*arr[1] =append(arr[1],0);*/fmt.Println("di,timeunixnano==7")}
+			fmt.Println("DI,",time.Unix(0, int64(binary.BigEndian.Uint64(arr[1]))).Format("2006-01-02 15:04:05.000000000"))
+			
 			physicalnode := di.DI_YOUREN_USRIO808EWR_20200924{
 				NodeType :nodetype,
 				ProtocolType:protocoltype,
 
-				TimeUnixNano:binary.BigEndian.Uint64(b[1]),
-				Raw:b[3],
+				TimeUnixNano:uint64(binary.BigEndian.Uint64(arr[1])),
+				Raw:arr[3],
 
 				//Mark:string(b[0]),
-				Tag:string(b[2]),
-				Handler:hex.EncodeToString(b[3][:7]),
+				Tag:string(arr[2]),
+				Handler:hex.EncodeToString(arr[3][:7]),
 			}
 			physicalnode.FullOf()
 			return &physicalnode

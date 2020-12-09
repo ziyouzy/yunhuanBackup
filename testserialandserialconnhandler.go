@@ -3,7 +3,7 @@ package main
 import(
 	"fmt"
 	//"time"
-	//"encoding/json"
+	"encoding/json"
 
 	//"github.com/ziyouzy/mylib/tcp"
 	//"github.com/ziyouzy/mylib/model"
@@ -29,18 +29,21 @@ func main(){
 	// }()
 
 	physicalNodeCh := service.RawChToPhysicalNodeCh(rawCh)//rawCh的消费者和physicalNodeCh的创建者和生产者a-b
-	//go func(){
-	//	for pn := range physicalNodeCh{
-	//		_ =pn
-	//	}
-	//}()
-	service.UpdateEveryExsitNodeDoTemplate(physicalNodeCh)//physiaclNodeCh的消费者
+	go func(){
+		for pn := range physicalNodeCh{
+			//_ =pn
+			//fmt.Println("pn:",pn)
+			b, _ := json.Marshal(pn)
+			fmt.Println(string(b))
+		}
+	}()
+	//service.UpdateEveryExsitNodeDoTemplate(physicalNodeCh)//physiaclNodeCh的消费者
 	//nodeDoCh :=service.NodeDoCh()//nodeDoCh的创建和生产者a-b-?
 	
 
-	service.ActionAlarmFiler(conf.NodeDoCh)//nodeDoCh的消费者，以及之后那三个的生产者，chan bool的消费者
-	service.ActionAlarmSMSSender()//消费
-	service.ActionAlarmMYSQLCreater()//消费
+	//service.ActionAlarmFiler(conf.NodeDoCh)//nodeDoCh的消费者，以及之后那三个的生产者，chan bool的消费者
+	//service.ActionAlarmSMSSender()//消费
+	//service.ActionAlarmMYSQLCreater()//消费
 
 	select{}
 	//service.TickerSendModbusToNouthBound(2)//非流水线设计模式

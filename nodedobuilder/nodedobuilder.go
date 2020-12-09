@@ -15,7 +15,7 @@ import(
 var builder *NodeDoBuilder 
 type NodeDoBuilder struct{
 	e Engine
-	timeOutTriggerMap map[string]*time.Timer
+	//timeOutTriggerMap map[string]*time.Timer
 
 	TicketStep int
 	FlushTicket *time.Ticker
@@ -30,32 +30,32 @@ func LoadSingletonPattern(step int, sourcefromviper map[string]interface{}){buil
 func BuildNodeDoBuilder(step int,sourcefromviper map[string]interface{}) *NodeDoBuilder{
 	builder :=NodeDoBuilder{}
 	builder.e =NewEngine(sourcefromviper)
-	builder.timeOutTriggerMap =make(map[string]*time.Timer)
+	// builder.timeOutTriggerMap =make(map[string]*time.Timer)
 
-	for key, nodedo :=range builder.e{
-		timer :=time.NewTimer(time.Duration(nodedo.GetTimeOutSec()) * time.Second)//timeOutTriggerMap
-		go func(){
-			for{
-				if nodedo ==nil{goto CLEANUP}//这里的break只是为了配合Quit()函数实现最后一个析构步骤,也就是只负责跳出这个循环而不负责当前nodedo所对应timer的销毁
-				select{
-				case <-timer.C:
-					//只有一种情况nodedo会被销毁，那就是就的builder.e被销毁的时候，同时新的builder.e还未完成实例化，也就是json配置文档热更新的过程中
-					//这个过程中也会先调用nodedobuilder.Quit()，该函数会销毁每一个nodedo所对应的timer的管道，从而实现解开在这里的引用
-					nodedo.TimeOut(); timer.Reset(time.Duration(nodedo.GetTimeOutSec()) *time.Second)
-				}
-			}
+	// for key, nodedo :=range builder.e{
+	// 	timer :=time.NewTimer(time.Duration(nodedo.GetTimeOutSec()) * time.Second)//timeOutTriggerMap
+	// 	go func(){
+	// 		for{
+	// 			if nodedo ==nil{goto CLEANUP}//这里的break只是为了配合Quit()函数实现最后一个析构步骤,也就是只负责跳出这个循环而不负责当前nodedo所对应timer的销毁
+	// 			select{
+	// 			case <-timer.C:
+	// 				//只有一种情况nodedo会被销毁，那就是就的builder.e被销毁的时候，同时新的builder.e还未完成实例化，也就是json配置文档热更新的过程中
+	// 				//这个过程中也会先调用nodedobuilder.Quit()，该函数会销毁每一个nodedo所对应的timer的管道，从而实现解开在这里的引用
+	// 				nodedo.TimeOut(); timer.Reset(time.Duration(nodedo.GetTimeOutSec()) *time.Second)
+	// 			}
+	// 		}
 
-			CLEANUP:
-				if len(timer.C)>0{
-					<-timer.C
-				}
-				timer.Stop()
-				fmt.Println("nodedo.Timeout")
+	// 		CLEANUP:
+	// 			if len(timer.C)>0{
+	// 				<-timer.C
+	// 			}
+	// 			timer.Stop()
+	// 			fmt.Println("nodedo.Timeout")
 
-		}()
-		//上边的NewEngine先实例化了builder.e，而timeOutTriggerMap的键名是从builder.e直接拿到的
-		builder.timeOutTriggerMap[key] =timer
-	}
+	// 	}()
+	// 	//上边的NewEngine先实例化了builder.e，而timeOutTriggerMap的键名是从builder.e直接拿到的
+	// 	builder.timeOutTriggerMap[key] =timer
+	//}
 
 	builder.TicketStep =step
 	builder.lock =new(sync.Mutex)
@@ -79,14 +79,13 @@ func (p *NodeDoBuilder)GenerateNodeDoCh()chan nodedo.NodeDo{
 		for{ 
 			select {
 			case stop :=<-p.stopNodeCh:
-				fmt.Println("stop ok?")
 				if stop{ 
-					fmt.Println("stop ok!")
 					goto CLEANUP
 				}
 			case <-p.FlushTicket.C:
 				p.lock.Lock()
 				for _,v := range p.e{
+					v.JudgeTimeOut()
 					nodeDoCh <-v
 				}
 				p.lock.Unlock()
@@ -120,14 +119,11 @@ func (p *NodeDoBuilder)Engineing(pn physicalnode.PhysicalNode){
 		//每当传来一个physicalnode实体时，会判定这个实体在json文档实体中，有没有实现对应的关系
 		//这个判定的过程中每一个physicalnode都会对应一次engine对象的for循环
 		//同时一个physicalnode可以在他所对应的for循环结束前多次触发nodedo的更新事件
-		if !strings. Contains(k,fmt.Sprintf("%s-%s",handler,tag)){
-			continue
-		}
-		
+		if !strings. Contains(k,fmt.Sprintf("%s-%s",handler,tag)){ continue }
 		//PhysicalNode.SelectOneValueAndTime返回值举例："value","time"
-		nodename :=strings.Split(k,"-")[2];    pvalue,ptime := pn.SelectOneValueAndTime(handler, tag, nodename)
-		sec :=p.e[k].UpdateOneNodeDoAndGetTimeOutSec(pvalue,ptime)
-		go p.timeOutTriggerMap[k].Reset(time.Duration(sec) *time.Second)
+		nodename :=strings.Split(k,"-")[2];    physicalBytesValue, physicalTimeUnixNano := pn.SelectOneValueAndTimeUnixNano(handler, tag, nodename)
+		p.e[k].UpdateOneNodeDo(string(physicalBytesValue), physicalTimeUnixNano)
+		//go p.timeOutTriggerMap[k].Reset(time.Duration(sec) *time.Second)
 	}
 	p.lock.Unlock()
 }
@@ -140,11 +136,11 @@ func (p *NodeDoBuilder)Quit(){
 	p.lock.Lock()
 	for key, _ := range p.e{
 		delete(p.e, key)
-		if len(p.timeOutTriggerMap[key].C)>0 {
-			<-p.timeOutTriggerMap[key].C
-			p.timeOutTriggerMap[key].Stop()
-		}
-		delete(p.timeOutTriggerMap, key)
+		// if len(p.timeOutTriggerMap[key].C)>0 {
+		// 	<-p.timeOutTriggerMap[key].C
+		// 	p.timeOutTriggerMap[key].Stop()
+		// }
+		// delete(p.timeOutTriggerMap, key)
 	}
 	fmt.Println("2")
 	p.lock.Unlock()

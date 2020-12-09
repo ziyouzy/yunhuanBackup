@@ -4,6 +4,7 @@ import(
 	"strconv"
 	"strings"
 	"fmt"
+	"time"
 	"encoding/json"
 
 	"github.com/ziyouzy/mylib/mysql"
@@ -132,9 +133,7 @@ type CommonNodeDo struct{
 }
 
 func (p *BoolenNodeDo)UpdateOneNodeDo(value string,time uint64){
-	p.IsTimeOut =false;        if (time - p.TimeUnixNano>p.TimeOutSec){p.IsTimeOut =true}
-	p.TimeUnixNano =time//在这里设计判定是否过期的逻辑，也要用到TimeOutSec字段，同时需要将字段内容转化为时间戳
-	
+	p.IsTimeOut =false;        p.TimeUnixNano =time//在这里设计判定是否过期的逻辑，也要用到TimeOutSec字段，同时需要将字段内容转化为时间戳
 	
 	i, err := strconv.Atoi(value)
 	//p.IsTimeOut和从physicalNode所返回的"timeout"字符串是有区别的，后者是更为底层的问题，是用来兼容就系统而特殊设计的
@@ -149,8 +148,9 @@ func (p *BoolenNodeDo)UpdateOneNodeDo(value string,time uint64){
 	return
 }
 
-func (p *IntNodeDo)UpdateOneNodeDo(value string, time string){
-	p.IsTimeOut =false; p.DateTime =time
+func (p *IntNodeDo)UpdateOneNodeDo(value string, time uint64){
+	p.IsTimeOut =false;        p.TimeUnixNano =time//在这里设计判定是否过期的逻辑，也要用到TimeOutSec字段，同时需要将字段内容转化为时间戳
+
 	i,err := strconv.Atoi(value)
 	//p.IsTimeOut和从physicalNode所返回的"timeout"字符串是有区别的，后者是更为底层的问题，是用来兼容就系统而特殊设计的
 	if(err !=nil || strings.Compare(value,"timeout")==0||strings.Compare(value,"undefined")==0||!p.IsOnline){
@@ -163,8 +163,9 @@ func (p *IntNodeDo)UpdateOneNodeDo(value string, time string){
 	return
 }
 
-func (p *FloatNodeDo)UpdateOneNodeDo(value string, time string){
-	p.IsTimeOut =false; p.DateTime =time
+func (p *FloatNodeDo)UpdateOneNodeDo(value string, time uint64){
+	p.IsTimeOut =false;        p.TimeUnixNano =time//在这里设计判定是否过期的逻辑，也要用到TimeOutSec字段，同时需要将字段内容转化为时间戳
+
 	fl,err := strconv.ParseFloat(value, 64)
 	//p.IsTimeOut和从physicalNode所返回的"timeout"字符串是有区别的，后者是更为底层的问题，是用来兼容就系统而特殊设计的
 	if (err !=nil || strings.Compare(value,"timeout")==0||strings.Compare(value,"undefined")==0||!p.IsOnline){
@@ -177,8 +178,9 @@ func (p *FloatNodeDo)UpdateOneNodeDo(value string, time string){
 	return
 }
 
-func (p *CommonNodeDo)UpdateOneNodeDo(value string, time string){
+func (p *CommonNodeDo)UpdateOneNodeDo(value string, time uint64){
 	//value一定会是个可以转化为float64的字符串，同时也一定不会是个汉字或者字母的字符串
+
 	//设计CommonNodeDo的目的是用来处理如下情况:
 	/*
 		某设备：
@@ -189,7 +191,8 @@ func (p *CommonNodeDo)UpdateOneNodeDo(value string, time string){
 		1和3为IsNormail
 	*/
 	//于是就需要跳跃性的比较某个float64类型的大小值了
-	p.IsTimeOut =false; p.DateTime =time
+	p.IsTimeOut =false;         p.TimeUnixNano =time//在这里设计判定是否过期的逻辑，也要用到TimeOutSec字段，同时需要将字段内容转化为时间戳
+
 	fl,err := strconv.ParseFloat(value,64)
 	//p.IsTimeOut和从physicalNode所返回的"timeout"字符串是有区别的，后者是更为底层的问题，是用来兼容就系统而特殊设计的
 	if(err !=nil || strings.Compare(value,"timeout")==0||strings.Compare(value,"undefined")==0||!p.IsOnline){
@@ -211,21 +214,40 @@ func (p *CommonNodeDo)UpdateOneNodeDo(value string, time string){
 }
 
 //无法通过接口直接拿到内部字段，只能设计独立的方法
-func (p *BoolenNodeDo)GetTimeOutSec()int {return p.TimeOutSec}
-func (p *IntNodeDo)GetTimeOutSec()int {return p.TimeOutSec}
-func (p *FloatNodeDo)GetTimeOutSec()int {return p.TimeOutSec}
-func (p *CommonNodeDo)GetTimeOutSec()int {return p.TimeOutSec}
+// func (p *BoolenNodeDo)GetTimeOutSec()int {return p.TimeOutSec}
+// func (p *IntNodeDo)GetTimeOutSec()int {return p.TimeOutSec}
+// func (p *FloatNodeDo)GetTimeOutSec()int {return p.TimeOutSec}
+// func (p *CommonNodeDo)GetTimeOutSec()int {return p.TimeOutSec}
 
-func (p *BoolenNodeDo)UpdateOneNodeDoAndGetTimeOutSec(value string, time string) int{p.UpdateOneNodeDo(value,time); return p.GetTimeOutSec()}
-func (p *IntNodeDo)UpdateOneNodeDoAndGetTimeOutSec(value string, time string) int{p.UpdateOneNodeDo(value,time);return p.GetTimeOutSec()}
-func (p *FloatNodeDo)UpdateOneNodeDoAndGetTimeOutSec(value string, time string) int{p.UpdateOneNodeDo(value,time);return p.GetTimeOutSec()}
-func (p *CommonNodeDo)UpdateOneNodeDoAndGetTimeOutSec(value string, time string) int{p.UpdateOneNodeDo(value,time);return p.GetTimeOutSec()}
+// func (p *BoolenNodeDo)UpdateOneNodeDoAndGetTimeOutSec(value string, time int) {p.UpdateOneNodeDo(value,time); return p.GetTimeOutSec()}
+// func (p *IntNodeDo)UpdateOneNodeDoAndGetTimeOutSec(value string, time int) {p.UpdateOneNodeDo(value,time);return p.GetTimeOutSec()}
+// func (p *FloatNodeDo)UpdateOneNodeDoAndGetTimeOutSec(value string, time int) {p.UpdateOneNodeDo(value,time);return p.GetTimeOutSec()}
+// func (p *CommonNodeDo)UpdateOneNodeDoAndGetTimeOutSec(value string, time int) {p.UpdateOneNodeDo(value,time);return p.GetTimeOutSec()}
 
 //触发超时的信号会在nodedobuilder发送
-func (p *BoolenNodeDo)TimeOut(){p.IsTimeOut =true}
-func (p *IntNodeDo)TimeOut(){p.IsTimeOut =true}
-func (p *FloatNodeDo)TimeOut(){p.IsTimeOut =true}
-func (p *CommonNodeDo)TimeOut(){p.IsTimeOut =true}
+func (p *BoolenNodeDo)JudgeTimeOut(){
+	if uint64(time.Now().Unix())-p.TimeUnixNano/1e9 >uint64(p.TimeOutSec){
+		p.IsTimeOut =true
+	}
+}
+
+func (p *IntNodeDo)JudgeTimeOut(){
+	if uint64(time.Now().Unix())-p.TimeUnixNano/1e9 >uint64(p.TimeOutSec){
+		p.IsTimeOut =true
+	}
+}
+
+func (p *FloatNodeDo)JudgeTimeOut(){
+	if uint64(time.Now().Unix())-p.TimeUnixNano/1e9 >uint64(p.TimeOutSec){
+		p.IsTimeOut =true
+	}
+}
+
+func (p *CommonNodeDo)JudgeTimeOut(){
+	if uint64(time.Now().Unix())-p.TimeUnixNano/1e9 >uint64(p.TimeOutSec){
+		p.IsTimeOut =true
+	}
+}
 
 
 
@@ -238,7 +260,7 @@ func (p *CommonNodeDo)GetJson()[]byte{data, _ := json.Marshal(p); return data}
 
 func (p *BoolenNodeDo)PrepareSMSAlarm()string{
 	if !p.IsNormal&&p.IsOnSMS{
-		return fmt.Sprintf("%s[发生异常时间为%s]", p.SMS, p.DateTime)
+		return fmt.Sprintf("%s[发生异常时间为%s]", p.SMS, time.Unix(int64(p.TimeUnixNano), 0).Format("2006-01-02 15:04:05.000,000,000"))
 	}else{
 		return ""
 	}
@@ -246,7 +268,7 @@ func (p *BoolenNodeDo)PrepareSMSAlarm()string{
 
 func (p *IntNodeDo)PrepareSMSAlarm()string{
 	if !p.IsNormal&&p.IsOnSMS{
-		return fmt.Sprintf("%s[发生异常时间为%s]", p.SMS, p.DateTime)
+		return fmt.Sprintf("%s[发生异常时间为%s]", p.SMS, time.Unix(int64(p.TimeUnixNano), 0).Format("2006-01-02 15:04:05.000,000,000"))
 	}else{
 		return ""
 	}
@@ -254,7 +276,7 @@ func (p *IntNodeDo)PrepareSMSAlarm()string{
 
 func (p *FloatNodeDo)PrepareSMSAlarm()string{
 	if !p.IsNormal&&p.IsOnSMS{
-		return fmt.Sprintf("%s[发生异常时间为%s]", p.SMS, p.DateTime)
+		return fmt.Sprintf("%s[发生异常时间为%s]", p.SMS, time.Unix(int64(p.TimeUnixNano), 0).Format("2006-01-02 15:04:05.000,000,000"))
 	}else{
 		return ""
 	}
@@ -263,7 +285,7 @@ func (p *FloatNodeDo)PrepareSMSAlarm()string{
 func (p *CommonNodeDo)PrepareSMSAlarm()string{
 	if !p.IsNormal1||!p.IsNormal2||!p.IsNormal3||!p.IsNormal4||!p.IsNormal5||!p.IsNormal6{
 		if p.IsOnSMS{
-			return fmt.Sprintf("%s[发生异常时间为%s]", p.SMS, p.DateTime)
+			return fmt.Sprintf("%s[发生异常时间为%s]", p.SMS, time.Unix(int64(p.TimeUnixNano), 0).Format("2006-01-02 15:04:05.000,000,000"))
 		}else{
 			return ""
 		}
@@ -275,24 +297,24 @@ func (p *CommonNodeDo)PrepareSMSAlarm()string{
 func (p *BoolenNodeDo)PrepareMYSQLAlarm(ae *mysql.Alarm){
 	ae.PresentSouthID =p.SouthId;        ae.PresentSouthBound =p.SouthBound
 	ae.Name =p.Name;        ae.RawStr =p.RawStr;         ae.FrontEndStr =p.FrontEndStr;        ae.Unit =p.Unit
-	ae.Content =fmt.Sprintf("%s[发生异常时间为%s]", p.SMS, p.DateTime)
+	ae.Content =fmt.Sprintf("%s[发生异常时间为%s]", p.SMS, time.Unix(int64(p.TimeUnixNano), 0).Format("2006-01-02 15:04:05.000,000,000"))
 }
 
 func (p *IntNodeDo)PrepareMYSQLAlarm(ae *mysql.Alarm){
 	ae.PresentSouthID =p.SouthId;        ae.PresentSouthBound =p.SouthBound
 	ae.Name =p.Name;        ae.RawStr =p.RawStr;         ae.FrontEndStr =p.FrontEndStr;        ae.Unit =p.Unit
-	ae.Content =fmt.Sprintf("%s[发生异常时间为%s]", p.SMS, p.DateTime)
+	ae.Content =fmt.Sprintf("%s[发生异常时间为%s]", p.SMS, time.Unix(int64(p.TimeUnixNano), 0).Format("2006-01-02 15:04:05.000,000,000"))
 }
 
 func (p *FloatNodeDo)PrepareMYSQLAlarm(ae *mysql.Alarm){
 	ae.PresentSouthID =p.SouthId;        ae.PresentSouthBound =p.SouthBound
 	ae.Name =p.Name;        ae.RawStr =p.RawStr;         ae.FrontEndStr =p.FrontEndStr;        ae.Unit =p.Unit
-	ae.Content =fmt.Sprintf("%s[发生异常时间为%s]", p.SMS, p.DateTime)
+	ae.Content =fmt.Sprintf("%s[发生异常时间为%s]", p.SMS, time.Unix(int64(p.TimeUnixNano), 0).Format("2006-01-02 15:04:05.000,000,000"))
 }
 
 func (p *CommonNodeDo)PrepareMYSQLAlarm(ae *mysql.Alarm){
 	ae.PresentSouthID =p.SouthId;        ae.PresentSouthBound =p.SouthBound
 	ae.Name =p.Name;        ae.RawStr =p.RawStr;         ae.FrontEndStr =p.FrontEndStr;        ae.Unit =p.Unit
-	ae.Content =fmt.Sprintf("%s[发生异常时间为%s]", p.SMS, p.DateTime)
+	ae.Content =fmt.Sprintf("%s[发生异常时间为%s]", p.SMS, time.Unix(int64(p.TimeUnixNano), 0).Format("2006-01-02 15:04:05.000,000,000"))
 }
 

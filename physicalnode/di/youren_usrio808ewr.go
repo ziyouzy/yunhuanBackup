@@ -2,9 +2,9 @@ package di
 
 import(
 	"strings"
-	"strconv"
+	//"strconv"
 	"fmt"
-	//"bytes"
+	"bytes"
 	//"encoding/binary"
 	"github.com/imroc/biu"
 )
@@ -12,123 +12,99 @@ import(
 type DI_YOUREN_USRIO808EWR_20200924 struct{
 	NodeType string
 	ProtocolType string
-
-	TimeUnixNano uint64
-	Raw []byte
-	//Mark string
-
-	//唯一标识，很重要，之后很多功能都需要通过他来实现
-	//如494f3031f10201,代表了IO01-主控-DO，之后在生成UINode时就需要用到他了
-	//在这一层只做一下简单的记录
 	Handler string
 	Tag string
-	//nodename为临时变量	
 
-	DI1 string 
-	DI2 string
-	DI3 string
-	DI4 string
-	DI5 string
-	DI6 string
-	DI7 string
-	DI8 string
+	TimeUnixNano uint64
+
+	Raw []byte
+	DI1 []byte 
+	DI2 []byte
+	DI3 []byte
+	DI4 []byte
+	DI5 []byte
+	DI6 []byte
+	DI7 []byte
+	DI8 []byte
 }
 
 func (p *DI_YOUREN_USRIO808EWR_20200924)FullOf(){
-	if strings.Contains(p.Value, "timeout"){
-		p.DI8 ="timeout"
-		p.DI7 ="timeout"
-		p.DI6 ="timeout"
-		p.DI5 ="timeout"
-		p.DI4 ="timeout"
-		p.DI3 ="timeout"
-		p.DI2 ="timeout"
-		p.DI1 ="timeout"
+	if bytes.Contains(p.Raw, []byte("timeout")){
+		p.DI8 =[]byte("timeout")
+		p.DI7 =[]byte("timeout")
+		p.DI6 =[]byte("timeout")
+		p.DI5 =[]byte("timeout")
+		p.DI4 =[]byte("timeout")
+		p.DI3 =[]byte("timeout")
+		p.DI2 =[]byte("timeout")
+		p.DI1 =[]byte("timeout")
 		return
 	}
 
-	if strings.Compare(p.Tag,"tcpsocket")==0&&strings.Index(p.Value,"494f")==0{
-		hex,err := strconv.ParseInt(p.Value[12:16],16,0)
-		if err ==nil{
-			tempStr :=string([]byte(strconv.FormatInt(hex,2)[1:]))
-			p.DI8 =string([]byte(tempStr)[0:1])
-			p.DI7 =string([]byte(tempStr)[1:2])
-			p.DI6 =string([]byte(tempStr)[2:3])
-			p.DI5 =string([]byte(tempStr)[3:4])
-			p.DI4 =string([]byte(tempStr)[4:5])
-			p.DI3 =string([]byte(tempStr)[5:6])
-			p.DI2 =string([]byte(tempStr)[6:7])
-			p.DI1 =string([]byte(tempStr)[7:8])
-			return
-		}
+	var binStr string
+	if bytes.Index(p.Raw,[]byte{0x49,0x4f})==0&&strings.Compare(p.Tag,"tcpsocket")==0{
+		fmt.Println("p.Raw:",p.Raw)
+		fmt.Println("p.Raw[7:8]:",p.Raw[7:8])
+		binStr =biu.BytesToBinaryString(p.Raw[7:8])
+		fmt.Println("binStr:",binStr)
+	}else if strings.Compare(p.Tag,"serial")==0{
+		binStr =biu.BytesToBinaryString(p.Raw[5:6])
 	}
 
-	if strings.Compare(p.Tag,"serial")==0{
-		hex,err := strconv.ParseInt(p.Value[8:12],16,0)
-		if err ==nil{
-			tempStr :=string([]byte(strconv.FormatInt(hex,2)[1:]))
-			p.DI8 =string([]byte(tempStr)[0:1])
-			p.DI7 =string([]byte(tempStr)[1:2])
-			p.DI6 =string([]byte(tempStr)[2:3])
-			p.DI5 =string([]byte(tempStr)[3:4])
-			p.DI4 =string([]byte(tempStr)[4:5])
-			p.DI3 =string([]byte(tempStr)[5:6])
-			p.DI2 =string([]byte(tempStr)[6:7])
-			p.DI1 =string([]byte(tempStr)[7:8])
-			return
-		}
+	if len(binStr) ==10{
+		//binStr[0]=="[
+		p.DI8 =append(p.DI8,binStr[1])
+		p.DI7 =append(p.DI7,binStr[2])
+		p.DI6 =append(p.DI6,binStr[3])
+		p.DI5 =append(p.DI5,binStr[4])
+		p.DI4 =append(p.DI4,binStr[5])
+		p.DI3 =append(p.DI3,binStr[6])
+		p.DI2 =append(p.DI2,binStr[7])
+		p.DI1 =append(p.DI1,binStr[8])
+		//binStr[9]=="]
+	}else{
+		//fmt.Println("len(binStr):",len(binStr),"binStr:",binStr,"binStr[0]:",binStr[0],"binStr[9]:",binStr[9],"binStr[1]:",binStr[1],"binStr[8]:",binStr[8])
+		p.DI8 = []byte("undefined")
+		p.DI7 = []byte("undefined")
+		p.DI6 = []byte("undefined")
+		p.DI5 = []byte("undefined")
+		p.DI4 = []byte("undefined")
+		p.DI3 = []byte("undefined")
+		p.DI2 = []byte("undefined")
+		p.DI1 = []byte("undefined")
 	}
-
-	p.DI8 = "undefined"
-	p.DI7 = "undefined"
-	p.DI6 = "undefined"
-	p.DI5 = "undefined"
-	p.DI4 = "undefined"
-	p.DI3 = "undefined"
-	p.DI2 = "undefined"
-	p.DI1 = "undefined"
+	//fmt.Println("p.DI8(string):",string(p.DI8),"p.DI7:",p.DI7,"p.DI6:",p.DI6,"p.DI5:",p.DI5,"p.DI4:",p.DI4,"p.DI3:",p.DI3,"p.DI2:",p.DI2,"p.DI1:",p.DI1)
 	return
 }
 
-// func (p *DI_YOUREN_USRIO808EWR_20200924)GetNodeType() string{
-// 	return p.NodeType
-// }
-
-// func (p *DI_YOUREN_USRIO808EWR_20200924)GetHandler() string{
-// 	return p.Handler
-// }
 
 func (p *DI_YOUREN_USRIO808EWR_20200924)SelectHandlerAndTag() (string,string){
 	return p.Handler, p.Tag
 }
 
-// func (p *DI_YOUREN_USRIO808EWR_20200924)GetRaw() (string,string,string,string,string,string,string){
-// 	return p.NodeType, p.ProtocolType, p.Tag, p.InputTime, p.Value, p.Mark, p.Handler
-// }
 
-func (p *DI_YOUREN_USRIO808EWR_20200924)SelectOneValueAndTime(nodedohandler string, nodedotag string, nodedoname string) (string,string){
-	if strings.Compare(p.Handler,nodedohandler)!=0||strings.Compare(p.Tag, nodedotag)!=0{
-		return "",""
-	}
-	//fmt.Println("p.Handler, p.Tag nice")
+
+func (p *DI_YOUREN_USRIO808EWR_20200924)SelectOneValueAndTimeUnixNano(nodedohandler string, nodedotag string, nodedoname string) ([]byte,uint64){
+	if strings.Compare(p.Handler,nodedohandler)!=0||strings.Compare(p.Tag, nodedotag)!=0{ return nil, 0 }
+
 	switch (nodedoname){
-	case "di8":
-		return p.DI8,p.InputTime
-	case "di7":
-		return p.DI7,p.InputTime
-	case "di6":
-		return p.DI6,p.InputTime
-	case "di5":
-		return p.DI5,p.InputTime
-	case "di4":
-		return p.DI4,p.InputTime
-	case "di3":
-		return p.DI3,p.InputTime
-	case "di2":
-		return p.DI2,p.InputTime
-	case "di1":
-		return p.DI1,p.InputTime
+	case "di8", "DI8":
+		return p.DI8,p.TimeUnixNano
+	case "di7", "DI7":
+		return p.DI7,p.TimeUnixNano
+	case "di6", "DI6":
+		return p.DI6,p.TimeUnixNano
+	case "di5", "DI5":
+		return p.DI5,p.TimeUnixNano
+	case "di4", "DI4":
+		return p.DI4,p.TimeUnixNano
+	case "di3", "DI3":
+		return p.DI3,p.TimeUnixNano
+	case "di2", "DI2":
+		return p.DI2,p.TimeUnixNano
+	case "di1", "DI1":
+		return p.DI1,p.TimeUnixNano
 	default :
-		return "",""
+		return nil, 0
 	}
 }

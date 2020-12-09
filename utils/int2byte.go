@@ -6,7 +6,7 @@ import(
 	"encoding/binary"
 )
 
-func IntToBytes(n int) []byte{}{
+func IntToBytes(n int) []byte{
 	x :=int64(n)
 	bytesBuffer := bytes.NewBuffer([]byte{})
 	binary.Write(bytesBuffer, binary.BigEndian, x)
