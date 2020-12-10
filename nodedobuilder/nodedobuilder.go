@@ -15,7 +15,6 @@ import(
 var builder *NodeDoBuilder 
 type NodeDoBuilder struct{
 	e Engine
-	//timeOutTriggerMap map[string]*time.Timer
 
 	TicketStep int
 	FlushTicket *time.Ticker
@@ -30,32 +29,6 @@ func LoadSingletonPattern(step int, sourcefromviper map[string]interface{}){buil
 func BuildNodeDoBuilder(step int,sourcefromviper map[string]interface{}) *NodeDoBuilder{
 	builder :=NodeDoBuilder{}
 	builder.e =NewEngine(sourcefromviper)
-	// builder.timeOutTriggerMap =make(map[string]*time.Timer)
-
-	// for key, nodedo :=range builder.e{
-	// 	timer :=time.NewTimer(time.Duration(nodedo.GetTimeOutSec()) * time.Second)//timeOutTriggerMap
-	// 	go func(){
-	// 		for{
-	// 			if nodedo ==nil{goto CLEANUP}//这里的break只是为了配合Quit()函数实现最后一个析构步骤,也就是只负责跳出这个循环而不负责当前nodedo所对应timer的销毁
-	// 			select{
-	// 			case <-timer.C:
-	// 				//只有一种情况nodedo会被销毁，那就是就的builder.e被销毁的时候，同时新的builder.e还未完成实例化，也就是json配置文档热更新的过程中
-	// 				//这个过程中也会先调用nodedobuilder.Quit()，该函数会销毁每一个nodedo所对应的timer的管道，从而实现解开在这里的引用
-	// 				nodedo.TimeOut(); timer.Reset(time.Duration(nodedo.GetTimeOutSec()) *time.Second)
-	// 			}
-	// 		}
-
-	// 		CLEANUP:
-	// 			if len(timer.C)>0{
-	// 				<-timer.C
-	// 			}
-	// 			timer.Stop()
-	// 			fmt.Println("nodedo.Timeout")
-
-	// 	}()
-	// 	//上边的NewEngine先实例化了builder.e，而timeOutTriggerMap的键名是从builder.e直接拿到的
-	// 	builder.timeOutTriggerMap[key] =timer
-	//}
 
 	builder.TicketStep =step
 	builder.lock =new(sync.Mutex)
@@ -119,7 +92,6 @@ func (p *NodeDoBuilder)Engineing(pn physicalnode.PhysicalNode){
 		//PhysicalNode.SelectOneValueAndTime返回值举例："value","time"
 		nodename :=strings.Split(k,"-")[2];    physicalBytesValue, physicalTimeUnixNano := pn.SelectOneValueAndTimeUnixNano(handler, tag, nodename)
 		p.e[k].UpdateOneNodeDo(string(physicalBytesValue), physicalTimeUnixNano)
-		//go p.timeOutTriggerMap[k].Reset(time.Duration(sec) *time.Second)
 	}
 	p.lock.Unlock()
 }
@@ -130,7 +102,7 @@ func (p *NodeDoBuilder)Quit(){
 	p.stopNodeCh <- true//只负责关闭返回给上层的NodeDoCh管道
 	p.lock.Lock()
 	for key, _ := range p.e{
-		/*在这里清空所有旧NodeDo，同时还不算完，map以及*/
+		/*在这里清空所有旧NodeDo，其实不用清空，只要不再有不引用只向这个结构体就行了*/
 		delete(p.e, key)
 	}
 	p.lock.Unlock()

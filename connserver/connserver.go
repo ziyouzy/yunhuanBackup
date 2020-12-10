@@ -22,7 +22,7 @@ var cs *ConnServer
 //他似乎也需要存在一个全局实体
 type ConnServer struct{
 	ConnClientMap map[string]con.Con
-	ServerRecvCh chan []byte //不需要额外设计close事件，而是与程序自身一起开启与关闭
+	RawCh chan []byte //不需要额外设计close事件，而是与程序自身一起开启与关闭
 }
 
 func ClientMap()map[string]con.Con{return cs.ClientMap()}
@@ -31,16 +31,25 @@ func (p *ConnServer)ClientMap()map[string]con.Con {
 }
 
 //返回的管道未设定消费者
-func LoadSingletonPatternRecvCh()chan []byte{cs=new(ConnServer);return cs.RecvCh()}
-func (p *ConnServer)RecvCh()chan []byte{
-	p.ServerRecvCh =make(chan []byte)
-	return p.ServerRecvCh
+// func LoadSingletonPatternRecvCh()chan []byte{cs=new(ConnServer);return cs.RecvCh()}
+// func (p *ConnServer)RecvCh()chan []byte{
+
+// 	return p.ServerRecvCh
+// }
+
+func LoadSingletonPatternListenAndCollect(){cs.ConnClientMap =make(map[string]con.Con);        cs.RawCh =make(chan []byte);        cs.ListenAndCollect()}
+func (p *ConnServer)ListenAndCollect(){
+	p.TcpListenAndCollect(":6668")
+	//p.InitSnmp(":161")
 }
 
-func LoadSingletonPatternListenAndCollect(){cs.ListenAndCollect()}
-func (p *ConnServer)ListenAndCollect(){
-	p.ConnClientMap =make(map[string]con.Con)
-	p.TcpRecvCh(":6668")
-	//p.SnmpRecvCh(":161")
-	//p.generateAndCollectUdpRecvCh(":6669")
+func Quit(){ cs.Quit() }
+func (p *ConnServer)Quit(){
+	defer close(RawCh)
+
+	for key, client := range p.ConnClientMap{
+		if client !=nil { p.ConnClientMap[key].Quit() }
+		delete(p.ConnClientMap,key)
+	}
+
 }

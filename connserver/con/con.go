@@ -19,18 +19,35 @@ const (
 
 type Con interface{
 	GenerateRecvCh() chan([]byte)
-	SendBytes([]byte)
+	sendBytes([]byte)
 	InitActiveEventSender([][]byte)
 }
 
-func NewTcpCon(c net.Conn, needcrc bool)(string,Con,int){
-	timeoutsec :=5
-	//now :=time.Now()
-	//c.SetReadDeadline(now.Add(time.Second * time.Duration(timeoutsec)))
-	return fmt.Sprintf("TCPCONN:%s",strings.Split(c.RemoteAddr().String(),":")[0]) , &TcpConn{Conn :c,NeedCRC :needcrc,},timeoutsec
+func NewTcpCon(c net.Conn, needcrc bool, conntimeout int)(string, Con, []byte chan, []byte chan){
+	
+	key :=fmt.Sprintf("TCPCONN:%s",strings.Split(tcpConn.Conn.RemoteAddr().String(),":")[0]
+	switch key{
+	case "TCPCONN:192.168.10.2":
+		tcpConn := &TcpConn{ Conn :c, NeedCRC :needcrc, }
+
+		if conntimeout >0        { tcpConn.Conn.SetReadDeadline(time.Dustion(conntimeout) * time.Second) }
+
+		tcpConn.GenerateRecvCh()
+		tcpConn.GenerateSendCh()
+		tcpConn.InitActiveEventSender()
+		return key,        tcpConn,        tcpConn.RecvCh,        nil
+
+	default:
+		tcpConn := &TcpConn{ Conn :c, NeedCRC :needcrc, }
+
+		if conntimeout >0        { tcpConn.Conn.SetReadDeadline(time.Dustion(conntimeout) * time.Second) }
+
+		tcpConn.GenerateRecvCh()
+		tcpConn.GenerateSendCh()
+		return key,        tcpConn,        tcpConn.RecvCh,        tcpConn.SendCh 
+	}
 }
 
-func NewSNMPCon(c *snmpgo.SNMP, ip string)(string,Con,int){
-	timeoutsec :=5
+func NewSNMPCon(c *snmpgo.SNMP, ip string, conntimeout int)(string, Con, int){
 	return fmt.Sprintf("SNMPCONN:%s",ip), &SnmpConn{SNMP :c,},timeoutsec
 }
