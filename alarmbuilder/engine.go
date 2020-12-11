@@ -53,15 +53,15 @@ type Engine struct{
 }
 
 
-func (p *Engine)JudgeOneNodeDo(nd nodedo.NodeDo) (bool,[]string,*mysql.Alarm){
+func (p *Engine)JudgeOneNodeDo(nd nodedo.NodeDo) (bool, []string, *mysql.Alarm){
 	amString := nd.PrepareSMSAlarm()
-	if amString ==""{
-		return true,nil,nil
-	}
+	if amString ==""{ return true,nil,nil }
+
 	var sms []string
 	for _, v := range p.e{
 		sms =append(sms,fmt.Sprintf(v,amString))
 	}
+	
 	alarm :=mysql.Alarm{}
 	nd.PrepareMYSQLAlarm(&alarm)
 	return false,sms,&alarm

@@ -13,7 +13,7 @@
 //对于上层，目前主要是alarm包和do包，在去考虑一个viper对象会生成几个alarmCache和nodedoCache对象
 //届时会用到功能与NewConfValueObjectMapByType相近的方法或函数，基于一个viper对象很可能会生成多个Cache对象
 //总之这也都是上一层需要去做的，而NewConfValueObjectMapByType很可能会变成SingleViper的方法之一，就不用再去单独设计依赖注入了
-package myvipers
+package viperbuilder
 
 import(
 	"fmt"
@@ -35,6 +35,7 @@ func Load(paths ...string) chan string{
 	return configischange
 }
 
+LoadSingletonPattern
 
 func AddSingleVipers(paths []string){
 	for _, p :=range paths{

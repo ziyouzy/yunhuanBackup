@@ -30,17 +30,15 @@ func (p *ConnServer)ClientMap()map[string]con.Con {
 	return p.ConnClientMap
 }
 
-//返回的管道未设定消费者
-// func LoadSingletonPatternRecvCh()chan []byte{cs=new(ConnServer);return cs.RecvCh()}
-// func (p *ConnServer)RecvCh()chan []byte{
-
-// 	return p.ServerRecvCh
-// }
-
 func LoadSingletonPatternListenAndCollect(){cs.ConnClientMap =make(map[string]con.Con);        cs.RawCh =make(chan []byte);        cs.ListenAndCollect()}
 func (p *ConnServer)ListenAndCollect(){
 	p.TcpListenAndCollect(":6668")
 	//p.InitSnmp(":161")
+}
+
+func RawCh()chan []byte{return cs.RawCh}
+func (p *ConnServer)RawCh()chan []byte{
+	return p.RawCh
 }
 
 func Quit(){ cs.Quit() }

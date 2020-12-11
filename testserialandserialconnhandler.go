@@ -10,6 +10,8 @@ import(
 	"github.com/ziyouzy/mylib/service"
 	//"github.com/ziyouzy/mylib/protocol"
 	"github.com/ziyouzy/mylib/conf"
+
+	"github.com/ziyouzy/mylib/connserver"
 	"github.com/ziyouzy/mylib/nodedobuilder"
 	"github.com/ziyouzy/mylib/physicalnode"
 	//"github.com/ziyouzy/mylib/connserver"
@@ -22,15 +24,8 @@ func main(){
 	fmt.Println("service start:")
 
 
-	rawCh :=service.RawCh()//rawCh的创建者a-b
-	service.ConnServerListenAndCollect()//rawCh的生产者
-
-
+	rawCh :=connserver.RawCh()
 	physicalNodeCh := physicalnode.RawChToPhysicalNodeCh(rawCh)//rawCh的消费者和physicalNodeCh的创建者和生产者a-b
-
-	
-	NodeDoCh =nodedobuilder.GenerateNodeDoCh()
-
 
 	go func(){
 		//只会负责实时维护内部的map[string]NodeDo类型
@@ -40,6 +35,12 @@ func main(){
 			nodedobuilder.Engineing(pn)
 		 }
 	}()
+
+	go func(){
+		for nodedo := range conf.NodeDoCh{
+			fmt.Println(nodedo)
+		}
+	}
 
 	//service.UpdateEveryExsitNodeDoTemplate(physicalNodeCh)//physiaclNodeCh的消费者
 	//nodeDoCh :=service.NodeDoCh()//nodeDoCh的创建和生产者a-b-?

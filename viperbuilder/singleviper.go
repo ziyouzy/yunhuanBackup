@@ -1,6 +1,6 @@
 //每个singleViper只会被new一次
 //之后都只是更新
-package myvipers
+package viperbuilder
 
 import(
 	"github.com/spf13/viper"

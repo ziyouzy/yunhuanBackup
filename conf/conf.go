@@ -33,6 +33,10 @@ func Load(){
 	//SingleViper是文件级的，个体拥有独立的chan bool管道，从而告诉上级json文档是否发生更新
 	//也就是说一个文件对应一个configischange的管道，因此在这里就可以实现点对点的触发机制
 	mysql.ConnectMySQL("yunhuan_api:13131313@tcp(127.0.0.1:3306)/yh?charset=utf8")
+	connserver.LoadSingletonPatternListenAndCollect()
+
+
+	
 	lock.Lock()
 	//myvipers可以独立的去自我实现更新
 	//Load所返回的管道是个独立的管道，实现了每个SingleViper的扇入汇总
