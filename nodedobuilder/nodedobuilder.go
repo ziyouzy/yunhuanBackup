@@ -105,11 +105,11 @@ func (p *NodeDoBuilder)Engineing(pnch physicalnode.PhysicalNode chan){
 	}()
 }
 
-func Quit(){builder.Quit()}
-func (p *NodeDoBuilder)Quit(){
+func Destory(){builder.Destory()}
+func (p *NodeDoBuilder)Destory(){
 	p.stopNodeCh <- true//只负责关闭返回给上层的NodeDoCh管道
 	close(p.stopNodeCh) 
-	
+
 	p.lock.Lock()
 	for key, _ := range p.e{
 		/*在这里清空所有旧NodeDo，其实不用清空，只要不再有不引用只向这个结构体就行了*/

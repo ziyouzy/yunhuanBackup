@@ -100,7 +100,7 @@ func (p *AlarmBuilder)newMYSQLTimer(){
 				if stop { goto CLEANUP}
 			}
 		}
-		
+
 		CLEANUP:
 		//跳出for循环可确保再没有指针指向这个管道，下面这句确保管道内的数据排空
 		//从而在Stop()后实现有效的内存回收
@@ -160,8 +160,8 @@ func(p *AlarmBuilder)GenerateMYSQLAlarmCh(){
 	p.MYSQLAlarmCh =make(chan *mysql.Alarm)
 }
 
-func Quit(){builder.Quit()}
-func (p *AlarmBuilder)Quit(){
+func Destory(){builder.Destory()}
+func (p *AlarmBuilder)Destory(){
 	p.mysqlTimerStop<-true//对应的计时器被销毁之后会立刻defer close该管道，因此就不用在这里close了
 	p.smsTimerStop<-true//对应的计时器被销毁之后会立刻defer close该管道，因此就不用在这里close了
 	close(p.smsAlarmCh)//是为了返回给上层关闭事件

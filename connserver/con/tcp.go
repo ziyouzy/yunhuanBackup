@@ -27,7 +27,7 @@ func (p *TcpConn)GenerateRecvCh(){
 	p.RecvCh := make(chan []byte)
 	go func (){
 
-		defer func(){if p.Conn !=nil { p.Quit();        fmt.Println("有p.Conn意外断开了") }}() //主要是方式意外退出，quit函数会让p.Conn ==nil
+		defer func(){if p.Conn !=nil { p.Destory();        fmt.Println("有p.Conn意外断开了") }}() //主要是方式意外退出，quit函数会让p.Conn ==nil
 
 		byteSpoon := make([]byte, 4096);        recvBuffer :=bytes.NewBuffer([]byte{})
 
@@ -114,7 +114,7 @@ func (p *TcpConn)quitActiveEventSender(){
 	}()
 }
 
-func (p *TcpConn)Quit(){
+func (p *TcpConn)Destory(){
 	defer func(){ if p.Conn !=nil { p.Conn.Close() }()
 
 	p.quitActiveEventSender()

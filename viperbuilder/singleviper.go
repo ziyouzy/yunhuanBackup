@@ -1,5 +1,5 @@
-//每个singleViper只会被new一次
-//之后都只是更新
+//每个singleViper只会被new一次，监听到文件被修改后会立刻通过v.ReadInConfig()更新，同时向上层汇报更新的文件路径名称
+//一个singleViper对应了一个json的文本文件/路径
 package viperbuilder
 
 import(
@@ -25,12 +25,14 @@ func BuildSingleViper(namewithpathandsuffix string)*SingleViper{
 	v.SetConfigType(suffix)//json yarm
 
 	err := v.ReadInConfig() // 搜索路径，并读取配置数据
+
 	if err == nil {
 		sv :=SingleViper{
 			NameWithPathAndSuffix: namewithpathandsuffix,
 			Name : name,
 			Path : path,
 			Suffix :suffix,
+
 			V:v,
 		}
 
@@ -50,17 +52,18 @@ type SingleViper struct{
 	Suffix string
 
 	V *viper.Viper
-	OneViperConfigIsChangeAndUpdateFinishCh chan string
+	OneViperConfigChangedCh chan string
 }
 
 func (p *SingleViper)watching() {
 	p.V.WatchConfig()
 	p.V.OnConfigChange(func(e fsnotify.Event) {
 		fmt.Println("Config file changed:", e.Name)
+
 		err := p.V.ReadInConfig() // 搜索路径，并读取配置数据
+
 		if err == nil {
-			p.OneViperConfigIsChangeAndUpdateFinishCh <-p.NameWithPathAndSuffix
-			close(p.OneViperConfigIsChangeAndUpdateFinishCh)
+			p.OneViperConfigChangedCh <-p.NameWithPathAndSuffix
 			fmt.Println("Success reset config file")
 			return
 		}else{
@@ -68,6 +71,10 @@ func (p *SingleViper)watching() {
 			return
 		}
 	})
+}
+
+func (p *SingleViper)Destory(){
+	close(p.OneViperConfigChangedCh)
 }
 
 

@@ -41,12 +41,12 @@ func (p *ConnServer)RawCh()chan []byte{
 	return p.RawCh
 }
 
-func Quit(){ cs.Quit() }
-func (p *ConnServer)Quit(){
+func Destory(){ cs.Destory() }
+func (p *ConnServer)Destory(){
 	defer close(RawCh)
 
 	for key, client := range p.ConnClientMap{
-		if client !=nil { p.ConnClientMap[key].Quit() }
+		if client !=nil { p.ConnClientMap[key].Destory() }
 		delete(p.ConnClientMap,key)
 	}
 

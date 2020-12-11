@@ -36,7 +36,7 @@ func Load(){
 	connserver.LoadSingletonPatternListenAndCollect()
 
 
-	
+
 	lock.Lock()
 	//myvipers可以独立的去自我实现更新
 	//Load所返回的管道是个独立的管道，实现了每个SingleViper的扇入汇总
@@ -64,8 +64,8 @@ func Watching(Confofwidgets_testIsChange chan string){
 			switch changed{
 			case "./widgetsonlyserver.json":
 				lock.Lock()
-				nodedobuilder.Quit()
-				alarmbuilder.Quit()
+				nodedobuilder.Destory()
+				alarmbuilder.Destory()
 
 				nodedobuilder.LoadSingletonPattern(1, myvipers.SelectOneMap("./widgetsonlyserver.json", "test_mainwidget.nodes"))
 				alarmbuilder.LoadSingletonPattern(myvipers.SelectOneMap("./widgetsonlyserver.json", "test_mainwidget.alarms.tty1-serial"))

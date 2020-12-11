@@ -1,66 +1,75 @@
-//viper是可以初始化多个的:
-//testMainWidgetViper =viper.New()
-//testMainWidgetViper.SetConfigName("widgets_test")等完成初始化
-//之后就是使用了：
-//和当前的区别在于，NewConfValueObjectMapByType()的参数表必须传入type和testMainWidgetViper作为依赖注入
-//从而生成独立的缓存，供上层使用
-//这个包需要重构，从viper过渡到vippers
-//从而让他适应3个应用场景：
-//1.存在多个.json文件
-//2.一个viper对应一个矩阵级设备
-//3.某个viper所在的json被改动时，立刻更新
-//一个viper对应了一个文本文件，核心任务是监听该文件的修改并更新相关上层对象
-//对于上层，目前主要是alarm包和do包，在去考虑一个viper对象会生成几个alarmCache和nodedoCache对象
-//届时会用到功能与NewConfValueObjectMapByType相近的方法或函数，基于一个viper对象很可能会生成多个Cache对象
-//总之这也都是上一层需要去做的，而NewConfValueObjectMapByType很可能会变成SingleViper的方法之一，就不用再去单独设计依赖注入了
+//对象所维护的vipers map的底层会实时更新所对应的SingleViper
+//一旦ConfigIsChange触发文件发生改变也不必惊慌，在ViperBuilder这一层不需要做任何事
+//但是他的上层，如nodedobuilder则需要switch一下ConfigIsChange里所传来的路径名，从而判断其自身是否需要进行相应的底层数据更新
 package viperbuilder
 
 import(
 	"fmt"
 )
 
-//通过Load函数来初始化的情况下，每个SingleViper一旦实例化就会自动更新
-var (
+var *builder ViperBuilder
+type ViperBuilder struct{
 	vipers map[string]*SingleViper
-	configischange chan string
-)
-
-//只设计两种情况：要么是绝对路径，要么是根目录
-func Load(paths ...string) chan string{
-	vipers =make(map[string]*SingleViper)
-	configischange :=make(chan string)
-
-	AddSingleVipers(paths)
-
-	return configischange
+	ConfigIsChange chan string
 }
 
-LoadSingletonPattern
+func LoadSingletonPattern(paths ...string){builder = BuildSingleViper(paths)}
+func BuildViperBuilder(paths []string)*ViperBuilder{
+	builder :=ViperBuilder{}
+	builder.vipers =make(map[string]*SingleViper)
+	builder.configischange :=make(chan string)
 
-func AddSingleVipers(paths []string){
+	builder.AddSingleVipers(paths)
+
+	return &builder
+}
+
+func (p *ViperBuilder)AddSingleVipers(paths []string){
 	for _, p :=range paths{
 		if sv :=BuildSingleViper(p); sv!=nil{
 			vipers[p] =sv
-			go func(p string){
-				//可以写一些退出逻辑,sv.OneViperConfigIsChangeAndUpdateFinishCh是个一次性管道
-				defer delete(vipers,p)
+			go func(){
+				//底层OneViperConfigIsChangeAndUpdateFinishCh管道是不会关闭的
+				//因为当文件改变时，SingleViper只会进行更新操作，而不是重新创建
+				//除非某些情况下主动调用SingleViper.Destory()
 				for changedJSONName := range sv.OneViperConfigIsChangeAndUpdateFinishCh{
-					configischange<-changedJSONName
+					ConfigIsChange<-changedJSONName
 				}
-			}(p)
+			}()
 		}else{	
 			fmt.Println("您设置的json路径[",p,"]格式错误，只支持绝对路径与根目录两种模式")
 		}
 	}
 }
 
-func SelectOneMap(path string, key string)map[string]interface{}{
-	m :=vipers[path].V.Get(key)
+func (p *ViperBuilder)SelectOneMapFromOneSingleViper(singleviperpath string, keyofmap string)map[string]interface{}{
+	m :=vipers[singleviperpath].V.Get(keyofmap)
 	if value, ok :=m.(map[string]interface{});ok{
 		return value
 	}else{
-		fmt.Println("SelectOneMap fail, path is:", path,"key is:",key)
+		fmt.Println("SelectOneMap fail, path is:", singleviperpath,"key is:",keyofmap)
 		return nil
+	}
+}
+
+func (p *ViperBuilder)DeleteOneSingleViper(singleviperpath string){
+	p.vipers[singleviperpath].Destory()
+
+	if _, exist := p.vipers[singleviperpath]; exist{ delete(p.vipers, singleviperpath) }
+}
+
+
+//不需要这个方法，写出来只是为了强调OneMapFromOneSingleVipe与OneSingleViper是完全不同的两个东西
+//func (p *ViperBuilder)DeleteOneMapFromOneSingleVipe(){}
+
+
+func Destory()
+func (p *ViperBuilder)Destory(){
+	close(configischange)
+	for key,_ := range p.vipers{
+		p.vipers[key].Destory()
+
+		if _, exist := p.vipers[key]; exist{ delete(p.vipers, key) }
 	}
 }
 
