@@ -29,7 +29,7 @@ type BoolenNodeDo struct{
 
 	IsNormal bool //由UpdateOneNodeDo方法实时更新
 	//Condition:条件-该字段描述正常所需满足的条件值 
-	ConditionValue bool `json:"-"`//从json配置文档获取
+	ConditionValue int `json:"-"`//从json配置文档获取
 	//UpdateOneNodeDo方法内会基于后端正异常逻辑所判断出的结果，生成对应的值，前端拿到后也可以忽略这个字段，而是结合其他字段去设计逻辑，自定义显示的值
 	FrontEndStr string//由UpdateOneNodeDo方法实时更新
 
@@ -143,8 +143,8 @@ func (p *BoolenNodeDo)UpdateOneNodeDo(value string,time uint64){
 	}
 
 	p.IsNormal =false; p.RawStr =value;p.FrontEndStr ="异常"
-	if (i ==0&&p.ConditionValue==false){p.FrontEndStr ="正常"; p.IsNormal =true}
-	if (i ==1&&p.ConditionValue==true){p.FrontEndStr ="正常"; p.IsNormal =true}
+	if (i == p.ConditionValue){p.FrontEndStr ="正常"; p.IsNormal =true}
+	//if (i ==1&&p.ConditionValue==true){p.FrontEndStr ="正常"; p.IsNormal =true}
 	return
 }
 

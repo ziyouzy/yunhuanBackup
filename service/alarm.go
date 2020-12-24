@@ -11,7 +11,7 @@ import(
 
 //是个在主函数中需要放在生产者之前的消费者
 func ActionAlarmMYSQLCreater(){
-	ch :=alarmbuilder.GenerateMYSQLAlarmCh()
+	ch :=alarmbuilder.GetMYSQLAlarmCh()
 	go func(){
 	 	for alarm := range ch{
 	 		_ =alarm
@@ -23,7 +23,7 @@ func ActionAlarmMYSQLCreater(){
 
 //是个在主函数中需要放在生产者之前的消费者
 func ActionAlarmSMSSender(){
-	ch := alarmbuilder.GenerateSMSbyteCh()
+	ch := alarmbuilder.GetSMSbyteCh()
 	go func(){
 	 	for b := range ch{
 			 bb :=b
@@ -36,6 +36,6 @@ func ActionAlarmSMSSender(){
 //NodeDoCh的子携程消费者
 //Filter实现了NodeDoCh的子线程消费，以及AlarmSMSbyteCh、AlarmMYSQLEntityCh、chan bool的生产
 func ActionAlarmFiler(ndch chan nodedo.NodeDo){
-	alarmbuilder.Filter(ndch)
+	alarmbuilder.StartFilter(ndch)
 }
 

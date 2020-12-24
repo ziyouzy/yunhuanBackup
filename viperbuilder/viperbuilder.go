@@ -7,33 +7,45 @@ import(
 	"fmt"
 )
 
-var *builder ViperBuilder
+var builder *ViperBuilder
 type ViperBuilder struct{
 	vipers map[string]*SingleViper
 	ConfigIsChange chan string
 }
 
-func LoadSingletonPattern(paths ...string){builder = BuildSingleViper(paths)}
+func Load(paths ...string){
+	var i  interface{};    i =paths
+
+	if res, ok :=i.(string);        ok{ builder = BuildViperBuilder([]string{res,});        return }
+
+	if res, ok :=i.([]string);        ok{ builder = BuildViperBuilder(res);        return }
+
+	fmt.Println("执行ViperBuilder.Load()时监测到配置文件路径填写错误")
+}
+
 func BuildViperBuilder(paths []string)*ViperBuilder{
 	builder :=ViperBuilder{}
 	builder.vipers =make(map[string]*SingleViper)
-	builder.configischange :=make(chan string)
+	builder.ConfigIsChange =make(chan string)
 
 	builder.AddSingleVipers(paths)
 
 	return &builder
 }
 
+func ConfigListener()chan string{return builder.ConfigListener()}
+func (p *ViperBuilder)ConfigListener()chan string{return p.ConfigIsChange}
+
 func (p *ViperBuilder)AddSingleVipers(paths []string){
-	for _, p :=range paths{
-		if sv :=BuildSingleViper(p); sv!=nil{
-			vipers[p] =sv
+	for _, path :=range paths{
+		if sv :=BuildSingleViper(path); sv!=nil{
+			p.vipers[path] =sv
 			go func(){
 				//底层OneViperConfigIsChangeAndUpdateFinishCh管道是不会关闭的
 				//因为当文件改变时，SingleViper只会进行更新操作，而不是重新创建
 				//除非某些情况下主动调用SingleViper.Destory()
-				for changedJSONName := range sv.OneViperConfigIsChangeAndUpdateFinishCh{
-					ConfigIsChange<-changedJSONName
+				for changedJSONName := range sv.OneViperConfigChangedCh{
+					p.ConfigIsChange<-changedJSONName
 				}
 			}()
 		}else{	
@@ -42,8 +54,9 @@ func (p *ViperBuilder)AddSingleVipers(paths []string){
 	}
 }
 
+func SelectOneMapFromOneSingleViper(singleviperpath string, keyofmap string)map[string]interface{} { return builder.SelectOneMapFromOneSingleViper(singleviperpath, keyofmap)}
 func (p *ViperBuilder)SelectOneMapFromOneSingleViper(singleviperpath string, keyofmap string)map[string]interface{}{
-	m :=vipers[singleviperpath].V.Get(keyofmap)
+	m :=p.vipers[singleviperpath].V.Get(keyofmap)
 	if value, ok :=m.(map[string]interface{});ok{
 		return value
 	}else{
@@ -63,9 +76,9 @@ func (p *ViperBuilder)DeleteOneSingleViper(singleviperpath string){
 //func (p *ViperBuilder)DeleteOneMapFromOneSingleVipe(){}
 
 
-func Destory()
+func Destory(){builder.Destory()}
 func (p *ViperBuilder)Destory(){
-	close(configischange)
+	close(p.ConfigIsChange)
 	for key,_ := range p.vipers{
 		p.vipers[key].Destory()
 

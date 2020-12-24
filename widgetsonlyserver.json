@@ -33,7 +33,7 @@
                 "timeoutsec":120,
 
                 "isnormal":false,
-                "conditionvalue":0,
+                "conditionvalue":1,
                 "frontendstr":"N/A",
 
                 "sms":"烟感异常",
@@ -77,7 +77,7 @@
                 "timeoutsec":120,
 
                 "isnormal":false,
-                "conditionvalue":9,
+                "conditionvalue":1,
                 "frontendstr":"N/A",
     
                 "sms":"烟感异常",

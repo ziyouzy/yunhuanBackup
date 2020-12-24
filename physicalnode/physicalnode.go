@@ -17,6 +17,8 @@ import (
 	"github.com/ziyouzy/mylib/physicalnode/do"
 )
 
+var PhysicalNodeCh chan  PhysicalNode
+
 type  PhysicalNode interface{
 	FullOf()
 	SelectHandlerAndTag() (string,string)
@@ -59,16 +61,15 @@ func NewPhysicalNodeFromBytes(char []byte, tag string, protocolnodetype string) 
 	}//switch (nodeType)
 }
 
-func RawChToPhysicalNodeCh(rawch chan []byte)chan PhysicalNode{
-	physicalnodech :=make(chan PhysicalNode)
+func RawChToPhysicalNodeCh(rawch chan []byte){
+	PhysicalNodeCh =make(chan PhysicalNode)
 	go func(){
-		defer close(physicalnodech)
+		defer close(PhysicalNodeCh)
 		for raw := range rawch{
 			physicalNode :=buildPhysicalNode_PROTOCOLYUNHUAN20200924(raw)
-			physicalnodech<-physicalNode
+			PhysicalNodeCh<-physicalNode
 		}
 	}()
-	return physicalnodech
 }
 
 

@@ -36,7 +36,7 @@ func BuildSingleViper(namewithpathandsuffix string)*SingleViper{
 			V:v,
 		}
 
-		sv.OneViperConfigIsChangeAndUpdateFinishCh =make(chan string)
+		sv.OneViperConfigChangedCh =make(chan string)
 		sv.watching()
 		return &sv
 	}else{

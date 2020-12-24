@@ -33,7 +33,7 @@ type AlarmBuilder struct{
 	e *Engine
 }
 
-func LoadSingletonPattern(sourcefromviper map[string]interface{}){builder =BuildAlarmBuilder(sourcefromviper)}
+func Load(sourcefromviper map[string]interface{}){builder =BuildAlarmBuilder(sourcefromviper)}
 //这里模仿了time包的NewTimer的设计模式，New出来的对象生命周期很可能为主函数
 func BuildAlarmBuilder(sourcefromviper map[string]interface{}) *AlarmBuilder{
 	builder := AlarmBuilder{}
@@ -149,21 +149,23 @@ func(p *AlarmBuilder)GenerateSMSbyteCh(){
 
 	p.SMSAlarmCh =make(chan []byte)
 }
+func GetSMSbyteCh()chan []byte{ return builder.SMSAlarmCh }
 
 //当前未设定消费者
 func GenerateMYSQLAlarmCh(){builder.GenerateMYSQLAlarmCh()}
 func(p *AlarmBuilder)GenerateMYSQLAlarmCh(){
-	if p.mysqlAlarmCh !=nil{
-		close(p.mysqlAlarmCh)
+	if p.MYSQLAlarmCh !=nil{
+		close(p.MYSQLAlarmCh)
 	}
 
 	p.MYSQLAlarmCh =make(chan *mysql.Alarm)
 }
+func GetMYSQLAlarmCh()chan *mysql.Alarm{ return builder.MYSQLAlarmCh }
 
 func Destory(){builder.Destory()}
 func (p *AlarmBuilder)Destory(){
 	p.mysqlTimerStop<-true//对应的计时器被销毁之后会立刻defer close该管道，因此就不用在这里close了
 	p.smsTimerStop<-true//对应的计时器被销毁之后会立刻defer close该管道，因此就不用在这里close了
-	close(p.smsAlarmCh)//是为了返回给上层关闭事件
-	close(p.mysqlAlarmCh)//是为了返回给上层关闭事件
+	close(p.SMSAlarmCh)//是为了返回给上层关闭事件
+	close(p.MYSQLAlarmCh)//是为了返回给上层关闭事件
 }

@@ -9,42 +9,42 @@ service很可能会分为北向与南向因此service包内的函数命名规则
 package service
 
 import(
-	"time"
+	//"time"
 	//"fmt"
 
-	"github.com/ziyouzy/mylib/connserver"
+	//"github.com/ziyouzy/mylib/connserver"
 )
-func TickerSendModbusToNouthBound_RangeTest(){
-	modbusMatrix0 := [][]byte{
-		{0xf1,0x01,0x00,0x00,0x00,0x08,0x29,0x3c,},
-		{0xf1,0x02,0x00,0x20,0x00,0x08,0x6c,0xf6,},
-	}
-	time.Sleep(5*time.Second)
+// func TickerSendModbusToNouthBound_RangeTest(){
+// 	modbusMatrix0 := [][]byte{
+// 		{0xf1,0x01,0x00,0x00,0x00,0x08,0x29,0x3c,},
+// 		{0xf1,0x02,0x00,0x20,0x00,0x08,0x6c,0xf6,},
+// 	}
+// 	time.Sleep(5*time.Second)
 	
-	client :=connserver.ClientMap()["TCPCONN:192.168.10.2"]
+// 	client :=connserver.ClientMap()["TCPCONN:192.168.10.2"]
 
-	for{
-		for _,modbus := range modbusMatrix0{
-			client.SendBytes(modbus)
-			time.Sleep(5*time.Millisecond)
-		}
-	}
-}
+// 	for{
+// 		for _,modbus := range modbusMatrix0{
+// 			client.SendBytes(modbus)
+// 			time.Sleep(5*time.Millisecond)
+// 		}
+// 	}
+// }
 
-func TickerSendModbusToNouthBound(step int){	
-	modbusMatrix0 := [][]byte{
-		{0xf1,0x01,0x00,0x00,0x00,0x08,0x29,0x3c,},
-		{0xf1,0x02,0x00,0x20,0x00,0x08,0x6c,0xf6,},
-	}
-	time.Sleep(5*time.Second)
+// func TickerSendModbusToNouthBound(step int){	
+// 	modbusMatrix0 := [][]byte{
+// 		{0xf1,0x01,0x00,0x00,0x00,0x08,0x29,0x3c,},
+// 		{0xf1,0x02,0x00,0x20,0x00,0x08,0x6c,0xf6,},
+// 	}
+// 	time.Sleep(5*time.Second)
 
-	client :=connserver.ClientMap()["TCPCONN:192.168.10.2"]
-	for i :=0;i<=2;i++{
-		if i==2{i=0}
-		client.SendBytes(modbusMatrix0[i])
-		time.Sleep(5*time.Millisecond)
-	}
-}
+// 	client :=connserver.ClientMap()["TCPCONN:192.168.10.2"]
+// 	for i :=0;i<=2;i++{
+// 		if i==2{i=0}
+// 		client.SendBytes(modbusMatrix0[i])
+// 		time.Sleep(5*time.Millisecond)
+// 	}
+// }
 
 
 

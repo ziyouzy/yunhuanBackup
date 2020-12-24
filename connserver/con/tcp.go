@@ -17,14 +17,14 @@ type TcpConn struct{
 	NeedCRC bool
 	QuitActiveEventSender chan bool
 
-	RecvCh chan byte
-	SendCh chan byte
+	RecvCh chan []byte
+	SendCh chan []byte
 }
 
 //无法给这里设计单例模式，因为就算把他与handler分离设计成独立的package
 //引入这个包后，每当有新client连接就要执行这个方法、以及上面的NewPipelineTcpSocketConn
 func (p *TcpConn)GenerateRecvCh(){
-	p.RecvCh := make(chan []byte)
+	p.RecvCh = make(chan []byte)
 	go func (){
 
 		defer func(){if p.Conn !=nil { p.Destory();        fmt.Println("有p.Conn意外断开了") }}() //主要是方式意外退出，quit函数会让p.Conn ==nil
@@ -54,7 +54,7 @@ func (p *TcpConn)GenerateRecvCh(){
 			ip :=[]byte(p.Conn.RemoteAddr().String());        tag :=[]byte("tcpsocket")
 			timeStamp :=make([]byte,8);        binary.BigEndian.PutUint64(timeStamp, uint64(time.Now().UnixNano()))			
 
-			recvBuffer.Reset();        _,_ = buffer.Write(ip);        _,_ = buffer.Write([]byte(" /-/ "));        _,_ = buffer.Write(timeStamp);
+			recvBuffer.Reset();        _,_ = recvBuffer.Write(ip);        _,_ = recvBuffer.Write([]byte(" /-/ "));        _,_ = recvBuffer.Write(timeStamp);
 			 _,_ = recvBuffer.Write([]byte(" /-/ "));       _,_ = recvBuffer.Write(tag);        _,_ = recvBuffer.Write([]byte(" /-/ "));         _,_ = recvBuffer.Write(tempBuf)  
 
 			if !p.NeedCRC{ p.RecvCh <-recvBuffer.Bytes();        continue }
@@ -73,10 +73,10 @@ func (p *TcpConn)GenerateRecvCh(){
 
 
 func (p *TcpConn)GenerateSendCh(){
-	p.SendCh := make(chan []byte)
+	p.SendCh = make(chan []byte)
 	go func (){
-		for b := p.SendCh{
-			sendBytes(b)
+		for b := range p.SendCh{
+			p.sendBytes(b)
 		}
 	}()
 }
@@ -97,7 +97,7 @@ func (p *TcpConn)InitActiveEventSender(modbus [][]byte, step int){
 			default:
 			}
 			if i==l{ i=0 }
-			p.SendCh(modbus[i])
+			p.SendCh<-modbus[i]
 			time.Sleep(time.Duration(step)*time.Millisecond)
 		}
 
@@ -115,7 +115,7 @@ func (p *TcpConn)quitActiveEventSender(){
 }
 
 func (p *TcpConn)Destory(){
-	defer func(){ if p.Conn !=nil { p.Conn.Close() }()
+	defer func(){ if p.Conn !=nil { p.Conn.Close()} }()
 
 	p.quitActiveEventSender()
 	close(p.SendCh)

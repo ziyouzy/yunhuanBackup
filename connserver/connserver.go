@@ -22,7 +22,7 @@ var cs *ConnServer
 //他似乎也需要存在一个全局实体
 type ConnServer struct{
 	ConnClientMap map[string]con.Con
-	RawCh chan []byte //不需要额外设计close事件，而是与程序自身一起开启与关闭
+	FanInRawCh chan []byte //不需要额外设计close事件，而是与程序自身一起开启与关闭
 }
 
 func ClientMap()map[string]con.Con{return cs.ClientMap()}
@@ -30,20 +30,20 @@ func (p *ConnServer)ClientMap()map[string]con.Con {
 	return p.ConnClientMap
 }
 
-func LoadSingletonPatternListenAndCollect(){cs.ConnClientMap =make(map[string]con.Con);        cs.RawCh =make(chan []byte);        cs.ListenAndCollect()}
+func ListenAndCollect(){cs = new(ConnServer);        cs.ConnClientMap =make(map[string]con.Con);        cs.FanInRawCh =make(chan []byte);        cs.ListenAndCollect()}
 func (p *ConnServer)ListenAndCollect(){
 	p.TcpListenAndCollect(":6668")
 	//p.InitSnmp(":161")
 }
 
-func RawCh()chan []byte{return cs.RawCh}
+func RawCh()chan []byte{return cs.RawCh()}
 func (p *ConnServer)RawCh()chan []byte{
-	return p.RawCh
+	return p.FanInRawCh
 }
 
 func Destory(){ cs.Destory() }
 func (p *ConnServer)Destory(){
-	defer close(RawCh)
+	defer close(p.FanInRawCh)
 
 	for key, client := range p.ConnClientMap{
 		if client !=nil { p.ConnClientMap[key].Destory() }

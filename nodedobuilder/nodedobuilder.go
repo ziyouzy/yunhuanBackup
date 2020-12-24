@@ -26,7 +26,7 @@ type NodeDoBuilder struct{
 }
 
 
-func LoadSingletonPattern(step int, sourcefromviper map[string]interface{}){builder =BuildNodeDoBuilder(step, sourcefromviper)}
+func Load(step int, sourcefromviper map[string]interface{}){builder =BuildNodeDoBuilder(step, sourcefromviper)}
 //这里模仿了time包的NewTimer的设计模式，New出来的对象生命周期为主函数
 func BuildNodeDoBuilder(step int,sourcefromviper map[string]interface{}) *NodeDoBuilder{
 	builder :=NodeDoBuilder{}
@@ -40,12 +40,12 @@ func BuildNodeDoBuilder(step int,sourcefromviper map[string]interface{}) *NodeDo
 
 
 //json文档改变后需要从新获得该管道
-func GenerateNodeDoCh()chan nodedo.NodeDo{return builder.GenerateNodeDoCh()}
+func GenerateNodeDoCh(){builder.GenerateNodeDoCh()}
 //结合定时器生成NodeDo管道，里面的每个NodeDo都是最终的结果
 //上层会基于这一结果进行告警判定，以及用字符串的形式发送字节数组给前端的操作
-func (p *NodeDoBuilder)GenerateNodeDoCh()chan nodedo.NodeDo{
+func (p *NodeDoBuilder)GenerateNodeDoCh(){
 	p.FlushTicket =time.NewTicker(time.Duration(p.TicketStep) * time.Second)
-	p.NodeDoCh := make(chan nodedo.NodeDo)
+	p.NodeDoCh = make(chan nodedo.NodeDo)
 	//ticker的消费者与ch的生产者都在这个子携程中
 	//ticker在NewTicker的同时，其自身就是生产者，所以消费者必然在其之后
 	//select是ch的生产者，消费者会在上层实现
@@ -57,7 +57,7 @@ func (p *NodeDoBuilder)GenerateNodeDoCh()chan nodedo.NodeDo{
 				p.lock.Lock()
 				for _,v := range p.e{
 					v.JudgeTimeOut()
-					p.nodeDoCh <-v
+					p.NodeDoCh <-v
 				}
 				p.lock.Unlock()
 
@@ -74,17 +74,17 @@ func (p *NodeDoBuilder)GenerateNodeDoCh()chan nodedo.NodeDo{
 			fmt.Println("清空nodedobuilder.FlushTicker.C管道中的残留内容：",<-p.FlushTicket.C)
 		}
 		p.FlushTicket.Stop()  
-		close(p.nodeDoCh)
+		close(p.NodeDoCh)
 	}()
-	return nodeDoCh
 }
+func GetNodeDoCh()chan nodedo.NodeDo{ return builder.NodeDoCh }
 
 
 //运行该函数前，需确保结构体内部的engine字段以实例化（p.e即为engine）
-func Engineing(pnch physicalnode.PhysicalNode chan){builder.Engineing(pnch)}
+func Engineing(pnch chan physicalnode.PhysicalNode){ builder.Engineing(pnch) }
 //Engine是个map，key 举例: "494f3031f10201-tcpsocket-do3-bool"，而value则是实实在在的NodeDo
 //Engineing函数的意义在于基于获取PhysicalNode节点所发来的频率更新核心map
-func (p *NodeDoBuilder)Engineing(pnch physicalnode.PhysicalNode chan){
+func (p *NodeDoBuilder)Engineing( pnch chan physicalnode.PhysicalNode ){
 	go func(){
 		for pn :=range pnch{
 			//PhysicalNode.SelectHandlerAndTage返回值举例："494f3031f10201","tcpsocket"
