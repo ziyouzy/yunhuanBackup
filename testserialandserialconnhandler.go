@@ -8,7 +8,7 @@ import(
 	//"github.com/ziyouzy/mylib/tcp"
 	//"github.com/ziyouzy/mylib/model"
 	"github.com/ziyouzy/mylib/service"
-	//"github.com/ziyouzy/mylib/protocol"
+	"github.com/ziyouzy/mylib/alarmbuilder"
 	"github.com/ziyouzy/mylib/conf"
 
 	//"github.com/ziyouzy/mylib/connserver"
@@ -22,15 +22,37 @@ func main(){
 	conf.Load()
 	time.Sleep(2 * time.Second)
 	fmt.Println("service start:")
-	
-
-	//rawCh :=connserver.RawCh()
-	//physicalNodeCh := physicalnode.RawChToPhysicalNodeCh(rawCh)//rawCh的消费者和physicalNodeCh的创建者和生产者
-	//nodedobuilder.Engineing(physicalNodeCh)
 
 	service.BuildPNCh()
 	service.BuildNodeDoCh()//其会从nodedobuilder包获取管道，而nodedobuilder包的初始化已通过conf.Load实现
 	service.WatchingViper()//监听配置文件所发生的改变
+
+	go func(){
+		for nodedo :=range service.NodeDoCh{
+			/** 模仿了time.Unix()方法的设计思路
+			  * 第一个参数可传入NodeDo的管道，第二个参数可传入NodoDo个体
+			  * 在使用的时候二选一，而不能两个都非nil或两个都为nil
+			  */
+			alarmbuilder.StartFilter(nil, nodedo)
+		}
+	}()
+
+
+	go func(){
+		for sms := range alarmbuilder.GetSMSAlarmbyteCh(){
+			fmt.Println(string(sms))
+		}
+	}()
+
+
+	go func(){
+		for mysql := range alarmbuilder.GetMYSQLAlarmEntityCh(){
+			fmt.Println(mysql)
+		}
+	}()
+
+
+
 
 	// for nodedo := range service.NodeDoCh{
 	// 	fmt.Println(nodedo)

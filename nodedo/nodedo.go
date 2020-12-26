@@ -39,6 +39,7 @@ type NodeDo interface{
 	JudgeTimeOut()
 
 	GetJson()[]byte
+	GetKey()string
 	
 	PrepareSMSAlarm()string
 	PrepareMYSQLAlarm(*mysql.Alarm)

@@ -6,14 +6,12 @@ import(
 
 	"github.com/ziyouzy/mylib/mysql"
 	"github.com/ziyouzy/mylib/viperbuilder"
-	//"github.com/ziyouzy/mylib/alarmbuilder"
+	"github.com/ziyouzy/mylib/alarmbuilder"
 	"github.com/ziyouzy/mylib/connserver"
 	"github.com/ziyouzy/mylib/nodedobuilder"
 )
 
-var (
-	lock sync.Mutex
-)
+var lock sync.Mutex
 
 
 //拿到可以全局使用的viper变量
@@ -30,9 +28,12 @@ func Load(){
 
 	//第一个参数代表了每隔几秒发送给前端ui数据
 	nodedobuilder.Load(1, viperbuilder.SelectOneMapFromOneSingleViper("./widgetsonlyserver.json", "test_mainwidget.nodes"))
-	//nodedobuilder.GenerateNodeDoCh()
-	
-	//alarmbuilder.Load(viperbuilder.SelectOneMapFromOneSingleViper("./widgetsonlyserver.json", "test_mainwidget.alarms.tty1-serial"))
+
+	alarmbuilder.Load(viperbuilder.SelectOneMapFromOneSingleViper("./widgetsonlyserver.json", "test_mainwidget.alarms.tty1-serial"))
+	alarmbuilder.GenerateSMSbyteCh()
+	alarmbuilder.GenerateMYSQLAlarmCh()
+
+	lock.Unlock()
 }
 
 

@@ -56,6 +56,11 @@ func (p *NodeDoBuilder)GenerateNodeDoCh(){
 			case <-p.FlushTicket.C:
 				p.lock.Lock()
 				for _,v := range p.e{
+
+					/** 超时的衡量标准在于p.FlushTicket.C的激活时间与旧时间戳之间的差值
+					  * 也就是说，必须要在p.FlushTicket.C这一刻进行对超时的判断操作
+					  */
+
 					v.JudgeTimeOut()
 					p.NodeDoCh <-v
 				}
@@ -81,28 +86,37 @@ func GetNodeDoCh()chan nodedo.NodeDo{ return builder.NodeDoCh }
 
 
 //运行该函数前，需确保结构体内部的engine字段以实例化（p.e即为engine）
-func Engineing(pnch chan physicalnode.PhysicalNode){ builder.Engineing(pnch) }
+func StartEngine(pnch chan physicalnode.PhysicalNode, pn physicalnode.PhysicalNode){ 
+	if pnch !=nil&&pn ==nil { builder.StartEnginePhysicalNodeCh(pnch);        return }
+	if pnch ==nil&&pn !=nil { builder.StartEnginePhysicalNode(pn);        return }
+
+	fmt.Println("StartEngine参数填写错误(都非nil或都为nil是都不允许的)")
+	return
+}
 //Engine是个map，key 举例: "494f3031f10201-tcpsocket-do3-bool"，而value则是实实在在的NodeDo
 //Engineing函数的意义在于基于获取PhysicalNode节点所发来的频率更新核心map
-func (p *NodeDoBuilder)Engineing( pnch chan physicalnode.PhysicalNode ){
+func (p *NodeDoBuilder)StartEnginePhysicalNodeCh( pnch chan physicalnode.PhysicalNode ){
 	go func(){
 		for pn :=range pnch{
-			//PhysicalNode.SelectHandlerAndTage返回值举例："494f3031f10201","tcpsocket"
-			handler, tag :=pn.SelectHandlerAndTag()
-			p.lock.Lock()
-			for k,_ :=range p.e{
-				//每当传来一个physicalnode实体时，会判定这个实体在json文档实体中，有没有实现对应的关系
-				//这个判定的过程中每一个physicalnode都会对应一次engine对象的for循环
-				//同时一个physicalnode可以在他所对应的for循环结束前多次触发nodedo的更新事件
-				if !strings. Contains(k, fmt.Sprintf("%s-%s",handler,tag)){ continue }
-				//PhysicalNode.SelectOneValueAndTime返回值举例："value","time"
-				nodeName :=strings.Split(k,"-")[2]
-				nodeValue, timeUnixNano := pn.SelectOneValueAndTimeUnixNano(handler, tag, nodeName)
-				p.e[k].UpdateOneNodeDo(nodeValue, timeUnixNano)
-			}
-			p.lock.Unlock()
+			p.StartEnginePhysicalNode(pn)
 		}
 	}()
+}
+func (p *NodeDoBuilder)StartEnginePhysicalNode( pn physicalnode.PhysicalNode ){
+	//PhysicalNode.SelectHandlerAndTage返回值举例："494f3031f10201","tcpsocket"
+	handler, tag :=pn.SelectHandlerAndTag()
+	p.lock.Lock()
+	for k,_ :=range p.e{
+		//每当传来一个physicalnode实体时，会判定这个实体在json文档实体中，有没有实现对应的关系
+		//这个判定的过程中每一个physicalnode都会对应一次engine对象的for循环
+		//同时一个physicalnode可以在他所对应的for循环结束前多次触发nodedo的更新事件
+		if !strings. Contains(k, fmt.Sprintf("%s-%s",handler,tag)){ continue }
+		//PhysicalNode.SelectOneValueAndTime返回值举例："value","time"
+		nodeName :=strings.Split(k,"-")[2]
+		nodeValue, timeUnixNano := pn.SelectOneValueAndTimeUnixNano(handler, tag, nodeName)
+		p.e[k].UpdateOneNodeDo(nodeValue, timeUnixNano)
+	}
+	p.lock.Unlock()
 }
 
 func Destory(){builder.Destory()}

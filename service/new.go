@@ -9,12 +9,11 @@ import(
 	"github.com/ziyouzy/mylib/nodedo"
 	"github.com/ziyouzy/mylib/physicalnode"
 	"github.com/ziyouzy/mylib/connserver"
-	//"github.com/ziyouzy/mylib/alarmbuilder"
+	"github.com/ziyouzy/mylib/alarmbuilder"
 )
 
 var (
 	NodeDoCh chan nodedo.NodeDo
-	//PhysicalNodeCh chan physicalnode.PhysicalNode
 	lock sync.Mutex
 )
 
@@ -26,14 +25,14 @@ func WatchingViper(){
 			case "./widgetsonlyserver.json":
 				lock.Lock()
 				nodedobuilder.Destory()
-				//alarmbuilder.Destory()
+				alarmbuilder.Destory()
 
 				nodedobuilder.Load(1, viperbuilder.SelectOneMapFromOneSingleViper("./widgetsonlyserver.json", "test_mainwidget.nodes"))
-				//nodedobuilder.GenerateNodeDoCh()
-				//nodedobuilder.Engineing(PhysicalNodeCh)
-				//alarmbuilder.Load(viperbuilder.SelectOneMapFromOneSingleViper("./widgetsonlyserver.json", "test_mainwidget.alarms.tty1-serial"))
-
 				BuildNodeDoCh()
+
+				alarmbuilder.Load(viperbuilder.SelectOneMapFromOneSingleViper("./widgetsonlyserver.json", "test_mainwidget.alarms.tty1-serial"))
+				alarmbuilder.GenerateSMSbyteCh()
+				alarmbuilder.GenerateMYSQLAlarmCh()
 
 				lock.Unlock()
 				fmt.Println("更新了nodedobuilder与alarmbuilder的单例模式")
@@ -45,28 +44,21 @@ func WatchingViper(){
 func BuildPNCh(){
 	rawCh :=connserver.RawCh()
 	physicalnode.RawChToPhysicalNodeCh(rawCh)
-	// go func(){
-	// 	for pn :=range physicalnode.PhysicalNodeCh{
-	// 		fmt.Println("pn:",pn)
-	// 		PhysicalNodeCh <-pn //rawCh的消费者和physicalNodeCh的创建者和生产者
-	// 	}
-	// }()
 }
 
 func BuildNodeDoCh(){
-	nodedobuilder.GenerateNodeDoCh()
-	nodedobuilder.Engineing(physicalnode.PhysicalNodeCh)
+	nodedobuilder.StartEngine(physicalnode.PhysicalNodeCh,nil)
 
+	nodedobuilder.GenerateNodeDoCh()
 	if NodeDoCh ==nil { NodeDoCh = make(chan nodedo.NodeDo) }
 
 	ch :=nodedobuilder.GetNodeDoCh()//内层自动关闭
 	go func(){
 		for nodedo := range ch {
-			//NodeDoCh<-nodedo
-			fmt.Println(string(nodedo.GetJson()))
+			/*每个nodedo在上层都已经实现了对超时的判定工作*/
+			NodeDoCh<-nodedo
 		}
 	}()
-
 }
 
 func DestoryNodeDoCh(){

@@ -11,6 +11,7 @@ import(
 )
 
 type BoolenNodeDo struct{
+	Key string //从json配置文档获取
 	SouthId int //从json配置文档获取
 	SouthBound string //从json配置文档获取
 	Name string //从json配置文档获取
@@ -38,6 +39,7 @@ type BoolenNodeDo struct{
 
 
 type IntNodeDo struct{
+	Key string //从json配置文档获取
 	SouthId int //从json配置文档获取
 	SouthBound string //从json配置文档获取
 	Name string //从json配置文档获取
@@ -65,6 +67,7 @@ type IntNodeDo struct{
 
 
 type FloatNodeDo struct{
+	Key string //从json配置文档获取
 	SouthId int //从json配置文档获取
 	SouthBound string //从json配置文档获取
 	Name string //从json配置文档获取
@@ -92,6 +95,7 @@ type FloatNodeDo struct{
 
 
 type CommonNodeDo struct{
+	Key string //从json配置文档获取
 	SouthId int //从json配置文档获取
 	SouthBound string //从json配置文档获取
 	Name string //从json配置文档获取
@@ -252,69 +256,113 @@ func (p *CommonNodeDo)JudgeTimeOut(){
 
 
 //如果错误，则自动返回空值
-func (p *BoolenNodeDo)GetJson()[]byte{;data, _ := json.Marshal(p); return data}
+func (p *BoolenNodeDo)GetJson()[]byte{data, _ := json.Marshal(p); return data}
 func (p *IntNodeDo)GetJson()[]byte{data, _ := json.Marshal(p); return data}
 func (p *FloatNodeDo)GetJson()[]byte{data, _ := json.Marshal(p); return data}
 func (p *CommonNodeDo)GetJson()[]byte{data, _ := json.Marshal(p); return data}
 
+func (p *BoolenNodeDo)GetKey()string{return p.Key}
+func (p *IntNodeDo)GetKey()string{return p.Key}
+func (p *FloatNodeDo)GetKey()string{return p.Key}
+func (p *CommonNodeDo)GetKey()string{return p.Key}
+
 
 func (p *BoolenNodeDo)PrepareSMSAlarm()string{
-	if !p.IsNormal&&p.IsOnSMS{
-		return fmt.Sprintf("%s[发生异常时间为%s]", p.SMS, time.Unix(int64(p.TimeUnixNano), 0).Format("2006-01-02 15:04:05.000,000,000"))
+	if p.IsTimeOut{
+		return fmt.Sprintf("%s%s[发生异常时间为%s]", p.SMS,"(设备响应超时)", time.Unix(0, int64(p.TimeUnixNano)).Format("2006-01-02 15:04:05.000000000"))
+	}else if !p.IsNormal&&p.IsOnSMS{
+		//fmt.Println(p.TimeUnixNano, int64(p.TimeUnixNano), time.Unix(0, int64(p.TimeUnixNano)).Format("2006-01-02 15:04:05.000000000"))
+		return fmt.Sprintf("%s[发生异常时间为%s]", p.SMS, time.Unix(0, int64(p.TimeUnixNano)).Format("2006-01-02 15:04:05.000000000"))
 	}else{
 		return ""
 	}
 }
 
 func (p *IntNodeDo)PrepareSMSAlarm()string{
-	if !p.IsNormal&&p.IsOnSMS{
-		return fmt.Sprintf("%s[发生异常时间为%s]", p.SMS, time.Unix(int64(p.TimeUnixNano), 0).Format("2006-01-02 15:04:05.000,000,000"))
-	}else{
-		return ""
+	if p.IsTimeOut{
+		return fmt.Sprintf("%s%s[发生异常时间为%s]", p.SMS,"(设备响应超时)", time.Unix(0, int64(p.TimeUnixNano)).Format("2006-01-02 15:04:05.000000000"))
 	}
+	
+	if !p.IsNormal&&p.IsOnSMS{
+		return fmt.Sprintf("%s[发生异常时间为%s]", p.SMS, time.Unix(0, int64(p.TimeUnixNano)).Format("2006-01-02 15:04:05.000000000"))
+	}
+
+	return ""
 }
 
 func (p *FloatNodeDo)PrepareSMSAlarm()string{
-	if !p.IsNormal&&p.IsOnSMS{
-		return fmt.Sprintf("%s[发生异常时间为%s]", p.SMS, time.Unix(int64(p.TimeUnixNano), 0).Format("2006-01-02 15:04:05.000,000,000"))
-	}else{
-		return ""
+	if p.IsTimeOut{
+		return fmt.Sprintf("%s%s[发生异常时间为%s]", p.SMS,"(设备响应超时)", time.Unix(0, int64(p.TimeUnixNano)).Format("2006-01-02 15:04:05.000000000"))
 	}
+	
+	if !p.IsNormal&&p.IsOnSMS{
+		return fmt.Sprintf("%s[发生异常时间为%s]", p.SMS, time.Unix(0, int64(p.TimeUnixNano)).Format("2006-01-02 15:04:05.000000000"))
+	}
+		
+	return ""
 }
 
 func (p *CommonNodeDo)PrepareSMSAlarm()string{
+	if p.IsTimeOut{
+		return fmt.Sprintf("%s%s[发生异常时间为%s]", p.SMS,"(设备响应超时)", time.Unix(0, int64(p.TimeUnixNano)).Format("2006-01-02 15:04:05.000000000"))
+	}
+	
 	if !p.IsNormal1||!p.IsNormal2||!p.IsNormal3||!p.IsNormal4||!p.IsNormal5||!p.IsNormal6{
 		if p.IsOnSMS{
-			return fmt.Sprintf("%s[发生异常时间为%s]", p.SMS, time.Unix(int64(p.TimeUnixNano), 0).Format("2006-01-02 15:04:05.000,000,000"))
+			return fmt.Sprintf("%s[发生异常时间为%s]", p.SMS, time.Unix(0, int64(p.TimeUnixNano)).Format("2006-01-02 15:04:05.000000000"))
 		}else{
 			return ""
 		}
-	}else{
-		return ""
 	}
+
+	return ""
 }
 
 func (p *BoolenNodeDo)PrepareMYSQLAlarm(ae *mysql.Alarm){
-	ae.PresentSouthID =p.SouthId;        ae.PresentSouthBound =p.SouthBound
-	ae.Name =p.Name;        ae.RawStr =p.RawStr;         ae.FrontEndStr =p.FrontEndStr;        ae.Unit =p.Unit
-	ae.Content =fmt.Sprintf("%s[发生异常时间为%s]", p.SMS, time.Unix(int64(p.TimeUnixNano), 0).Format("2006-01-02 15:04:05.000,000,000"))
+	if p.IsTimeOut{
+		ae.PresentSouthID =p.SouthId;        ae.PresentSouthBound =p.SouthBound
+		ae.Name =p.Name;        ae.RawStr =p.RawStr;         ae.FrontEndStr =p.FrontEndStr;        ae.Unit =p.Unit
+		ae.Content =fmt.Sprintf("%s%s[发生异常时间为%s]", p.SMS, "(设备响应超时)", time.Unix(0, int64(p.TimeUnixNano)).Format("2006-01-02 15:04:05.000000000"))
+	}else{
+		ae.PresentSouthID =p.SouthId;        ae.PresentSouthBound =p.SouthBound
+		ae.Name =p.Name;        ae.RawStr =p.RawStr;         ae.FrontEndStr =p.FrontEndStr;        ae.Unit =p.Unit
+		ae.Content =fmt.Sprintf("%s[发生异常时间为%s]", p.SMS, time.Unix(0, int64(p.TimeUnixNano)).Format("2006-01-02 15:04:05.000000000"))
+	}
 }
 
 func (p *IntNodeDo)PrepareMYSQLAlarm(ae *mysql.Alarm){
-	ae.PresentSouthID =p.SouthId;        ae.PresentSouthBound =p.SouthBound
-	ae.Name =p.Name;        ae.RawStr =p.RawStr;         ae.FrontEndStr =p.FrontEndStr;        ae.Unit =p.Unit
-	ae.Content =fmt.Sprintf("%s[发生异常时间为%s]", p.SMS, time.Unix(int64(p.TimeUnixNano), 0).Format("2006-01-02 15:04:05.000,000,000"))
+	if p.IsTimeOut{
+		ae.PresentSouthID =p.SouthId;        ae.PresentSouthBound =p.SouthBound
+		ae.Name =p.Name;        ae.RawStr =p.RawStr;         ae.FrontEndStr =p.FrontEndStr;        ae.Unit =p.Unit
+		ae.Content =fmt.Sprintf("%s%s[发生异常时间为%s]", p.SMS, "(设备响应超时)", time.Unix(0, int64(p.TimeUnixNano)).Format("2006-01-02 15:04:05.000000000"))
+	}else{
+		ae.PresentSouthID =p.SouthId;        ae.PresentSouthBound =p.SouthBound
+		ae.Name =p.Name;        ae.RawStr =p.RawStr;         ae.FrontEndStr =p.FrontEndStr;        ae.Unit =p.Unit
+		ae.Content =fmt.Sprintf("%s[发生异常时间为%s]", p.SMS, time.Unix(0, int64(p.TimeUnixNano)).Format("2006-01-02 15:04:05.000000000"))
+	}
 }
 
 func (p *FloatNodeDo)PrepareMYSQLAlarm(ae *mysql.Alarm){
-	ae.PresentSouthID =p.SouthId;        ae.PresentSouthBound =p.SouthBound
-	ae.Name =p.Name;        ae.RawStr =p.RawStr;         ae.FrontEndStr =p.FrontEndStr;        ae.Unit =p.Unit
-	ae.Content =fmt.Sprintf("%s[发生异常时间为%s]", p.SMS, time.Unix(int64(p.TimeUnixNano), 0).Format("2006-01-02 15:04:05.000,000,000"))
+	if p.IsTimeOut{
+		ae.PresentSouthID =p.SouthId;        ae.PresentSouthBound =p.SouthBound
+		ae.Name =p.Name;        ae.RawStr =p.RawStr;         ae.FrontEndStr =p.FrontEndStr;        ae.Unit =p.Unit
+		ae.Content =fmt.Sprintf("%s%s[发生异常时间为%s]", p.SMS, "(设备响应超时)", time.Unix(0, int64(p.TimeUnixNano)).Format("2006-01-02 15:04:05.000000000"))
+	}else{
+		ae.PresentSouthID =p.SouthId;        ae.PresentSouthBound =p.SouthBound
+		ae.Name =p.Name;        ae.RawStr =p.RawStr;         ae.FrontEndStr =p.FrontEndStr;        ae.Unit =p.Unit
+		ae.Content =fmt.Sprintf("%s[发生异常时间为%s]", p.SMS, time.Unix(0, int64(p.TimeUnixNano)).Format("2006-01-02 15:04:05.000000000"))
+	}
 }
 
 func (p *CommonNodeDo)PrepareMYSQLAlarm(ae *mysql.Alarm){
-	ae.PresentSouthID =p.SouthId;        ae.PresentSouthBound =p.SouthBound
-	ae.Name =p.Name;        ae.RawStr =p.RawStr;         ae.FrontEndStr =p.FrontEndStr;        ae.Unit =p.Unit
-	ae.Content =fmt.Sprintf("%s[发生异常时间为%s]", p.SMS, time.Unix(int64(p.TimeUnixNano), 0).Format("2006-01-02 15:04:05.000,000,000"))
+	if p.IsTimeOut{
+		ae.PresentSouthID =p.SouthId;        ae.PresentSouthBound =p.SouthBound
+		ae.Name =p.Name;        ae.RawStr =p.RawStr;         ae.FrontEndStr =p.FrontEndStr;        ae.Unit =p.Unit
+		ae.Content =fmt.Sprintf("%s%s[发生异常时间为%s]", p.SMS, "(设备响应超时)", time.Unix(0, int64(p.TimeUnixNano)).Format("2006-01-02 15:04:05.000000000"))
+	}else{
+		ae.PresentSouthID =p.SouthId;        ae.PresentSouthBound =p.SouthBound
+		ae.Name =p.Name;        ae.RawStr =p.RawStr;         ae.FrontEndStr =p.FrontEndStr;        ae.Unit =p.Unit
+		ae.Content =fmt.Sprintf("%s[发生异常时间为%s]", p.SMS, time.Unix(0, int64(p.TimeUnixNano)).Format("2006-01-02 15:04:05.000000000"))
+	}
 }
 

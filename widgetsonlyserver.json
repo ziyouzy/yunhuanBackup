@@ -4,6 +4,7 @@
         {
             "494f3031f10201-tcpsocket-di1":
                 {
+                    "key":"494f3031f10201-tcpsocket-di1",
                     "southbound":"TCP:192.168.10.2",
                     "southid":1,
                     "name":"测试设备前门"
@@ -11,6 +12,7 @@
     
             "494f3031f10201-tcpsocket-di2":
                 {
+                    "key":"494f3031f10201-tcpsocket-di2",
                     "southbound":"TCP:192.168.10.2",
                     "southid":1,
                     "name":"测试设备后门"
@@ -19,6 +21,7 @@
 
         "nodes":{
             "494f3031f10201-tcpsocket-do3-bool":{
+                "key":"494f3031f10201-tcpsocket-do3-bool",
                 "southid":1,
                 "southbound":"TCP:192.168.10.2",
                 "name":"烟感3",
@@ -33,14 +36,15 @@
                 "timeoutsec":120,
 
                 "isnormal":false,
-                "conditionvalue":1,
+                "conditionvalue":0,
                 "frontendstr":"N/A",
 
-                "sms":"烟感异常",
+                "sms":"3号烟感异常，为安全起见也请检查其他设备是否正常",
                 "datetime":""
             },
 
             "494f3031f10201-tcpsocket-do1-bool":{
+                "key":"494f3031f10201-tcpsocket-do1-bool",
                 "southid":2,
                 "southbound":"TCP:192.168.10.2",
                 "name":"烟感1",
@@ -58,11 +62,12 @@
                 "conditionvalue":1,
                 "frontendstr":"N/A",
     
-                "sms":"烟感异常",
+                "sms":"1号烟感异常，为安全起见也请检查其他设备是否正常",
                 "datetime":""
             },
 
             "494f3031f10201-tcpsocket-do2-bool":{
+                "key":"494f3031f10201-tcpsocket-do2-bool",
                 "southbound":"TCP:192.168.10.2",
                 "southid":2,
                 "name":"烟感2",
@@ -80,7 +85,7 @@
                 "conditionvalue":1,
                 "frontendstr":"N/A",
     
-                "sms":"烟感异常",
+                "sms":"2号烟感异常，为安全起见也请检查其他设备是否正常",
                 "datetime":""
             }
         },
@@ -88,12 +93,13 @@
         "alarms":{
             "tty1-serial":
             {
+                "key":"tty1-serial",
                 "southbound":"TCP:192.168.10.2",
                 "southid":1,
                 "name":"告警设备",
 
-                "smssleepmin":1,
-                "smsserialize":"sAT+SMSEND=86%s,%s您好,贵公司的%s\n",
+                "smssleepmillisecond":20000,
+                "smsserialize":"sAT+SMSEND=86%s,%s您好,贵公司光翼冷通道设备的%s\n",
                 "smstel":
                 {
                     "赵先生":"18611234567",
@@ -101,7 +107,7 @@
                     "sun先生":"1863331234567",
                     "li先生":"18644441234567"
                 },
-                "mysqlsleepmin":1
+                "mysqlsleepmillisecond":5000
             }
         }
     },
@@ -113,6 +119,7 @@
         {
             "494f3031f10201-tcpsocket-di1":
                 {
+                    "key":"494f3031f10201-tcpsocket-di1",
                     "southbound":"TCP:192.168.10.2",
                     "southid":2,
                     "name":"一号冷通道前门"
@@ -120,6 +127,7 @@
     
             "494f3031f10201-tcpsocket-di2":
                 {
+                    "key":"494f3031f10201-tcpsocket-di2",
                     "southbound":"TCP:192.168.10.2",
                     "southid":2,
                     "name":"一号冷通道后门"
@@ -129,6 +137,7 @@
         "nodes":
         {
             "494f3031f10201-tcpsocket-do1-bool":{
+                "key":"494f3031f10201-tcpsocket-do1-bool",
                 "southbound":"TCP:192.168.10.2",
                 "southid":4,
                 "name":"前门烟感",
@@ -149,6 +158,7 @@
             },
 
             "494f3031f10201-tcpsocket-do2-bool":{
+                "key":"494f3031f10201-tcpsocket-do2-bool",
                 "southbound":"TCP:192.168.10.2",
                 "southid":4,
                 "name":"后门烟感",
@@ -169,6 +179,7 @@
             },
 
             "494f3031f10201-tcpsocket-do3-bool":{
+                "key":"494f3031f10201-tcpsocket-do3-bool",
                 "southbound":"TCP:192.168.10.2",
                 "southid":5,
                 "name":"前门水浸",
@@ -189,6 +200,7 @@
             },
 
             "494f3031f10201-tcpsocket-do4-bool":{
+                "key":"494f3031f10201-tcpsocket-do4-bool",
                 "southbound":"TCP:192.168.10.2",
                 "southid":5,
                 "name":"后门水浸",
@@ -209,6 +221,7 @@
             },
 
             "494f3031f10201-tcpsocket-do5-bool":{
+                "key":"494f3031f10201-tcpsocket-do5-bool",
                 "southbound":"TCP:192.168.10.2",
                 "southid":6,
                 "name":"前侧天窗",
@@ -229,6 +242,7 @@
             },
 
             "494f3031f10201-tcpsocket-do6-bool":{
+                "key":"494f3031f10201-tcpsocket-do6-bool",
                 "southbound":"TCP:192.168.10.2",
                 "southid":6,
                 "name":"后侧天窗",
@@ -253,12 +267,13 @@
         {
             "tty1-serial":
             {
+                "key":"tty1-serial",
                 "southbound":"TCP:192.168.10.2",
                 "southid":1,
                 "name":"告警设备",
 
-                "smssleepmin":1,
-                "smsserialize":"sAT+SMSEND=86%s,%s您好,贵公司的%s\n",
+                "smssleepmillisecond":6000,
+                "smsserialize":"sAT+SMSEND=86%s,%s您好,贵公司光翼冷通道设备的的%s\n",
                 "smstel":
                 {
                     "赵先生":"18611234567",
@@ -266,7 +281,7 @@
                     "sun先生":"1863331234567",
                     "li先生":"18644441234567"
                 },
-                "mysqlsleepmin":1
+                "mysqlsleepmillisecond":6000
             }
         }
     },
@@ -278,6 +293,7 @@
         {
             "494f3031f10201-tcpsocket-di1":
                 {
+                    "key":"494f3031f10201-tcpsocket-di1",
                     "southbound":"TCP:192.168.10.2",
                     "southid":3,
                     "name":"二号冷通道前门"
@@ -285,6 +301,7 @@
     
             "494f3031f10201-tcpsocket-di2":
                 {
+                    "key":"494f3031f10201-tcpsocket-di2",
                     "southbound":"TCP:192.168.10.2",
                     "southid":3,
                     "name":"二号冷通道后门"
@@ -294,6 +311,7 @@
         "nodes":
         {
             "494f3031f10201-tcpsocket-do1-bool":{
+                "key":"494f3031f10201-tcpsocket-do1-bool",
                 "southbound":"TCP:192.168.10.2",
                 "southid":4,
                 "name":"前门烟感",
@@ -314,6 +332,7 @@
             },
 
             "494f3031f10201-tcpsocket-do2-bool":{
+                "key":"494f3031f10201-tcpsocket-do2-bool",
                 "southbound":"TCP:192.168.10.2",
                 "southid":4,
                 "name":"后门烟感",
@@ -334,6 +353,7 @@
             },
 
             "494f3031f10201-tcpsocket-do3-bool":{
+                "key":"494f3031f10201-tcpsocket-do3-bool",
                 "southbound":"TCP:192.168.10.2",
                 "southid":5,
                 "name":"前门水浸",
@@ -354,6 +374,7 @@
             },
 
             "494f3031f10201-tcpsocket-do4-bool":{
+                "key":"494f3031f10201-tcpsocket-do4-bool",
                 "southbound":"TCP:192.168.10.2",
                 "southid":5,
                 "name":"后门水浸",
@@ -374,6 +395,7 @@
             },
 
             "494f3031f10201-tcpsocket-do5-bool":{
+                "key":"494f3031f10201-tcpsocket-do5-bool",
                 "southbound":"TCP:192.168.10.2",
                 "southid":6,
                 "name":"前侧天窗",
@@ -394,6 +416,7 @@
             },
 
             "494f3031f10201-tcpsocket-do6-bool":{
+                "key":"494f3031f10201-tcpsocket-do6-bool",
                 "southbound":"TCP:192.168.10.2",
                 "southid":6,
                 "name":"后侧天窗",
@@ -414,6 +437,7 @@
             },
 
             "494f3031f10201-tcpsocket-do7-bool":{
+                "key":"494f3031f10201-tcpsocket-do7-bool",
                 "southbound":"TCP:192.168.10.2",
                 "southid":7,
                 "name":"前门状态",
@@ -434,6 +458,7 @@
             },
 
             "494f3031f10201-tcpsocket-do8-bool":{
+                "key":"494f3031f10201-tcpsocket-do8-bool",
                 "southbound":"TCP:192.168.10.2",
                 "southid":7,
                 "name":"后门状态",
@@ -458,12 +483,13 @@
         {
             "tty1-serial":
             {
+                "key":"tty1-serial",
                 "southbound":"TCP:192.168.10.2",
                 "southid":1,
                 "name":"告警设备",
 
-                "smssleepmin":1,
-                "smsserialize":"sAT+SMSEND=86%s,%s您好,贵公司的%s\n",
+                "smssleepmillisecond":6000,
+                "smsserialize":"sAT+SMSEND=86%s,%s您好,贵公司冷通道设备的%s\n",
                 "smstel":
                 {
                     "赵先生":"18611234567",
@@ -471,7 +497,7 @@
                     "sun先生":"1863331234567",
                     "li先生":"18644441234567"
                 },
-                "mysqlsleepmin":1
+                "mysqlsleepmillisecond":6000
             }
         }
     }

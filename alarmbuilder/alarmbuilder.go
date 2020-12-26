@@ -14,22 +14,25 @@ import(
 var builder *AlarmBuilder
 type AlarmBuilder struct{
 	smsTimer *time.Timer
-	smsTimerLimitSec float64
+	smsTimerLimitMilliSecond int
 	smsTimerStop chan bool
 	smsAlarmIsReady bool
+	smsAlarmCache map[string][]string
 	SMSAlarmCh chan []byte 
 
-
 	mysqlTimer *time.Timer
-	mysqlTimerLimitSec float64
+	mysqlTimerLimitMilliSecond int
 	mysqlTimerStop chan bool
 	mysqlAlarmIsReady bool
+	mysqlAlarmCache map[string]*mysql.Alarm
 	MYSQLAlarmCh chan *mysql.Alarm
 
 
-	//这样设计是在遵顼分层的设计思路，也就是纯粹的为了分层而去采用了组合
-	//基于能组合就不继承的原则，这里无论是组合还是继承都是合理的，所以既然地位相当那还是优先组合吧
-	//退一步讲，就算是继承了，唯一的原因也只是为了分层思路而继承
+
+	/** 这样设计是在遵顼分层的设计思路，也就是纯粹的为了分层而去采用了组合
+	  * 基于能组合就不继承的原则，这里无论是组合还是继承都是合理的，所以既然地位相当那还是优先组合吧
+	  * 退一步讲，就算是继承了，唯一的原因也只是为了分层思路而继承
+	*/
 	e *Engine
 }
 
@@ -37,13 +40,14 @@ func Load(sourcefromviper map[string]interface{}){builder =BuildAlarmBuilder(sou
 //这里模仿了time包的NewTimer的设计模式，New出来的对象生命周期很可能为主函数
 func BuildAlarmBuilder(sourcefromviper map[string]interface{}) *AlarmBuilder{
 	builder := AlarmBuilder{}
-	e, smstimerlimitmin, mysqltimerlimitmin := NewEngine(sourcefromviper)
-	fmt.Println("smstimerlimitmin:",smstimerlimitmin,"mysqltimerlimitmin:",mysqltimerlimitmin)
-
 	//实例化内部字段（内部的Engine才会真正进行监测某个NodeDo是否超限）
-	builder.e =e
-	builder.smsTimerLimitSec = smstimerlimitmin * 60
-	builder.mysqlTimerLimitSec  = mysqltimerlimitmin * 60
+	builder.e, builder.smsTimerLimitMilliSecond, builder.mysqlTimerLimitMilliSecond = NewEngine(sourcefromviper)
+	fmt.Println("builder.smsTimerLimitMilliSecond:", builder.smsTimerLimitMilliSecond , "builder.mysqlTimerLimitMilliSecond:", builder.mysqlTimerLimitMilliSecond)
+
+
+	// builder.e =e
+	// builder.smsTimerLimitMilliSecond = smstimerlimitmin * 60
+	// builder.mysqlTimerLimitMilliSecond  = mysqltimerlimitmin * 60
 	
 	builder.newSMSTimer()
 	builder.newMYSQLTimer()
@@ -55,7 +59,7 @@ func BuildAlarmBuilder(sourcefromviper map[string]interface{}) *AlarmBuilder{
 func (p *AlarmBuilder)newSMSTimer(){
 	if p.smsTimer !=nil{p.smsTimerStop <-true;time.Sleep(time.Second)}
 
-	p.smsTimer =time.NewTimer(time.Duration(p.smsTimerLimitSec) * time.Second)
+	p.smsTimer =time.NewTimer(time.Duration(p.smsTimerLimitMilliSecond) * time.Millisecond)
 	p.smsAlarmIsReady =true
 	p.smsTimerStop =make(chan bool)
 
@@ -66,7 +70,7 @@ func (p *AlarmBuilder)newSMSTimer(){
   			case <-p.smsTimer.C:
 				fmt.Println("p.smsTimer已到，仅仅p.smsAlarmIsReady变为了",p.smsAlarmIsReady,time.Now().Format("20060102150405"))
 				p.smsAlarmIsReady =true
-				p.smsTimer.Reset(time.Duration(p.smsTimerLimitSec) *time.Second)
+				p.smsTimer.Reset(time.Duration(p.mysqlTimerLimitMilliSecond) *time.Millisecond)
 			case stop := <-p.smsTimerStop:
 				if stop {goto CLEANUP}
 			}
@@ -86,7 +90,7 @@ func (p *AlarmBuilder)newMYSQLTimer(){
 
 	p.mysqlAlarmIsReady =true
 	p.mysqlTimerStop =make(chan bool)
-	p.mysqlTimer =time.NewTimer(time.Duration(p.mysqlTimerLimitSec) * time.Second)
+	p.mysqlTimer =time.NewTimer(time.Duration(p.mysqlTimerLimitMilliSecond) * time.Millisecond)
 
 	go func(){
 		defer close(p.mysqlTimerStop)
@@ -95,7 +99,7 @@ func (p *AlarmBuilder)newMYSQLTimer(){
 			case <-p.mysqlTimer.C:
 				fmt.Println("p.mysqltimer已到，仅仅p.mysqlAlarmIsReady变为了",p.mysqlAlarmIsReady,time.Now().Format("20060102150405"))
 				p.mysqlAlarmIsReady =true
-				p.mysqlTimer.Reset(time.Duration(p.mysqlTimerLimitSec)  *time.Second)
+				p.mysqlTimer.Reset(time.Duration(p.mysqlTimerLimitMilliSecond)  *time.Millisecond)
 			case  stop := <-p.mysqlTimerStop:
 				if stop { goto CLEANUP}
 			}
@@ -110,33 +114,56 @@ func (p *AlarmBuilder)newMYSQLTimer(){
 }
 
 //两个管道的子线程生产者
-func StartFilter(ndch chan nodedo.NodeDo){builder.StartFilter(ndch)}
-func (p *AlarmBuilder)StartFilter(ndch chan nodedo.NodeDo){
+func StartFilter(ndch chan nodedo.NodeDo, nd nodedo.NodeDo){
+	if ndch !=nil&&nd ==nil { builder.StartFilterNodeDoCh(ndch);        return }
+	if ndch ==nil&&nd !=nil { builder.StartFilterNodeDo(nd);        return }
+
+	fmt.Println("StartFilter参数填写错误(都非nil或都为nil是都不允许的)")
+	return
+}
+func (p *AlarmBuilder)StartFilterNodeDoCh(ndch chan nodedo.NodeDo){
 	go func(){
 		for nd := range ndch{
-			issafe, smsarr, alarmdbentity :=p.e.JudgeOneNodeDo(nd)
-
-			if issafe {continue}
-
-			if p.smsAlarmIsReady{
-				go func(){
-					for _,v :=range smsarr {
-						p.SMSAlarmCh <-[]byte(v)
-					}
-				}() 
-				p.smsAlarmIsReady =false
-				p.smsTimer.Reset(time.Duration(p.smsTimerLimitSec) *time.Second)
-			}
-
-			if p.mysqlAlarmIsReady{
-				go func(){
-					p.MYSQLAlarmCh <-alarmdbentity
-				}()
-				p.mysqlAlarmIsReady =false
-				p.mysqlTimer.Reset(time.Duration(p.mysqlTimerLimitSec)  *time.Second)
-			}
+			p.StartFilterNodeDo(nd)
 		}
 	}()
+}
+
+func (p *AlarmBuilder)StartFilterNodeDo(nd nodedo.NodeDo){
+	key, issafe, smsarr, alarmdbentity :=p.e.JudgeOneNodeDo(nd)
+
+	if issafe { return }
+	/** sms的发送方式和alarmEntity是不同的
+	  * 如果同时存在多个传感器异常，则只sms一个
+	  * 而对于alarmEntity，则需要将所有的告警节点一并录入
+	  * 因此作出如下设计思路，无论是sms还是alarmEntity的缓存，一个周期内都不会保存同一个节点的告警信息
+	  */
+	
+	if p.smsAlarmCache ==nil { p.smsAlarmCache =make(map[string][]string) };        if p.mysqlAlarmCache ==nil { p.mysqlAlarmCache =make(map[string]*mysql.Alarm) }
+
+	if _,ok :=p.smsAlarmCache[key];        !ok { p.smsAlarmCache[key] = smsarr }   
+	if _,ok :=p.mysqlAlarmCache[key];        !ok {  p.mysqlAlarmCache[key] = alarmdbentity }
+
+	if p.smsAlarmIsReady{
+		fmt.Println("test2-1 smsAlarmIsReady")
+		for k,_ := range p.smsAlarmCache  {
+			for _, sms := range p.smsAlarmCache[k]{
+				p.SMSAlarmCh <-[]byte(sms)
+			}
+			p.smsAlarmCache[k] =(p.smsAlarmCache[k])[0:0]
+		}
+		p.smsAlarmCache =make(map[string][]string);        p.smsAlarmIsReady =false
+		p.smsTimer.Reset(time.Duration(p.smsTimerLimitMilliSecond) *time.Millisecond)
+	}
+
+	if p.mysqlAlarmIsReady{
+		fmt.Println("test2-2 mysqlAlarmIsReady")
+		for _, v := range p.mysqlAlarmCache  {
+			p.MYSQLAlarmCh <-v
+		}
+		p.mysqlAlarmCache =make(map[string]*mysql.Alarm) ;        p.mysqlAlarmIsReady =false
+		p.mysqlTimer.Reset(time.Duration(p.mysqlTimerLimitMilliSecond)  *time.Millisecond)
+	}
 }
 
 
@@ -149,7 +176,7 @@ func(p *AlarmBuilder)GenerateSMSbyteCh(){
 
 	p.SMSAlarmCh =make(chan []byte)
 }
-func GetSMSbyteCh()chan []byte{ return builder.SMSAlarmCh }
+func GetSMSAlarmbyteCh()chan []byte{ return builder.SMSAlarmCh }
 
 //当前未设定消费者
 func GenerateMYSQLAlarmCh(){builder.GenerateMYSQLAlarmCh()}
@@ -160,7 +187,7 @@ func(p *AlarmBuilder)GenerateMYSQLAlarmCh(){
 
 	p.MYSQLAlarmCh =make(chan *mysql.Alarm)
 }
-func GetMYSQLAlarmCh()chan *mysql.Alarm{ return builder.MYSQLAlarmCh }
+func GetMYSQLAlarmEntityCh()chan *mysql.Alarm{ return builder.MYSQLAlarmCh }
 
 func Destory(){builder.Destory()}
 func (p *AlarmBuilder)Destory(){

@@ -6,7 +6,7 @@ import(
 	"github.com/ziyouzy/mylib/nodedo"
 )
  
-func NewEngine(base map[string]interface{})(engine *Engine, smstickerlimitmin float64, mysqltickerlimitmin float64){
+func NewEngine(base map[string]interface{})(engine *Engine, smstickerlimitmillisecond int, mysqltickerlimitmillisecond int){
 	engine =new(Engine)
 	smsserialize, ok :=base["smsserialize"].(string)
 	if !ok{
@@ -27,18 +27,20 @@ func NewEngine(base map[string]interface{})(engine *Engine, smstickerlimitmin fl
 	}
 
 
-	if smstickerlimitmin,ok =base["smssleepmin"].(float64);!ok{
-		fmt.Println("从json初始化smssleepmin进行断言时失败，因此将会把smssleepmin的值设置为4*60")
-		smstickerlimitmin =240
+	if smstickerlimitfloat,ok :=base["smssleepmillisecond"].(float64);!ok{
+		fmt.Println("从json初始化smssleepmillisecond进行断言时失败，因此将会把smssleepmillisecond的值设置为4*60")
+		smstickerlimitmillisecond =240*60*1000
 	}else{
-		fmt.Println("从json初始化smssleepmin进行断言成功，smstimerlimitmin=", smstickerlimitmin)
+		fmt.Println("从json初始化smssleepmillisecond进行断言成功，smstimerlimitmillisecond=", int(smstickerlimitfloat))
+		smstickerlimitmillisecond =int(smstickerlimitfloat)
 	}
 
-	if mysqltickerlimitmin,ok =base["mysqlsleepmin"].(float64);!ok{
-		fmt.Println("从json初始化mysqltickerlimitmin进行断言时失败，因此将会把mysqltickerlimitmin的值设置为4*60")
-		mysqltickerlimitmin =240
+	if mysqltickerlimitfloat,ok :=base["mysqlsleepmillisecond"].(float64);!ok{
+		fmt.Println("从json初始化mysqltickerlimitmillisecond进行断言时失败，因此将会把mysqltickerlimitmillisecond的值设置为4*60")
+		mysqltickerlimitmillisecond =240*60*1000
 	}else{
-		fmt.Println("从json初始化mysqltickerlimitmin进行断言成功，mysqltickerlimitmin=", mysqltickerlimitmin)
+		fmt.Println("从json初始化mysqltickerlimitmillisecond进行断言成功，mysqltickerlimitmillisecond=", int(mysqltickerlimitfloat))
+		mysqltickerlimitmillisecond =int(mysqltickerlimitfloat)
 	}
 
 	return
@@ -48,14 +50,16 @@ func NewEngine(base map[string]interface{})(engine *Engine, smstickerlimitmin fl
 
 //和他的上层一样，都是会常驻于内存中
 type Engine struct{
-	//"sAT+SMSEND=861391000000,孙子您好,贵公司的%s\n"
+	//"sAT+SMSEND=861391000000,XX您好,贵公司的%s\n"
 	e []string
 }
 
 
-func (p *Engine)JudgeOneNodeDo(nd nodedo.NodeDo) (bool, []string, *mysql.Alarm){
+func (p *Engine)JudgeOneNodeDo(nd nodedo.NodeDo) (string, bool, []string, *mysql.Alarm){
 	amString := nd.PrepareSMSAlarm()
-	if amString ==""{ return true,nil,nil }
+	if amString ==""{ return "", true, nil, nil }
+
+	key := nd.GetKey()
 
 	var sms []string
 	for _, v := range p.e{
@@ -64,6 +68,8 @@ func (p *Engine)JudgeOneNodeDo(nd nodedo.NodeDo) (bool, []string, *mysql.Alarm){
 	
 	alarm :=mysql.Alarm{}
 	nd.PrepareMYSQLAlarm(&alarm)
-	return false,sms,&alarm
+
+
+	return key, false, sms, &alarm
 }
 
