@@ -3,13 +3,20 @@ package connserver
 import(
 	"fmt"
 	"net"
+	"strings"
 
 	"github.com/ziyouzy/mylib/connserver/con"
 )
 
 func (p *ConnServer)TcpListenAndCollect(port string){
+
+	var build strings.Builder
+	build.WriteString(":")
+	build.WriteString(port)
+	port =build.String() 
+
 	go func(){
-		tcpAddr, err := net.ResolveTCPAddr("tcp", port);        if err != nil { fmt.Println("tcp第一次握手错误:",err.Error());        return }
+		tcpAddr, err := net.ResolveTCPAddr("tcp", ":6668");        if err != nil { fmt.Println("tcp第一次握手错误:",err.Error());        return }
 	
 		listener, err := net.ListenTCP("tcp", tcpAddr);        if err != nil { fmt.Println("tcp第二次握手错误:",err.Error());        return }	
 	
@@ -30,17 +37,6 @@ func (p *ConnServer)TcpListenAndCollect(port string){
 
 			p.ConnClientMap[key] =client
 			fmt.Println("有新的tcp连接并入，key为:", key)
-		}
-	}()
-}
-
-func (p *ConnServer)collectClientRecvCh(clientrecvch chan []byte, key string){
-	go func(){
-		defer delete(p.ConnClientMap,key)
-		defer fmt.Println("该设备管道已经关闭，系统将自动认为该连接以关闭，连接将会从ConnClientMap中删除，设备名：",key)
-
-		for b := range clientrecvch{
-			p.FanInRawCh<-b
 		}
 	}()
 }

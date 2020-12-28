@@ -25,7 +25,7 @@ func (p *ConnServer)SnmpListenAndCollect(ip string, port string){
 
 	if err  = snmpv1.Open();        err != nil {fmt.Println("snmp开启服务时失败",err);        return}
 
-	key,client, recvch, /*sendch*/_ :=con.NewSNMPCon(snmpv1, ip, 15, 5)
+	key,client, recvch, /*sendch*/_ :=con.NewSNMPCon(snmpv1, ip, port, 15, 5)
 
 	if recvch ==nil { fmt.Println("SNMP-创建数据管道失败") }
 			
@@ -34,22 +34,4 @@ func (p *ConnServer)SnmpListenAndCollect(ip string, port string){
 	p.ConnClientMap[key] =client
 	fmt.Println("有新的snmp连接并入，key为:", key)
 
-
-	// switch key{
-	// case "SNMPCONN:192.168.10.3":
-	// 	client.InitActiveEventSender(conf.SnmpOids1)
-	// }
-	// p.ConnClientMap[key] =client
-	// clientrecvch :=client.GenerateRecvCh()
-	// if clientrecvch ==nil{fmt.Println("SNMP-创建数据管道失败");return}
-
-	// go func(){
-	// 	defer delete(p.ConnClientMap,key)
-	// 	defer fmt.Println("该设备", timeout, "秒无应答，连接将会从ConnClientMap中删除：",key)
-	// 	for b := range clientrecvch{
-	// 		p.ServerRecvCh<-b
-	// 	} 
-	// }()
-
-	// fmt.Println("p.ConnClientMap updated:",p.ConnClientMap)
 }

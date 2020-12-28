@@ -19,6 +19,9 @@ type TcpConn struct{
 
 	RecvCh chan []byte
 	SendCh chan []byte
+
+	milliSecondStep int
+	modbusLen int
 }
 
 //无法给这里设计单例模式，因为就算把他与handler分离设计成独立的package
@@ -31,12 +34,14 @@ func (p *TcpConn)GenerateRecvCh(){
 
 		byteSpoon := make([]byte, 4096);        recvBuffer :=bytes.NewBuffer([]byte{})
 
+		ip :=[]byte(p.Conn.RemoteAddr().String());        tag :=[]byte("tcpsocket")
+
 		for {
 			readlen, err := p.Conn.Read(byteSpoon) /*阀门*/
 			tempBuf :=byteSpoon[:readlen]//如494f3031f10201,crc校验时需要截取有效字段
 			//这里应该更新为写入日志
-			if err != nil &&err !=io.EOF{ fmt.Println("Conn.Read err:",err); break }		
-			if err ==io.EOF { continue }
+			if (err != nil)&&(err !=io.EOF)        { fmt.Println("Conn.Read err:",err);        break }		
+			if err ==io.EOF        { continue }
 
 			if readlen == 4{
 				switch {
@@ -51,7 +56,6 @@ func (p *TcpConn)GenerateRecvCh(){
 
 
 			/*核心，为原始字节数组依次添加了ip,时间,tag*/
-			ip :=[]byte(p.Conn.RemoteAddr().String());        tag :=[]byte("tcpsocket")
 			timeStamp :=make([]byte,8);        binary.BigEndian.PutUint64(timeStamp, uint64(time.Now().UnixNano()))			
 
 			recvBuffer.Reset();        _,_ = recvBuffer.Write(ip);        _,_ = recvBuffer.Write([]byte(" /-/ "));        _,_ = recvBuffer.Write(timeStamp);
@@ -86,19 +90,30 @@ func (p *TcpConn)sendBytes(b []byte) {
 	if err !=nil{ fmt.Println("write err:",err) }
 }
 
-func (p *TcpConn)InitActiveEventSender(modbus [][]byte, step int){
-	l :=len(modbus)
-	fmt.Println("in InitOwnActiveEventSender,len:",l)
+func (p *TcpConn)ActiveBaseFunctions(modbus [][]byte, step int){
+	if  (modbus ==nil)||(len(modbus) ==0)        { panic("TCP模块在初始化过程中发生错误:modbus不能为nil，且数量不可为0") }
+	p.milliSecondStep =step;        p.modbusLen =len(modbus)
+
 	go func(){
-		for i :=0; i<=l; i++{
+		for i :=0; i<=p.modbusLen; i++{
+			if i == p.modbusLen { i=0 }
+
 			select{
 			case <-p.QuitActiveEventSender:
 				goto CLEANUP
 			default:
 			}
-			if i==l{ i=0 }
+
+			/*如果还未make SendCh则放弃本次操作，等同于丢弃本次数据*/
+			if p.SendCh ==nil { fmt.Println("TCP-SendCh为nil，暂时无法实现TCP的数据传输功能，但不会跳出循环，5秒后重试");       time.Sleep(5 * time.Millisecond);         continue }
+
 			p.SendCh<-modbus[i]
-			time.Sleep(time.Duration(step)*time.Millisecond)
+
+			if p.milliSecondStep ==0{
+				time.Sleep(5 * time.Millisecond)
+			}else{
+				time.Sleep(time.Duration(p.milliSecondStep) * time.Millisecond)
+			}
 		}
 
 		CLEANUP:

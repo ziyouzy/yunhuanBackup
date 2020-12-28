@@ -2,7 +2,7 @@
 package connserver
 
 import (
-	//"fmt"
+	"fmt"
 	//"net"
 	//"time"
 	//"sync"
@@ -25,6 +25,17 @@ type ConnServer struct{
 	FanInRawCh chan []byte //不需要额外设计close事件，而是与程序自身一起开启与关闭
 }
 
+func (p *ConnServer)collectClientRecvCh(clientrecvch chan []byte, key string){
+	go func(){
+		defer delete(p.ConnClientMap,key)
+		defer fmt.Println("该设备管道已经关闭，系统将自动认为该连接以关闭，连接将会从ConnClientMap中删除，设备名：",key)
+
+		for b := range clientrecvch{
+			p.FanInRawCh<-b
+		}
+	}()
+}
+
 func ClientMap()map[string]con.Con{return cs.ClientMap()}
 func (p *ConnServer)ClientMap()map[string]con.Con {
 	return p.ConnClientMap
@@ -32,8 +43,8 @@ func (p *ConnServer)ClientMap()map[string]con.Con {
 
 func ListenAndCollect(){cs = new(ConnServer);        cs.ConnClientMap =make(map[string]con.Con);        cs.FanInRawCh =make(chan []byte);        cs.ListenAndCollect()}
 func (p *ConnServer)ListenAndCollect(){
-	p.TcpListenAndCollect(":6668")
-	//p.InitSnmp(":161")
+	p.TcpListenAndCollect("6668")
+	//p.SnmpListenAndCollect("192.168.x.x", "161")
 }
 
 func RawCh()chan []byte{return cs.RawCh()}
