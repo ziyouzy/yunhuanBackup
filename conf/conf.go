@@ -9,6 +9,7 @@ import(
 	"github.com/ziyouzy/mylib/alarmbuilder"
 	"github.com/ziyouzy/mylib/connserver"
 	"github.com/ziyouzy/mylib/nodedobuilder"
+	"github.com/ziyouzy/mylib/physicalnode"
 )
 
 var lock sync.Mutex
@@ -20,6 +21,7 @@ func Load(){
 	//也就是说一个文件对应一个configischange的管道，因此在这里就可以实现点对点的触发机制
 	mysql.ConnectMySQL("yunhuan_api:13131313@tcp(127.0.0.1:3306)/yh?charset=utf8")
 	connserver.ListenAndCollect()
+	physicalnode.Load()
 
 	lock.Lock()
 	//viperbuilder的核心是个map，每个value都是一个viper，每个viper都可以独立的去自我实现更新

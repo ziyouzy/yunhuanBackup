@@ -1,5 +1,5 @@
-//从engine到nodedobuilder的转化本质上是运用了“组合”的编程思想
-//当监测到viper配置文档发生改变时，当前整个NodeDoBuilder整体都会被重置，而不是内部某个字段被重置
+// 从engine到nodedobuilder的转化本质上是运用了“组合”的编程思想
+// 当监测到viper配置文档发生改变时，当前整个NodeDoBuilder整体都会被重置，而不是内部某个字段被重置
 package nodedobuilder
 
 import(
@@ -84,17 +84,27 @@ func (p *NodeDoBuilder)GenerateNodeDoCh(){
 }
 func GetNodeDoCh()chan nodedo.NodeDo{ return builder.NodeDoCh }
 
-
-//运行该函数前，需确保结构体内部的engine字段以实例化（p.e即为engine）
+/*-------------------------------*/
+/** 运行该函数前
+  * 需确保结构体内部的engine字段以实例化
+  * (p.e即为engine)
+  */
 func StartEngine(pnch chan physicalnode.PhysicalNode, pn physicalnode.PhysicalNode){ 
+/*-------------------------------*/
 	if pnch !=nil&&pn ==nil { builder.StartEnginePhysicalNodeCh(pnch);        return }
 	if pnch ==nil&&pn !=nil { builder.StartEnginePhysicalNode(pn);        return }
 
 	fmt.Println("StartEngine参数填写错误(都非nil或都为nil是都不允许的)")
 	return
 }
-//Engine是个map，key 举例: "494f3031f10201-tcpsocket-do3-bool"，而value则是实实在在的NodeDo
-//Engineing函数的意义在于基于获取PhysicalNode节点所发来的频率更新核心map
+
+/** Engine是个map
+  * key 举例: "494f3031f10201-tcpsocket-do3-bool"
+  * value则是实实在在的NodeDo
+  * StartEngine函数的意义在于基于获取PhysicalNode节点所发来的PhysicalNode数据接口对象
+  * 其发送的频率就是更新核心map的频率
+  */
+
 func (p *NodeDoBuilder)StartEnginePhysicalNodeCh( pnch chan physicalnode.PhysicalNode ){
 	go func(){
 		for pn :=range pnch{
@@ -102,16 +112,21 @@ func (p *NodeDoBuilder)StartEnginePhysicalNodeCh( pnch chan physicalnode.Physica
 		}
 	}()
 }
+
 func (p *NodeDoBuilder)StartEnginePhysicalNode( pn physicalnode.PhysicalNode ){
-	//PhysicalNode.SelectHandlerAndTage返回值举例："494f3031f10201","tcpsocket"
+	/* PhysicalNode.SelectHandlerAndTage返回值举例："494f3031f10201","tcpsocket"*/
 	handler, tag :=pn.SelectHandlerAndTag()
 	p.lock.Lock()
 	for k,_ :=range p.e{
-		//每当传来一个physicalnode实体时，会判定这个实体在json文档实体中，有没有实现对应的关系
-		//这个判定的过程中每一个physicalnode都会对应一次engine对象的for循环
-		//同时一个physicalnode可以在他所对应的for循环结束前多次触发nodedo的更新事件
-		if !strings. Contains(k, fmt.Sprintf("%s-%s",handler,tag)){ continue }
-		//PhysicalNode.SelectOneValueAndTime返回值举例："value","time"
+
+		/** 每当传来一个physicalnode实体时会判定这个实体在json文档实体中有没有实现对应的关系
+		  * 这个判定的过程中每一个physicalnode都会对应一次engine对象的for循环
+		  * 同时一个physicalnode可以在他所对应的for循环结束前多次触发nodedo的更新事件
+		  * 这一特性体现在如下语句：
+		  * if !strings. Contains(k, fmt.Sprintf("%s-%s",handler,tag)){ continue }
+		  */
+
+		/* PhysicalNode.SelectOneValueAndTime返回值举例："value","time"*/
 		nodeName :=strings.Split(k,"-")[2]
 		nodeValue, timeUnixNano := pn.SelectOneValueAndTimeUnixNano(handler, tag, nodeName)
 		p.e[k].UpdateOneNodeDo(nodeValue, timeUnixNano)
@@ -126,7 +141,7 @@ func (p *NodeDoBuilder)Destory(){
 
 	p.lock.Lock()
 	for key, _ := range p.e{
-		/*在这里清空所有旧NodeDo，其实不用清空，只要不再有不引用只向这个结构体就行了*/
+		/* 在这里清空所有旧NodeDo，其实不用清空，只要不再有不引用只向这个结构体就行了*/
 		delete(p.e, key)
 	}
 	p.lock.Unlock()

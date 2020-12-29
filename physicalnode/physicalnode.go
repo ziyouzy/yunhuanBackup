@@ -9,7 +9,7 @@ package physicalnode
 import (
 	"bytes"
 	//"time"
-	//"fmt"
+	"fmt"
 	"encoding/hex"
 	"encoding/binary"
 
@@ -61,15 +61,30 @@ func NewPhysicalNodeFromBytes(char []byte, tag string, protocolnodetype string) 
 	}//switch (nodeType)
 }
 
+func Load(){ PhysicalNodeCh =make(chan PhysicalNode) }
+
+
+
+func ToPhysicalNodeCh(rawch chan []byte, raw []byte){
+	if rawch !=nil&&raw ==nil { RawChToPhysicalNodeCh(rawch);        return }
+	if rawch ==nil&&raw !=nil { RawToPhysicalNodeCh(raw);        return }
+
+	fmt.Println("GeneratePhysicalNodeCh参数填写错误(都非nil或都为nil是都不允许的)")
+	return
+}
+
 func RawChToPhysicalNodeCh(rawch chan []byte){
-	PhysicalNodeCh =make(chan PhysicalNode)
 	go func(){
 		defer close(PhysicalNodeCh)
 		for raw := range rawch{
-			physicalNode :=buildPhysicalNode_PROTOCOLYUNHUAN20200924(raw)
-			PhysicalNodeCh<-physicalNode
+			RawToPhysicalNodeCh(raw)
 		}
 	}()
+}
+
+func RawToPhysicalNodeCh(raw []byte){
+	physicalNode :=buildPhysicalNode_PROTOCOLYUNHUAN20200924(raw)
+	PhysicalNodeCh<-physicalNode
 }
 
 
